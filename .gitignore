@@ -1,0 +1,7 @@
+*.class
+/bin/
+*.arff
+*.pyc
+*/.svn/
+.svn/
+

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Classify" default="run" basedir=".">
+	<property name="project-name" value="Translate" />
+	<property name="build" location="classes" />
+	<property name="lib" location="lib" />
+	<property name="src" location="src" />
+	<property name="etc" location="etc" />
+	<path id="Third-Party Libraries">
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	<target name="prepare">
+		<mkdir dir="${build}" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${build}" />
+	</target>
+
+
+	<target name="compile" depends="clean, prepare">
+		<echo message="Compiling the source code!" />
+		<javac srcdir="${src}" destdir="${build}" deprecation="no"
+			failonerror="true" debug="true" source="1.6">
+			<classpath refid="Third-Party Libraries" />
+		</javac>
+	</target>
+		
+	<target name="cluster-test" description="document cluster for mobile "
+		depends="compile">
+		<java classname="Cluster" classpath="${build}" fork="true"
+			maxmemory="30000m">
+			<classpath refid="Third-Party Libraries" />
+			<arg line="${cmdline}" />
+		</java>
+	</target>	
+	
+	<target name="classify-test" description="document classify for mobile "
+		depends="compile">
+		<java classname="Classify" classpath="${build}" fork="true"
+			maxmemory="30000m">
+			<classpath refid="Third-Party Libraries" />
+			<arg line="${cmdline}" />
+		</java>
+	</target>
+
+	<target name="classify" description="document classify for mobile "
+		depends="compile">
+		<echo message="----------- Classify ------------" />
+		<property name="method" value="-classify" />
+		<property name="iter" value="1" />
+		<java classname="edu.thu.cmcc.classification.Iteration" classpath="${build}" fork="true"
+			maxmemory="30000m">
+		    <arg value="${method}"/>
+			<arg value="${iter}"/>
+			<classpath refid="Third-Party Libraries" />
+		</java>
+	</target>
+	
+	<target name="cluster" description="document cluster for mobile "
+		depends="compile">
+		<echo message="----------- Cluster ------------" />
+		<property name="method" value="-cluster" />
+		<property name="iter" value="1" />
+		<java classname="edu.thu.cmcc.classification.Iteration" classpath="${build}" fork="true"
+			maxmemory="30000m">
+			<arg value="${method}"/>
+			<arg value="${iter}"/>
+			<classpath refid="Third-Party Libraries" />
+		</java>
+	</target>
+	
+	<target name="run" description="document automaticly iteration for mobile "
+			depends="compile">
+		<property name="method" value="-iter" />
+		<property name="iter" value="1" />
+			<java classname="edu.thu.cmcc.classification.Iteration" classpath="${build}" fork="true"
+				maxmemory="300m">
+				<arg value="${method}"/>
+				<arg value="${iter}"/>
+				<classpath refid="Third-Party Libraries" />
+			</java>
+		</target>
+	
+	<target name="db" description="write result to mongo"
+			depends="compile">
+		<property name="method" value="-file" />
+			<java classname="edu.thu.cmcc.db.ResultMongoWriter" classpath="${build}" fork="true"
+				maxmemory="00m">
+				<arg value="${method}"/>
+				<arg value="${file}"/>
+				<classpath refid="Third-Party Libraries" />
+			</java>
+		</target>
+</project>
