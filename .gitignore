@@ -4,4 +4,6 @@
 *.pyc
 */.svn/
 .svn/
+*.csv
+*~
 
