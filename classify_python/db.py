@@ -28,6 +28,27 @@ class DB():
 
         self.all_samples = self.get_allid()
 
+    def filter(self, regex):
+        new_samples = []
+
+        if type(regex) == str or type(regex) == unicode:
+            for s in self.all_samples:
+                if regex in s:
+                    new_samples.append(s)
+                    
+        if type(regex) == list:
+            for s in self.all_samples:
+                for r in regex:
+                    if r.decode('utf-8') in s:
+                        new_samples.append(s)
+                        break
+
+        self.all_samples = new_samples
+
+
+    def set_allsample(self, samples):
+        self.all_samples = samples
+
     def get_inlink_count(self):
         """
         从数据库获取inlink信息(暂没用上)
@@ -202,8 +223,9 @@ class DB():
             sample = c["_id"]["path"].replace("../data","etc")
             if not s2s.has_key(sample):
                 s2s[sample] = set()
-            label = c["label"]
-            if label and len(label) > 1 and (not self.is_bad_label(label))):
+            label = c["label"].strip()
+            #label = c["label"]
+            if label and len(label) > 1 and (not self.is_bad_label(label)):
                 s2s[sample].add(label)
         for s, s in s2s.items():
             s2s[sample] = list(s)
@@ -224,20 +246,40 @@ class DB():
             if not s2sub.has_key(sample):
                 s2sub[sample] = set() 
             if c["label"] and len(c["label"]) > 1:
-                s2sub[sample].add(c["label"] )
+                s2sub[sample].add(c["label"].strip() )
         for s, sub in s2sub.items():
             s2sub[sample] = list(sub)
         for sample in diff_items(self.all_samples,s2sub.keys()):
             s2sub[sample] = []
         return s2sub 
 
-    def is_bad_label(label):
+    def is_bad_label(self, label):
+        """
+        The label which has character that makes weka disable
+        """
         ch = ['"',',']
         for c in ch:
             if c in label:
                 print "Bad label:",label
                 return True
         return False
+
+    def is_word(self, f):
+        """
+        If the document is word
+        """
+        coll = self.collection.find({"level":"document"})
+        f = f.strip("/").rstrip("/")
+
+        for c in coll:
+            sample = (c["_id"]["path"]+c["_id"]["name"]).strip("/").rstrip("/")
+            if sample == f:
+                if c.has_key("type") and c["type"] == "doc":
+                    return True
+                else:
+                    return False
+        print f.encode("utf-8"),"is not found in mongo"
+
 
 if __name__ == "__main__":
     db = DB('db.config')

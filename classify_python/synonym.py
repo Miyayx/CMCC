@@ -86,16 +86,16 @@ def filter_use_synonym(labels, syn):
         A new list of labels without synonyms
     """
     new_l = set(labels)
-    
     delete = set()
     add = set()
     for l in new_l:
         if syn.has_key(l):
-            print "Synonym:",l,syn[l]
+            #print "Synonym:",l,syn[l]
             delete.add(l)
             add.add(syn[l])
-
-    return list(new_l.union(add).difference(delete))
+    
+    s = (new_l|add) - delete
+    return list(s)
 
 def filter_use_synonym2(labels, syn):
     """
@@ -114,4 +114,4 @@ def filter_use_synonym2(labels, syn):
             delete.add(l)
             add.add(syn[l])
 
-    return list(new_l.union(add).difference(delete))
+    return list((new_l|add)-delete)

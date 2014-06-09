@@ -83,9 +83,9 @@ public class CSVFileIO {
 		this.separator = separator;
 
 		List<String> lines = FileUtils.readFileByLines(fn);
-
+		
 		if (header) {
-			fields = new ArrayList(Arrays.asList(lines.get(0).split(
+			fields = new ArrayList(Arrays.asList(lines.get(0).trim().split(
 					this.separator)));
 			lines.remove(0);
 		}
@@ -93,17 +93,32 @@ public class CSVFileIO {
 		int maxColumnN = 0;
 		List<String> line = null;
 		for (String l : lines) {
-			line = new ArrayList(Arrays.asList(l.trim().split(separator)));
+			line = new ArrayList(Arrays.asList(l.trim().split(this.separator,-1)));
+			
 			content.put(line.get(0), line);
 			maxColumnN = line.size() > maxColumnN ? line.size() : maxColumnN;
 			if (line.size() < maxColumnN) {
 				while (line.size() < maxColumnN)
-					line.add("");
+					line.add(" ");
 			}
 		}
 		// this.columnN = line == null ? 0 : line.size();
 		this.columnN = maxColumnN;
 		this.rowN = line == null ? 0 : lines.size();
+	}
+	
+	public Map<String, String> getColumn(String colname) throws NoSuchFieldException{
+		Map<String, String> col = new HashMap<String,String>();
+		if(! fields.contains(colname)){
+			throw new NoSuchFieldException(colname);
+			
+		}else{
+			int i = fields.indexOf(colname);
+			for(List<String> v: this.content.values())
+				//0 is sample id 
+				col.put(v.get(0), v.get(i));
+		}
+		return col;
 	}
 	
 	/**
@@ -115,7 +130,7 @@ public class CSVFileIO {
 		if (fields.contains(colname))//如果此列已存在，update
 			update(fields.indexOf(colname), map);
 		else if (getRowN() == 0)     //如果是个空文件，添加到第二列，第一列是id
-			addColumn(colname, 2, map);
+			insertColumn(colname, 1, map);
 		else
 			addColumn(colname, map);//添加到后一列
 	}
@@ -151,7 +166,7 @@ public class CSVFileIO {
 			if (map.containsKey(key))
 				this.update(key, colIndex, map.get(key).toString());
 			else
-				this.update(key, colIndex, "");
+				this.update(key, colIndex, " ");
 		}
 	}
 
@@ -162,12 +177,12 @@ public class CSVFileIO {
 	public void addEmptyColumn(String colName) {
 		Map<String, String> map = new HashMap<String, String>();
 		for (String key : content.keySet())
-			map.put(key, "");
+			map.put(key, " ");
 		this.addColumn(colName, map);
 	}
-
+	
 	public void addColumn(String colName, Map<String, String> newCol) {
-		addColumn(colName, this.columnN, newCol);
+		insertColumn(colName, this.columnN, newCol);
 	}
 
 	/**
@@ -175,24 +190,19 @@ public class CSVFileIO {
 	 * @param newCol
 	 *            key：第一列 value：对应的新一列内容
 	 */
-	public void addColumn(String colName, int colindex,
+	public void insertColumn(String colName, int colindex,
 			Map<String, String> newCol) {
 
 		if (newCol == null || newCol.size() == 0) {
 			System.out.println("Null Column Map");
 			return;
 		}
-		if (colindex < columnN) {
-			System.out.println("Column " + colindex
-					+ " has already had data, use update");
-			return;
-		}
 
 		if (fields.size() == 0 || fields == null)
 			fields.add("samples");
 		while (fields.size() < colindex)
-			fields.add("");
-		fields.add(colName);
+			fields.add(" ");
+		fields.add(colindex, colName);
 
 		Set<String> keys = new HashSet<String>(newCol.keySet());
 		keys.addAll(content.keySet());
@@ -203,12 +213,13 @@ public class CSVFileIO {
 				value.add(key);
 			}
 			while (value.size() < colindex) {
-				value.add("");
+				value.add(" ");
 			}
 			if (newCol.containsKey(key))
-				value.add((String) newCol.get(key));
-			else
-				value.add("");
+				value.add(colindex, (String) newCol.get(key));
+			else{
+				value.add(colindex, " ");
+			}
 			content.put(key, value);
 			this.columnN = value.size();
 		}
@@ -217,6 +228,9 @@ public class CSVFileIO {
 
 	public void deleteColumn(int column) {
 
+		if(fields.size() > 0)
+			fields.remove(column);
+		
 		for (Entry pairs : content.entrySet()) {
 			String key = pairs.getKey().toString();
 			List<String> value = (List<String>) pairs.getValue();
@@ -285,16 +299,16 @@ public class CSVFileIO {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(fn));
 		if (header) {
 			for (String v : fields.subList(0, fields.size() - 1))
-				bw.write(v + ",");
-			bw.write(fields.get(fields.size() - 1) + "\r\n");
+				bw.write(v.trim() + ",");
+			bw.write(fields.get(fields.size() - 1) + "\n");
 		}
 
 		for (Map.Entry pairs : l) {
 			String key = (String) pairs.getKey();
 			List<String> value = (List<String>) pairs.getValue();
 			for (String v : value.subList(0, value.size() - 1))
-				bw.write(v + ",");
-			bw.write(value.get(value.size() - 1) + "\r\n");
+				bw.write(v.trim() + ",");
+			bw.write(value.get(value.size() - 1) + "\n");
 
 		}
 		bw.close();

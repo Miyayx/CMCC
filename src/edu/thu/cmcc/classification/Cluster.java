@@ -57,8 +57,13 @@ public class Cluster {
 		// iter1 n = 5 因n=5的时候可以把品牌分出来
 		Cluster c = new Cluster();
 		String[] files = { "etc/sample1.txt" };
-		c.run(5, "etc/features1.csv", "etc/sample1.txt",
-				"etc/ClusterResult1_f1.txt");
+		try {
+			c.run(5, "etc/features1.csv", "etc/sample1.txt",
+					"etc/ClusterResult1_f1.txt");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void writeToFile(String file) {
@@ -79,20 +84,21 @@ public class Cluster {
 			e.printStackTrace();
 		}
 	}
-	
-	public void appendToResultFile(String resultfile){
-		String colname = "cluster"+ClassifyProperties.Iteration_ID;
+
+	public void appendToResultFile(String resultfile) {
+		String colname = "cluster" + ClassifyProperties.Iteration_ID;
 		Map<String, String> sample2cluster = new HashMap<String, String>();
-		for(Entry<Integer, LinkedList<String>> e : result.entrySet()){
-			for(String s:e.getValue())
+		for (Entry<Integer, LinkedList<String>> e : result.entrySet()) {
+			for (String s : e.getValue())
 				sample2cluster.put(s, String.valueOf(e.getKey()));
 		}
 		try {
 			CSVFileIO csv = new CSVFileIO();
 			csv.load(resultfile, true);
 			csv.column(colname, sample2cluster);
-		//	csv.addEmptyColumn("flag"+ClassifyProperties.Iteration_ID);
-			csv.write(resultfile, ",",true,true,ClassifyProperties.CLUSTER_INDEX);
+			// csv.addEmptyColumn("flag"+ClassifyProperties.Iteration_ID);
+			csv.write(resultfile, ",", true, true,
+					ClassifyProperties.CLUSTER_INDEX);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -113,35 +119,24 @@ public class Cluster {
 	 * @throws Exception
 	 */
 	public void run(int clusterNum, String featureFile, String dataFile,
-			String resultFile) {
+			String resultFile) throws Exception {
 		Instances ins;
 		this.clusterNum = clusterNum;
-		try {
-			ins = insGetter.getInstances(featureFile);
-			this.run(ins, resultFile);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		ins = insGetter.getInstances(featureFile);
+		this.run(ins, resultFile);
 
 	}
 
-	public void run(int clusterNum, String resultFile) {
+	public void run(int clusterNum, String resultFile) throws Exception {
 		Instances ins;
 		this.clusterNum = clusterNum;
-		try {
-			ins = insGetter
-					.getInstances(
-							resultFile,
-							0,
-							1,
-							ClassifyProperties.FEATURE_COUNT,
-							ClassifyProperties.FILTER_INDEX);
-			this.run(ins, resultFile);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		ins = insGetter.getInstances(resultFile, 0, 1,
+				ClassifyProperties.FEATURE_COUNT,
+				ClassifyProperties.FILTER_INDEX);
+		this.run(ins, resultFile);
+
 	}
 
 	public void run(Instances ins, String resultFile) throws Exception {
@@ -150,7 +145,7 @@ public class Cluster {
 
 		// 2. 获得文档名
 		String[] labelAttr = InstancesGetter.getIDs(ins);
-		ins.deleteAttributeAt(0); //删不删第一列sample结果都是一样的
+		ins.deleteAttributeAt(0); // 删不删第一列sample结果都是一样的
 
 		// 3.初始化聚类器
 		cluster.setNumClusters(clusterNum);// 设置类别数量～～～～～
@@ -159,7 +154,7 @@ public class Cluster {
 		cluster.buildClusterer(ins);
 		// 5.打印聚类结果
 		tempIns = cluster.getClusterCentroids();// 得到质心
-		
+
 		// 将簇号按顺序写入list
 		for (int i = 0; i < ins.numInstances(); i++) {
 			Instance instance = ins.instance(i);
@@ -185,6 +180,7 @@ public class Cluster {
 
 	/**
 	 * 获得分类簇数 取类间比类内最大值
+	 * 
 	 * @param featureFile
 	 * @return
 	 */
@@ -195,17 +191,14 @@ public class Cluster {
 		int clusterNum = 0;
 		double maxRatio = 0;
 
-		for (int i = 3; i < 11; i++) {
-			// 1.读入样本
-			try {
-				ins = new ClusterInstances()
-						.getInstances(
-								featureFile,
-								0,
-								1,
-								ClassifyProperties.FEATURE_COUNT,
-								ClassifyProperties.FILTER_INDEX);
-			//	ins = new ClusterInstances().getInstances(featureFile);
+		try {
+			ins = new ClusterInstances().getInstances(featureFile, 0, 1,
+					ClassifyProperties.FEATURE_COUNT,
+					ClassifyProperties.FILTER_INDEX);
+			// ins = new ClusterInstances().getInstances(featureFile);
+
+			for (int i = 3; i < (ins.numInstances()/2); i++) {
+				// 1.读入样本
 
 				KM.setNumClusters(i);
 
@@ -236,10 +229,10 @@ public class Cluster {
 					clusterNum = i;
 					maxRatio = ratio;
 				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		System.out.println("FINAL CLUSTER NUM: " + clusterNum);

@@ -3,7 +3,7 @@
 
 """
 这段程序用来对特征进行验证。
-四种特征：section label， title keyword， subsection label， content keyword
+四种特征：section label， title keyword， block label， content keyword
 验证主要分两部分：
 1. 对一个样本，是否存在某特征，通过判断此特征值是否大于0
     验证输出有：1）某种特征实际特征数量与计算特征数量对比
@@ -16,6 +16,7 @@
 
 from classify_preprocess import *
 from db import *
+from utils import *
 
 TITLE_SPLIT = "../etc/title_word_segmentation.txt"
 KEYWORD_SPLIT = "../etc/document_segmentation.txt"
@@ -48,7 +49,7 @@ def exist_val(data, origin):
     """
     print "data len:",len(data)
     print "origin len:",len(origin)
-    fields = data[0]
+    fields = [d.strip("\c") for d in data[0]]
     index_list = []
     for d in data[1:]:
         print "\n==================="
@@ -179,7 +180,7 @@ def validation(featurefile, options):
             "begin":57,
             "end"  :237
         },
-        "subsection":{
+        "block":{
             "begin":238
             "end"  :268
         },
@@ -192,7 +193,7 @@ def validation(featurefile, options):
     特征验证
     section label:    exist_val
     title:            exist_val, tfidf_val
-    subsection label: exist_val
+    block label: exist_val
     keyword:          exist_val, tfidf_val
 
     """
@@ -201,6 +202,7 @@ def validation(featurefile, options):
         data = [l.strip("\n").decode("utf-8").split(",") for l in f.readlines()]
         if options.has_key("section"):
             #验证section label
+            print "=============== section label validation ================="
             d = split_feature(data,options["section"]["begin"], options["section"]["end"])
             print "section feature length:",len(d[0][0])-1
             sample_block,label_block,class_block = read_xls()
@@ -219,9 +221,10 @@ def validation(featurefile, options):
             exist_val(d, s2title)
             tfidf_val(d, TITLE_SPLIT)
 
-        if options.has_key("subsection"):
-            d = split_feature(data,options["subsection"]["begin"], options["subsection"]["end"])
-            print "subsection feature length:",len(d[0][0])-1
+        if options.has_key("block"):
+            print "=============== block label validation ================="
+            d = split_feature(data,options["block"]["begin"], options["block"]["end"])
+            print "block feature length:",len(d[0][0])-1
 
             sample_sl = db.get_sample2subsection()
             
@@ -240,20 +243,20 @@ if __name__=="__main__":
     #sample_block,label_block,class_block = read_xls()
     #sectionlabel("../etc/features2.csv",label_block)
 
+    prop = read_properties("../conf/file_col.properties")
+
     options = {
         "section":{
         #"title":{
         #"title_tfidf":{
-        #"subsection":{
         #"keyword":{
             "begin":1,
-            "end":None
+            "end":1+int(prop["section_count"])
         },
+        "block":{
+            "begin":1+int(prop["section_count"]),
+            "end":  1+int(prop["section_count"])+int(prop["block_count"])
+            }
     }
-    validation("../etc/features_section.csv",options)
-
-    #db = DB()
-    #kws = db.get_keywords()
-    #doc_segs = read_segmentation2("../etc/documentcontent.txt")
-    #tfidf_reverse("../etc/features3.csv",kws, doc_segs)
+    validation("../../data/Classify/result_features1.csv",options)
 

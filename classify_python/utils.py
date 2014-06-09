@@ -39,6 +39,20 @@ def delete_sample(samples, regex):
             print s
             count += 1
     print "delete sample number:",count
+
+def filter_sample(samples, regex):
+    """
+    """
+    print "leave samples with str:",regex
+    count = 0
+    for s in samples:
+        if regex in s:
+            continue
+        else:
+            samples.remove(s)
+            print s
+            count += 1
+    print "leave sample number:",len(samples)
     
 def read_properties(fn):
     prop = {}

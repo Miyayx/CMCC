@@ -50,14 +50,14 @@ def detect_attributefile(label_count,inlink,links):
     return files, sample_class
 
 def run():
-    db = DB()
+    db = DB("../../conf/conf.properties")
     #sample_block,label_block,class_block = read_xls()
     sample_block = db.get_allid()
     label_block = db.get_sample2section()
     label_count = section_label_count(sample_block,label_block)
     
-    links,linknum = get_link("outlink.txt")
-    inlinks,inlinknum = get_link("inlink.txt")
+    links,linknum = get_link("../../data/docparse/outlink.txt")
+    inlinks,inlinknum = get_link("../../data/docparse/inlink.txt")
 
     print "hub_attributefile"
     hubs,hub_class = detect_hub(label_count, linknum)
@@ -72,6 +72,8 @@ def run():
     print "attr len:",len(attrfiles)
     for i in attrfiles:
         print i.encode("utf-8")
+
+    print "WordDoc Num:",[db.is_word(i) for i in attrfiles].count(True)
     #write_class_to_file("attr_class.csv",attrfiles,attr_class)
 
 if __name__=="__main__":

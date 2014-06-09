@@ -4,10 +4,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -116,6 +118,10 @@ public class DatasetGenerator2 {
 		instancesTest = new Instances(instances, 0);
 		instancePredict = new Instances(instances, 0);
 		
+		Map<String, String> trainSet = new HashMap<String, String>();
+		Map<String, String> testSet = new HashMap<String, String>();
+		List<String> predictSet     = new ArrayList<String>();
+		
 		// 一下的map都是 key:类别 value:属于此类别的文档list
 		Map<String, Instances> labeledConceptInstanceMap = new HashMap<String, Instances>();
 
@@ -132,6 +138,7 @@ public class DatasetGenerator2 {
 				labeledConceptInstanceMap.put(c, instanceSet);
 			} else{
 				instancePredict.add(ins);
+				predictSet.add(s);
 			}
 		}
 
@@ -152,15 +159,17 @@ public class DatasetGenerator2 {
 				Instance instance = instanceSet.instance(i);
 				if (indexSet.contains(i)) {
 					instancesTrain.add(instance);
+					instance.attribute(0).toString();
 				} else {
 					instancesTest.add(instance);
+					instance.attribute(0).toString();
 				}
 			}
 		}
 
 		instancesTrainPlusTest = mergeInstances(instancesTrain, instancesTest);
-		//outputWithClass(instancesTrain, trainfile);  wrong
-		//outputWithClass(instancesTest, testfile);    wrong
+		outputWithClass(instancesTrain, trainfile); 
+		outputWithClass(instancesTest, testfile);  
 		output(instancePredict, leftfile);
 
 		// instancesTest.setClassIndex(instancesTest.numAttributes()-1);
@@ -195,11 +204,10 @@ public class DatasetGenerator2 {
 	public void outputWithClass(Instances instances, String outfile)
 			throws IOException {
 		BufferedWriter out = new BufferedWriter(new FileWriter(outfile));
-		Attribute labelAttr = instances.attribute(0);
 		Attribute classAttr = instances.classAttribute();
 		for (int i = 0; i < instances.numInstances(); i++) {
 			Instance ins = instances.instance(i);
-			out.write(labelAttr.value(i) + "," + classAttr.value((int)ins.classValue())+"\n");
+			out.write(ins.stringValue(0) + "," + classAttr.value((int)ins.classValue())+"\n");
 			out.flush();
 		}
 		out.close();
@@ -213,10 +221,9 @@ public class DatasetGenerator2 {
 	 */
 	public void output(Instances instances, String outfile) throws IOException {
 		BufferedWriter out = new BufferedWriter(new FileWriter(outfile));
-		Attribute labelAttr = instances.attribute(0);
 		for (int i = 0; i < instances.numInstances(); i++) {
 			Instance ins = instances.instance(i);
-			out.write(labelAttr.value(i)+ "\n");
+			out.write(ins.stringValue(0) + "\n");
 			out.flush();
 		}
 		out.close();
@@ -251,7 +258,7 @@ public class DatasetGenerator2 {
 		CSVFileIO csv = new CSVFileIO();
 		csv.load(file, true);
 		csv.column("flag" + ClassifyProperties.Iteration_ID, map);
-		csv.write(file, "", true,true,ClassifyProperties.CLUSTER_INDEX);
+		csv.write(file, "", true,true,ClassifyProperties.FLAG_INDEX);
 	}
 
 }

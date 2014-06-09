@@ -123,7 +123,7 @@ def get_section_labels(label_block):
             section_labels.add(l)
     return list(section_labels)
 
-def get_common_section_labels(label_block):
+def get_common_section_labels(label_block, synonym_merge = True):
     """
     get_common_section_labels(label_block) -> list of common labels
 
@@ -137,10 +137,11 @@ def get_common_section_labels(label_block):
     labels_num = {}
 
     synonym_dict, synonym_list = get_synonym_dict(file_configs["synonym_dict"])
-    for s,labels in label_block.items():
-        labels = filter_use_synonym(labels, synonym_dict)
+    for s, labels in label_block.items():
+        if synonym_merge:
+            labels = filter_use_synonym(labels, synonym_dict)
         for l in labels:
-            labels_num[l] = labels_num.get(l,1) + 1
+            labels_num[l] = labels_num.get(l,0) + 1
     return [k for k in labels_num.keys() if labels_num[k] > 1]    
 
 def section_label_feature(samples, label_block, common = False, synonym_merge = True):
@@ -160,9 +161,10 @@ def section_label_feature(samples, label_block, common = False, synonym_merge = 
     """
     labels = []
     if common:
-        labels = get_common_section_labels(label_block)
+        labels = get_common_section_labels(label_block, synonym_merge)
     else:
         labels = get_section_labels(label_block)
+
     print "Have",len(labels),"labels"
 
     #同义词
@@ -256,9 +258,11 @@ def get_common_subsection_labels(sample_sl):
 
     return sublabels
 
-def subsection_label_feature(sample_block, sample_sl):
-    #sublabels = get_common_subsection_labels(sample_sl)
-    sublabels = get_subsection_labels(sample_sl)
+def subsection_label_feature(sample_block, sample_sl, common = False):
+    if common:
+        sublabels = get_common_subsection_labels(sample_sl)
+    else:
+        sublabels = get_subsection_labels(sample_sl)
     sublabel_feature = {}
     for s in sample_block:
         labels = sample_sl[s] if sample_sl.has_key(s) else []
@@ -314,6 +318,7 @@ def write_dataset(samples, colname, features, classes={}, fn = "all_data.csv", )
 
     print "Writing..."
     write_features(colname, classify, fn, generate_dataset(samples, features, classes, classify))
+    print "Total:",len(samples)
 
 def generate_dataset(samples, features, classes={}, classify = False):
     """整合数据格式，分割数据集
@@ -492,7 +497,11 @@ def read_feature_config(fn):
     con = ConfigParser.RawConfigParser()
     con.read(fn)
     for s in con.sections():
-        d = dict((o, con.getboolean(s,o)) for o in con.options(s))
+        d = dict((o, con.get(s,o)) for o in con.options(s))
+        for k, v in d.items():
+            if v.isdigit():
+                d[k] = bool(int(v))
+
         configs[s] = d
 
     return configs
@@ -516,16 +525,22 @@ def run(file_cfg, feature_cfg, db_cfg):
     feature_configs = read_feature_config(feature_cfg)
     file_configs = read_file_config(file_cfg)
 
-    db = DB(db_cfg)
-
     for section, fconfigs in feature_configs.items():
+
+        db = DB(db_cfg)
+        if len(fconfigs["sample_filter"]) > 0:
+            db.filter(fconfigs["sample_filter"].split(","))
+
         class_block = {}
         #sample_block,label_block,class_block = read_xls()
         #print len(sample_block)
-        sample_block = db.get_allid()
+        sample_block = db.all_samples
         all_sample = sample_block
 
-        #delete_sample(sample_block, u'4G数据集')
+        delete_sample(sample_block, u'11-终端')
+
+        #filter_sample(sample_block, u'04-资费')
+        db.set_allsample(sample_block)
 
         ################  class ####################
         #class_block = read_class_file("etc/correctInstance.txt")
@@ -538,10 +553,12 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         ##################### HUB ATTRIBUTE  ##################
 
-        #label_block = db.get_sample2section()
-        #sample_block,filter_result = filter_doc(sample_block, label_block, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
-        #for k,v in filter_result.items():
-        #    print k,v
+        if fconfigs["hub"] or fconfigs["attribute"]:
+            label_block = db.get_sample2section()
+            sample_block,filter_result = filter_doc(sample_block, label_block, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
+            db.all_samples = sample_block
+            for k,v in filter_result.items():
+                print k,v
         
         #把过滤掉的那些文档写入最终分类输出文件中
         result_output = file_configs["output_path"]+file_configs["result_output_name2"]+"_"+section+".csv"
@@ -586,11 +603,11 @@ def run(file_cfg, feature_cfg, db_cfg):
             features.append(title_kw_feature)
 
         ###################  subsection label  ####################
-        if fconfigs["subsection_label"]:
+        if fconfigs["block_label"]:
             #sample_sl = read_subsection("../etc/blockIdLabel2.txt")
             sample_sl = db.get_sample2subsection()
 
-            sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_sl)
+            sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_sl, fconfigs["section_label_common"])
             fields.append(sublabels)
             features.append(sublabel_feature)
 
@@ -624,6 +641,8 @@ def run(file_cfg, feature_cfg, db_cfg):
         #先写个原始的feature文件
         #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
         with open("../conf/file_col.properties","w") as f:
+            f.write("section_count="+str(len(fields[0]))+"\n")
+            f.write("block_count="+str(len(fields[1]))+"\n")
             f.write("feature_count="+str(len(feature_fields(fields))))
 
         fields.append(["sample2"])

@@ -45,6 +45,7 @@ public class ClassifyProperties {
 	public static String   CLASSIFY_TEST_RESULT      = null;
 	public static String   CLASSIFY_TEST_STATISTICS  = null;
 	public static String   RESULT_FILE               = null;
+	public static String   ATTRIBUTE_FILR            = null;
 	
 	public static int      FEATURE_COUNT             = 0;
 	public static int      CLUSTER_INDEX             = 0;
@@ -54,7 +55,7 @@ public class ClassifyProperties {
 	public static int      ALL_CLASS_INDEX           = 0;
 	
 	// from conf.properties
-	public static String   FILE_PATH          = "etc/";
+	public static String   FILE_PATH          = "";
 	public static String   DB_HOST            ="localhost";
 	public static String   DB_URL             ="";
 	public static String   DB_NAME            ="mobile";
@@ -120,6 +121,7 @@ public class ClassifyProperties {
 			CLASSIFY_TEST_RESULT     = prop.getProperty("classify_test_result");
 			CLASSIFY_TEST_STATISTICS = prop.getProperty("classify_test_statistics");
 			RESULT_FILE              = prop.getProperty("result");
+			ATTRIBUTE_FILR           = FILE_PATH + prop.getProperty("attribute");        
 			
 			fis = new FileInputStream(ClassifyProperties.FILE_COL_PROP);
 			prop.load(fis);
