@@ -142,7 +142,7 @@ def get_common_section_labels(label_block, synonym_merge = True):
             labels = filter_use_synonym(labels, synonym_dict)
         for l in labels:
             labels_num[l] = labels_num.get(l,0) + 1
-    return [k for k in labels_num.keys() if labels_num[k] > 0]    
+    return [k for k in labels_num.keys() if labels_num[k] > 1]    
 
 def section_label_feature(samples, label_block, common = False, synonym_merge = True):
     """
@@ -537,10 +537,10 @@ def run(file_cfg, feature_cfg, db_cfg):
         sample_block = db.all_samples
         all_sample = sample_block
 
-        delete_sample(sample_block, u'4G')
+        sample_block = delete_sample(sample_block, u',')
         write_lines("delelte_samples.txt", diff_items(all_sample, sample_block))
 
-        #filter_sample(sample_block, u'04-资费')
+        #sample_block = filter_sample(sample_block, u'04-资费')
         db.set_allsample(sample_block)
 
         ################  class ####################

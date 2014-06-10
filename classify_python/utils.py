@@ -32,27 +32,23 @@ def delete_sample(samples, regex):
     用正则表达式过滤掉指定的sample
     """
     print "delete sample with str:",regex
-    count = 0
+    del_s = []
     for s in samples:
         if regex in s:
-            samples.remove(s)
-            print s
-            count += 1
-    print "delete sample number:",count
+            del_s.append(s)
+    print "delete sample number:",len(del_s)
+    return diff_items(samples, del_s)
 
 def filter_sample(samples, regex):
     """
     """
     print "leave samples with str:",regex
-    count = 0
+    left_s = []
     for s in samples:
         if regex in s:
-            continue
-        else:
-            samples.remove(s)
-            print s
-            count += 1
-    print "leave sample number:",len(samples)
+            left_s.append(s)
+    print "leave sample number:",len(left_s)
+    return left_s
     
 def read_properties(fn):
     prop = {}

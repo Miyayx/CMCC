@@ -197,7 +197,7 @@ public class Cluster {
 					ClassifyProperties.FILTER_INDEX);
 			// ins = new ClusterInstances().getInstances(featureFile);
 
-			for (int i = 3; i < (ins.numInstances()/2); i++) {
+			for (int i = 3; i < 150; i++) {
 				// 1.读入样本
 
 				KM.setNumClusters(i);
