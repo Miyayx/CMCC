@@ -35,7 +35,7 @@ public class Iteration {
 			// 读取配置文件
 			ClassifyProperties.getGlobalProperties();
 			ClassifyProperties.getProperties();
-			
+
 			Map<String, Integer> map = getArgs(args);
 			int iter = 0;
 			String method = "";
@@ -60,11 +60,11 @@ public class Iteration {
 				cluster();
 			if (method.equals("-classify"))
 				classify();
-			if (method.equals("-gather")){
+			if (method.equals("-gather")) {
 				filenameInit(ClassifyProperties.Iteration_ID);
 				gatherAllClass();
 			}
-			
+
 		} catch (Exception e) {
 
 			e.printStackTrace();
@@ -165,8 +165,8 @@ public class Iteration {
 			// 根据人工标注文件选择簇，选择标注数据等
 			// Preprocessing.run(clusterResult, samplefile, iter);
 
-			int annotationType = AnnotationType.FILTER_ANOTATION;
-			// int annotationType = AnnotationType.AUTO_ANOTATION;
+			// int annotationType = AnnotationType.FILTER_ANOTATION;
+			int annotationType = AnnotationType.AUTO_ANOTATION;
 			DatasetGenerator2 dg = new DatasetGenerator2(
 					AnnotationFactory.create(annotationType));
 			dg.run(classifyResult, classifyResult, leftfile, trainfile,
@@ -208,7 +208,7 @@ public class Iteration {
 			System.out.println(s);
 		if (args.length == 1)
 			map.put(args[0], 0);
-		
+
 		if (args.length >= 2) {
 			for (int i = 0; i < args.length; i += 2) {
 				map.put(args[i], Integer.valueOf(args[i + 1]));
@@ -220,7 +220,7 @@ public class Iteration {
 	public static void cluster() {
 		int featureid = ClassifyProperties.FEATURE_ID;
 		filenameInit(ClassifyProperties.Iteration_ID);
-		
+
 		int maxClusterNum = ClassifyProperties.MAX_CLUSTER_NUM == 0 ? Cluster
 				.getMaxClusterNum(featurefile)
 				: ClassifyProperties.MAX_CLUSTER_NUM;
@@ -283,18 +283,18 @@ public class Iteration {
 		CSVFileIO csv = new CSVFileIO();
 		csv.load(classifyResult, true);
 		Map<String, String> classMap = new HashMap<String, String>();
-//		try {
-//			classMap = csv.getColumn("Class");
-//		} catch (NoSuchFieldException e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// classMap = csv.getColumn("Class");
+		// } catch (NoSuchFieldException e) {
+		// e.printStackTrace();
+		// }
 
 		try {
 			for (int i = 1;; i++)
 				classMap.putAll(csv.getColumn("class" + i));
-			
+
 		} catch (NoSuchFieldException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		List<String> attrfiles = FileUtils
@@ -309,13 +309,14 @@ public class Iteration {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	public static void clearResultFile(String resultfile){
+
+	public static void clearResultFile(String resultfile) {
 		CSVFileIO csv = new CSVFileIO();
 		csv.load(resultfile, true);
-		for(int i = ClassifyProperties.CLUSTER_INDEX; i < csv.getFields().size(); i++){
+		for (int i = ClassifyProperties.CLUSTER_INDEX; i < csv.getFields()
+				.size(); i++) {
 			csv.deleteColumn(i);
 		}
 		try {
