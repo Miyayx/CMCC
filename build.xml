@@ -77,7 +77,7 @@
 		<property name="method" value="-iter" />
 		<property name="iter" value="1" />
 			<java classname="edu.thu.cmcc.classification.Iteration" classpath="${build}" fork="true"
-				maxmemory="300m">
+				maxmemory="30000m">
 				<arg value="${method}"/>
 				<arg value="${iter}"/>
 				<classpath refid="Third-Party Libraries" />
@@ -88,7 +88,7 @@
 			depends="compile">
 		<property name="method" value="-file" />
 			<java classname="edu.thu.cmcc.db.ResultMongoWriter" classpath="${build}" fork="true"
-				maxmemory="00m">
+				maxmemory="30000m">
 				<arg value="${method}"/>
 				<arg value="${file}"/>
 				<classpath refid="Third-Party Libraries" />
