@@ -180,8 +180,8 @@ public class Iteration {
 			// 根据人工标注文件选择簇，选择标注数据等
 			// Preprocessing.run(clusterResult, samplefile, iter);
 
-			 int annotationType = AnnotationType.FILTER_ANOTATION;
-			//int annotationType = AnnotationType.AUTO_ANOTATION;
+			//int annotationType = AnnotationType.FILTER_ANOTATION;
+			int annotationType = AnnotationType.AUTO_ANOTATION;
 			DatasetGenerator2 dg = new DatasetGenerator2(
 					AnnotationFactory.create(annotationType));
 			dg.run(classifyResult, classifyResult, leftfile, trainfile,
@@ -250,6 +250,7 @@ public class Iteration {
 		try {
 			cluster.run(maxClusterNum, classifyResult);
 			cluster.appendToResultFile(classifyResult);
+			cluster.writeToFile(clusterResult);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
