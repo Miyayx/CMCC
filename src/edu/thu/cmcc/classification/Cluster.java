@@ -185,6 +185,10 @@ public class Cluster {
 			Collections.sort(v);
 			result.put((Integer) pairs.getKey(), v);
 		}
+		
+		for(Entry entry:result.entrySet()){
+			System.out.println("Cluster "+entry.getKey()+":"+((LinkedList<String>)entry.getValue()).size());
+		}
 	}
 
 	/**
