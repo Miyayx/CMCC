@@ -109,16 +109,30 @@ public class Iteration {
 		// ClassifyProperties.updateFilename(ClassifyProperties.CLUSTER_INPUT);
 		// samplefile = ClassifyProperties.INNER_FILE_PATH + "samples" + iter
 		// + ".txt";
-		leftfile = ClassifyProperties.INNER_FILE_PATH
+		
+//		leftfile = ClassifyProperties.INNER_FILE_PATH
+//				+ ClassifyProperties
+//						.updateFilename(ClassifyProperties.CLASSIFY_PREDICT);
+//		trainfile = ClassifyProperties.INNER_FILE_PATH
+//				+ ClassifyProperties
+//						.updateFilename(ClassifyProperties.CLASSIFY_TRAIN);
+//		testfile = ClassifyProperties.INNER_FILE_PATH
+//				+ ClassifyProperties
+//						.updateFilename(ClassifyProperties.CLASSIFY_TEST);
+//		trainPlusTest = ClassifyProperties.INNER_FILE_PATH
+//				+ ClassifyProperties
+//						.updateFilename(ClassifyProperties.TRAIN_AND_TEST);
+		
+		leftfile = ClassifyProperties.FILE_PATH
 				+ ClassifyProperties
 						.updateFilename(ClassifyProperties.CLASSIFY_PREDICT);
-		trainfile = ClassifyProperties.INNER_FILE_PATH
+		trainfile = ClassifyProperties.FILE_PATH
 				+ ClassifyProperties
 						.updateFilename(ClassifyProperties.CLASSIFY_TRAIN);
-		testfile = ClassifyProperties.INNER_FILE_PATH
+		testfile = ClassifyProperties.FILE_PATH
 				+ ClassifyProperties
 						.updateFilename(ClassifyProperties.CLASSIFY_TEST);
-		trainPlusTest = ClassifyProperties.INNER_FILE_PATH
+		trainPlusTest = ClassifyProperties.FILE_PATH
 				+ ClassifyProperties
 						.updateFilename(ClassifyProperties.TRAIN_AND_TEST);
 	}
@@ -161,12 +175,13 @@ public class Iteration {
 			// clusterResult);
 			cluster.run(maxClusterNum, classifyResult);
 			cluster.appendToResultFile(classifyResult);
+			cluster.writeToFile(clusterResult);
 
 			// 根据人工标注文件选择簇，选择标注数据等
 			// Preprocessing.run(clusterResult, samplefile, iter);
 
-			// int annotationType = AnnotationType.FILTER_ANOTATION;
-			int annotationType = AnnotationType.AUTO_ANOTATION;
+			 int annotationType = AnnotationType.FILTER_ANOTATION;
+			//int annotationType = AnnotationType.AUTO_ANOTATION;
 			DatasetGenerator2 dg = new DatasetGenerator2(
 					AnnotationFactory.create(annotationType));
 			dg.run(classifyResult, classifyResult, leftfile, trainfile,

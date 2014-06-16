@@ -237,7 +237,7 @@ public class Classify {
 		precision = right / sum;
 		System.out.println("Classification precision:" + precision);
 		System.out.println("Wrong number:" + wrong);
-		FileManipulator.outputOneToOne(resultMap, testResultFile, "", 0);
+		FileManipulator.outputOneToOne(resultMap, testResultFile, ",", 0);
 
 		// =============== Evaluation output =====================
 		evaluation = new Evaluation(instancesTrain);

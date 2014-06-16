@@ -28,11 +28,19 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 public class Cluster {
-	HashMap<String, Integer> docClassifyMap = new HashMap<String, Integer>();// <文档名,簇号>
+	HashMap<String, Integer> docClusterMap = new HashMap<String, Integer>();// <文档名,簇号>
 	Map<Integer, LinkedList<String>> result = new LinkedHashMap<Integer, LinkedList<String>>();// 相应簇号
 	InstancesGetter insGetter;
 	int clusterNum = 0;
 	SimpleKMeans cluster = null;
+
+	public HashMap<String, Integer> getDocClusterMap() {
+		return docClusterMap;
+	}
+
+	public void setDocClusterMap(HashMap<String, Integer> docClusterMap) {
+		this.docClusterMap = docClusterMap;
+	}
 
 	public Cluster() {
 		insGetter = new ClusterInstances();
@@ -160,6 +168,7 @@ public class Cluster {
 			Instance instance = ins.instance(i);
 			int c = cluster.clusterInstance(instance);
 			LinkedList list = null;
+			docClusterMap.put(labelAttr[i], c);
 			if (result.containsKey(c)) {
 				list = result.get(c);
 			} else {
