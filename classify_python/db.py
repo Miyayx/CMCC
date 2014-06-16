@@ -257,7 +257,7 @@ class DB():
         """
         The label which has character that makes weka disable
         """
-        ch = ['"',',']
+        ch = ['"',',',"'",'%','/','\']
         for c in ch:
             if c in label:
                 print "Bad label:",label
