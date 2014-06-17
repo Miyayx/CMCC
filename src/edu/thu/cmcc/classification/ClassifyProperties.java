@@ -157,7 +157,12 @@ public class ClassifyProperties {
 	 * 每次迭代更新写入大表的列的信息
 	 */
 	public static void updateFieldIndex(){
-		CLUSTER_INDEX            = 1+FEATURE_COUNT+3+(3 * (Iteration_ID - 1));
+		int feature_kind = 0;
+		if(SECTION_LABEL)
+			feature_kind++;
+		if(BLOCK_LABEL)
+			feature_kind++;
+		CLUSTER_INDEX            = 1+FEATURE_COUNT+1+feature_kind+(3 * (Iteration_ID - 1));
 		System.out.println("CLUSTER_INDEX:"+CLUSTER_INDEX);
 		FLAG_INDEX               = CLUSTER_INDEX + 1;
 		CLASSIFY_INDEX           = FLAG_INDEX + 1;
