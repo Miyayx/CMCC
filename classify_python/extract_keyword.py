@@ -25,9 +25,11 @@ def extract_keyword():
             continue
 
         if i[-1] == u'）':
-            i = i[:i.index(u'（')]
+            if u'（' in i:
+                i = i[:i.index(u'（')]
         if i[-1] == ')':
-            i = i[:i.index('(')]
+            if '(' in i:
+                i = i[:i.index('(')]
         print i[:]
 
 
