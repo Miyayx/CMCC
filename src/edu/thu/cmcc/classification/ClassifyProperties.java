@@ -33,6 +33,8 @@ public class ClassifyProperties {
 	public static double   LOWEST_ACCURACY    = 0;
 	public static String   OTHER_CLASS        = null;
 	public static int      STOP_LIMITATION    = 0;
+	public static boolean  SECTION_LABEL      = true;
+	public static boolean  BLOCK_LABEL      = true;
 	
 	// from filename.properties
 	public static String   FEATURE_FILE              = null;
@@ -108,6 +110,8 @@ public class ClassifyProperties {
 			LOWEST_ACCURACY    = Double.valueOf(prop.getProperty("lowest_accuracy",String.valueOf(0.85)));
 			OTHER_CLASS        = prop.getProperty("other_class","others");
 			STOP_LIMITATION    = Integer.valueOf(prop.getProperty("stop_limitation", String.valueOf(0)));
+			SECTION_LABEL      = Boolean.valueOf(prop.getProperty("section_label", String.valueOf(1)));
+			BLOCK_LABEL        = Boolean.valueOf(prop.getProperty("block_label", String.valueOf(1)));
 			
 			fis = new FileInputStream(ClassifyProperties.FILENAME_PROP);
 			prop.load(fis);//将属性文件流装载到Properties对象中  
