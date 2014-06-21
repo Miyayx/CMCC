@@ -1,5 +1,5 @@
 #/usr/bin/python2.7
-#encoding=utf-8
+#-*-coding:utf-8-*-
 
 from classify_preprocess import *
 
@@ -74,6 +74,9 @@ def run():
         print i.encode("utf-8")
 
     print "WordDoc Num:",[db.is_word(i) for i in attrfiles].count(True)
+    print "Has Img Num:",[db.has_img(i) for i in attrfiles].count(True)
+    print "Has Table Num:",[db.has_table(i) for i in attrfiles].count(True)
+    print "Has Block Label Num:",[db.has_block_label(i) for i in attrfiles].count(True)
     #write_class_to_file("attr_class.csv",attrfiles,attr_class)
 
 if __name__=="__main__":

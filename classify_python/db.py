@@ -280,6 +280,61 @@ class DB():
                     return False
         print f.encode("utf-8"),"is not found in mongo"
 
+    #################  for attrbute file  ###############
+    def has_img(self, f):
+        """
+        If the attribute file has image
+        """
+        #f = f.strip("/").rstrip("/")
+        #path,name = f.rsplit("/",1)
+        #doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
+        #section = d["children"][1].rsplit("/")[-1]
+        #if section:
+        #    html = self.collection.find({"level":"section","_id.name":section})[0]["html"]
+        #    return True if "img" in html else False
+        sections = self.collection.find({"level":"section","_id.path":f })
+        for s in sections:
+            html = s["html"]
+            if "img" in html:
+                return True
+        return False
+
+
+    def has_table(self,f):
+        """
+        If the attribute file has a big table
+        """
+        #f = f.strip("/").rstrip("/")
+        #path,name = f.rsplit("/",1)
+        #doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
+        #section = d["children"][1].rsplit("/")[-1]
+        #if section:
+        #    html = self.collection.find({"level":"section","_id.name":section})[0]["html"]
+        #    return True if "table" in html else False
+        sections = self.collection.find({"level":"section","_id.path":f })
+        for s in sections:
+            html = s["html"]
+            if "table" in html:
+                return True
+        return False
+
+    def is_hub(self, f):
+        f = f.strip("/").rstrip("/")
+        path,name = f.rsplit("/",1)
+        doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
+
+    def has_block_label(self,f):
+        sections = self.collection.find({"level":"section","_id.path":f })
+        for s in sections:
+            for block in s["children"]:
+                block_id = block.rsplit("/",1)[-1]
+                b = self.collection.find({"level":"block","_id.name":block_id })[0]
+                if b["label"] and len(b["label"]) > 0:
+                    return True
+                else:
+                    return False
+
+
 
 if __name__ == "__main__":
     db = DB('db.config')
