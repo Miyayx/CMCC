@@ -245,8 +245,9 @@ class DB():
             sample = c["_id"]["path"].rsplit("/",2)[-3].replace("../data","etc")+"/"
             if not s2sub.has_key(sample):
                 s2sub[sample] = set() 
-            if c["label"] and len(c["label"]) > 1:
-                s2sub[sample].add(c["label"].strip() )
+            label = c["label"].strip()
+            if label and len(label) > 1 and (not self.is_bad_label(label)):
+                s2sub[sample].add(label)
         for s, sub in s2sub.items():
             s2sub[sample] = list(sub)
         for sample in diff_items(self.all_samples,s2sub.keys()):
@@ -257,7 +258,7 @@ class DB():
         """
         The label which has character that makes weka disable
         """
-        ch = ['"',',',"'",'%','/','\\']
+        ch = ['"',',',"'",'%']
         for c in ch:
             if c in label:
                 print "Bad label:",label
