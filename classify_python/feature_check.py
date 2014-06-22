@@ -2,7 +2,7 @@
 #-*-coding:utf-8-*-
 
 def cluster_feature(cluster_file, feature_file, cluster_num):
-    _ids = [line.split(",")[0] for line in open(cluster_file)]
+    _ids = [line.split(",")[0] for line in open(cluster_file) if int(line.strip("\n").split(",")[-1]) == cluster_num]
     title_feature = {}
     with open(feature_file) as f:
         head = f.readline().strip("\n").split(",")
