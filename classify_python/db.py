@@ -286,7 +286,7 @@ class DB():
         Get a list of all the word document
         """
         coll = self.collection.find({"level":"document","type":"Doc"})
-        return [(c["_id"]["path"]+c["_id"]["name"]) for c in coll]
+        return [(c["_id"]["path"]+c["_id"]["name"]).rstrip("/")+"/" for c in coll]
 
 
     #################  for attrbute file  ###############
