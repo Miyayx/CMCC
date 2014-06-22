@@ -1,5 +1,5 @@
 #/usr/bin/python2.7
-#encoding=utf-8
+#-*-coding:UTF-8-*-
 
 from utils import *
 from pymongo import *
@@ -270,16 +270,24 @@ class DB():
         If the document is word
         """
         coll = self.collection.find({"level":"document"})
-        f = f.strip("/").rstrip("/")
+        f = f.strip("/")
 
         for c in coll:
-            sample = (c["_id"]["path"]+c["_id"]["name"]).strip("/").rstrip("/")
+            sample = (c["_id"]["path"]+c["_id"]["name"]).strip("/")
             if sample == f:
                 if c.has_key("type") and c["type"] == "doc":
                     return True
                 else:
                     return False
         print f.encode("utf-8"),"is not found in mongo"
+
+    def get_word_doc(self):
+        """
+        Get a list of all the word document
+        """
+        coll = self.collection.find({"level":"document","type":"doc"})
+        return [(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/" for c in coll]
+
 
     #################  for attrbute file  ###############
     def has_img(self, f):
@@ -300,10 +308,22 @@ class DB():
                 return True
         return False
 
+    def has_one_img(self, f):
+        """
+        If the attribute file has only one img element
+        """
+        sections = self.collection.find({"level":"section","_id.path":f })
+        for s in sections:
+            html = s["html"]
+            num = html.count("img")
+            if num >0 and num<= 2 :
+                return True
+        return False
+
 
     def has_table(self,f):
         """
-        If the attribute file has a big table
+        If the attribute file has table element
         """
         #f = f.strip("/").rstrip("/")
         #path,name = f.rsplit("/",1)
@@ -319,8 +339,25 @@ class DB():
                 return True
         return False
 
+    def has_one_table(self,f):
+        """
+        If the attribute file has only one table element
+        """
+        sections = self.collection.find({"level":"section","_id.path":f })
+        for s in sections:
+            html = s["html"]
+            num = html.count("table")
+            if num > 0 and num <= 2 :
+                return True
+        return False
+
+    def is_pure_text(self,f):
+        """
+        """
+        pass
+
     def is_hub(self, f):
-        f = f.strip("/").rstrip("/")
+        f = f.strip("/")
         path,name = f.rsplit("/",1)
         doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
 
@@ -334,7 +371,6 @@ class DB():
                     return True
                 else:
                     return False
-
 
 
 if __name__ == "__main__":

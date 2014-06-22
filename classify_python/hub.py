@@ -73,10 +73,32 @@ def run():
     for i in attrfiles:
         print i.encode("utf-8")
 
-    print "WordDoc Num:",[db.is_word(i) for i in attrfiles].count(True)
-    print "Has Img Num:",[db.has_img(i) for i in attrfiles].count(True)
-    print "Has Table Num:",[db.has_table(i) for i in attrfiles].count(True)
-    print "Has Block Label Num:",[db.has_block_label(i) for i in attrfiles].count(True)
+    #print "WordDoc Num:",[db.is_word(i) for i in attrfiles].count(True)
+    items = []
+    items = common_items(attrfiles,db.get_word_doc())
+    write_lines("attr/attr_doc.dat", items)
+    print "WordDoc Num:",len(items)
+
+    items = [i for i in attrfiles if db.has_one_img(i)]
+    write_lines("attr/attr_one_img.dat", items)
+    print "Has One Img Num:",len(items)
+
+    items = [i for i in attrfiles if db.has_img(i)]
+    write_lines("attr/attr_img.dat", items)
+    print "Has Img Num:",len(items)
+
+    items = [i for i in attrfiles if db.has_one_table(i)]
+    write_lines("attr/attr_one_table.dat", items)
+    print "Has One Table Num:",len(items)
+
+    items = [i for i in attrfiles if db.has_table(i)]
+    write_lines("attr/attr_table.dat", items)
+    print "Has Table Num:",len(items)
+
+    items = [i for i in attrfiles if db.has_block_label(i)]
+    write_lines("attr/attr_block_label.dat", items)
+    print "Has Block Label Num:",len(items)
+
     #write_class_to_file("attr_class.csv",attrfiles,attr_class)
 
 if __name__=="__main__":
