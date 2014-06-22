@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.python.modules.math;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -47,8 +49,8 @@ public class Cluster {
 		cluster = new SimpleKMeans();
 		cluster = (SimpleKMeans) cluster;
 		try {
-			cluster.setMaxIterations(500);// 设置迭代次数
-			cluster.setSeed(50);
+			cluster.setMaxIterations(300);// 设置迭代次数
+			cluster.setSeed(ClassifyProperties.BEST_SEED);
 			cluster.setPreserveInstancesOrder(true);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -209,8 +211,9 @@ public class Cluster {
 					ClassifyProperties.FEATURE_COUNT,
 					ClassifyProperties.FILTER_INDEX);
 			// ins = new ClusterInstances().getInstances(featureFile);
+			int insNum = ins.numInstances();
 
-			for (int i = 3; i < 150; i++) {
+			for (int i = (int) Math.log(Math.sqrt(insNum)); i < Math.sqrt(insNum); i++) {
 				// 1.读入样本
 
 				KM.setNumClusters(i);
@@ -250,5 +253,67 @@ public class Cluster {
 
 		System.out.println("FINAL CLUSTER NUM: " + clusterNum);
 		return clusterNum;
+	}
+	
+	/**
+	 * 获得分类簇数 取类间比类内最大值
+	 * 
+	 * @param featureFile
+	 * @return
+	 */
+	public static int getBestSeed(String featureFile) {
+		SimpleKMeans KM = new SimpleKMeans();
+		Instances ins = null;
+		Instances tempIns = null;
+		int seed = 0;
+		double maxRatio = 0;
+
+		try {
+			ins = new ClusterInstances().getInstances(featureFile, 0, 1,
+					ClassifyProperties.FEATURE_COUNT,
+					ClassifyProperties.FILTER_INDEX);
+			// ins = new ClusterInstances().getInstances(featureFile);
+
+			for (int i = 0; i < ins.numInstances(); i++) {
+				// 1.读入样本
+
+				KM.setNumClusters(ClassifyProperties.MAX_CLUSTER_NUM);
+				KM.setSeed(i);
+
+				// 4.使用聚类算法对样本进行聚类
+				KM.buildClusterer(ins);
+				// 5.打印聚类结果
+				tempIns = KM.getClusterCentroids();// 得到质心
+
+				double intra = 0;
+				EuclideanDistance distance = new EuclideanDistance();
+				distance.setInstances(ins);
+				System.out.println(i);
+
+				// 计算类内距离
+				for (int j = 0; j < ins.numInstances(); j++) {
+					Instance instance = ins.instance(j);
+					int c = KM.clusterInstance(instance);
+					double d = distance.distance(instance, tempIns.instance(c));
+					intra += d;
+				}
+
+				System.out.println("Intra-Cluster Similarity:" + intra);
+				System.out.println("Inter-Cluster Similarity:"
+						+ KM.getSquaredError());
+				double ratio = (KM.getSquaredError() / intra);
+				System.out.println("Ratio:" + ratio);
+				if (ratio > maxRatio) {
+					seed = i;
+					maxRatio = ratio;
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println("FINAL SEED " + seed);
+		return seed;
 	}
 }

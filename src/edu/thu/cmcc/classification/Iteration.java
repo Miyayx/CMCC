@@ -160,6 +160,11 @@ public class Iteration {
 				.getMaxClusterNum(featurefile)
 				: ClassifyProperties.MAX_CLUSTER_NUM;
 		System.out.println("Cluster Num:" + maxClusterNum);
+		
+		ClassifyProperties.BEST_SEED = ClassifyProperties.BEST_SEED == 0 ? Cluster
+				.getBestSeed(featurefile)
+				: ClassifyProperties.BEST_SEED;
+		System.out.println("Seed:" + ClassifyProperties.BEST_SEED);
 
 		for (; ClassifyProperties.Iteration_ID < iterend; ClassifyProperties.Iteration_ID++) {
 			System.out.println("-------------------------------f"
@@ -240,6 +245,11 @@ public class Iteration {
 				.getMaxClusterNum(featurefile)
 				: ClassifyProperties.MAX_CLUSTER_NUM;
 		System.out.println("Cluster Num:" + maxClusterNum);
+		
+		ClassifyProperties.BEST_SEED = ClassifyProperties.BEST_SEED == 0 ? Cluster
+				.getBestSeed(featurefile)
+				: ClassifyProperties.BEST_SEED;
+		System.out.println("Seed:" + ClassifyProperties.BEST_SEED);
 
 		System.out.println("-------------------------------f" + featureid
 				+ "--i" + ClassifyProperties.Iteration_ID

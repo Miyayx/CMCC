@@ -27,6 +27,12 @@ def diff_items(a,b):
     """
     return list(set(a)^ set(b))
 
+def delete_items(a,b):
+    """
+    Delete b items from a
+    """
+    return list(set(a)- set(b))
+
 def delete_sample(samples, regex):
     """
     用正则表达式过滤掉指定的sample

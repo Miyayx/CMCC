@@ -27,6 +27,7 @@ def detect_hub(label_count,linknum):
                 continue
             if linknum[k] > HUB_MIN_LINK:
                 files.append(k)
+    files = set(files)
     sample_class = dict((f,"hub") for f in files)
     return files,sample_class
 
@@ -45,6 +46,7 @@ def detect_attributefile(label_count,inlink,links):
                 #print k,"has outlink"
                 for l in links[k]:
                     files.append(l)
+    files = set(files) #去重
     sample_class = dict((f,u"属性") for f in files)
 
     return files, sample_class
@@ -73,32 +75,49 @@ def run():
     for i in attrfiles:
         print i.encode("utf-8")
 
+    from utils import delete_items
+    left = attrfiles
+    print "Left Num:",len(left)
     #print "WordDoc Num:",[db.is_word(i) for i in attrfiles].count(True)
     items = []
     items = common_items(attrfiles,db.get_word_doc())
     write_lines("attr/attr_doc.dat", items)
     print "WordDoc Num:",len(items)
+    left = delete_items(left, items)
+    print "Left Num:",len(left)
+
 
     items = [i for i in attrfiles if db.has_one_img(i)]
     write_lines("attr/attr_one_img.dat", items)
     print "Has One Img Num:",len(items)
+    left = delete_items(left, items)
+    print "Left Num:",len(left)
 
     items = [i for i in attrfiles if db.has_img(i)]
     write_lines("attr/attr_img.dat", items)
     print "Has Img Num:",len(items)
+    left = delete_items(left, items)
+    print "Left Num:",len(left)
 
     items = [i for i in attrfiles if db.has_one_table(i)]
     write_lines("attr/attr_one_table.dat", items)
     print "Has One Table Num:",len(items)
+    left = delete_items(left, items)
+    print "Left Num:",len(left)
 
     items = [i for i in attrfiles if db.has_table(i)]
     write_lines("attr/attr_table.dat", items)
     print "Has Table Num:",len(items)
+    left = delete_items(left, items)
+    print "Left Num:",len(left)
 
     items = [i for i in attrfiles if db.has_block_label(i)]
     write_lines("attr/attr_block_label.dat", items)
     print "Has Block Label Num:",len(items)
+    left = delete_items(left, items)
 
+    print "Left Num:",len(left)
+    write_lines("attr/attr_left.dat",left)
     #write_class_to_file("attr_class.csv",attrfiles,attr_class)
 
 if __name__=="__main__":
