@@ -275,7 +275,7 @@ class DB():
         for c in coll:
             sample = (c["_id"]["path"]+c["_id"]["name"]).strip("/")
             if sample == f:
-                if c.has_key("type") and c["type"] == "doc":
+                if c.has_key("type") and c["type"] == "Doc":
                     return True
                 else:
                     return False
