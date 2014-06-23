@@ -116,6 +116,11 @@ def run():
     print "Has Block Label Num:",len(items)
     left = delete_items(left, items)
 
+    items = common_items(attrfiles,hubs)
+    write_lines("attr/attr_hub.dat", items)
+    print "Hub Num:",len(items)
+    left = delete_items(left, items)
+
     print "Left Num:",len(left)
     write_lines("attr/attr_left.dat",left)
     #write_class_to_file("attr_class.csv",attrfiles,attr_class)
