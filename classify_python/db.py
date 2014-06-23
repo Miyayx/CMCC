@@ -4,6 +4,7 @@
 from utils import *
 from pymongo import *
 from classify_preprocess import *
+from bs4 import BeautifulSoup
 
 class DB():
     all_samples= []
@@ -290,6 +291,16 @@ class DB():
 
 
     #################  for attrbute file  ###############
+    def no_mean(self, f):
+        """
+        If the attribute file has no context
+        """
+        sections = self.collection.find({"level":"section","_id.path":f })
+        if sections.count() > 1:
+            return False
+        else: 
+            return True
+
     def has_img(self, f):
         """
         If the attribute file has image

@@ -86,6 +86,11 @@ def run():
     left = delete_items(left, items)
     print "Left Num:",len(left)
 
+    items = [i for i in attrfiles if db.no_mean(i)]
+    write_lines("attr/attr_no_mean.dat", items)
+    print "Has No Meaning Num:",len(items)
+    left = delete_items(left, items)
+    print "Left Num:",len(left)
 
     items = [i for i in attrfiles if db.has_one_img(i)]
     write_lines("attr/attr_one_img.dat", items)
