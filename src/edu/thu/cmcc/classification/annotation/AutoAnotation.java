@@ -16,9 +16,7 @@ import edu.thu.cmcc.classification.ClassifyProperties;
 
 /**
  * 
- * @author Miyayx
- * 程序选择最大簇为最优聚类，随机选择样本自动标注
- * 最终返回标注数据map，key是文档id，value是class
+ * @author Miyayx 程序选择最大簇为最优聚类，随机选择样本自动标注 最终返回标注数据map，key是文档id，value是class
  */
 public class AutoAnotation implements Annotation {
 
@@ -27,7 +25,7 @@ public class AutoAnotation implements Annotation {
 			throws IOException {
 		Map<String, String> labeledInstanceSet = new HashMap<String, String>();
 		Map<String, String> instanceClusterMap = FileManipulator.loadOneToOne(
-				clusterfile, ",", 0,clusterIndex);
+				clusterfile, ",", 0, clusterIndex);
 
 		// 得到cluster和instance的对应
 		Map<String, Set<String>> clusterInstanceMap = new HashMap<String, Set<String>>();
@@ -41,26 +39,33 @@ public class AutoAnotation implements Annotation {
 			clusterInstanceMap.put(cluster, instanceSet);
 		}
 
-		// 选取最大簇为正例簇
-		String largestCluster = ""; // 最大簇的簇号
-		int max = 0;
+		String positiveCluster = ""; // 最大簇的簇号
+		int size = 0;
 
-		for (String key : clusterInstanceMap.keySet()) {
-			int size = clusterInstanceMap.get(key).size();
-			if (size > max) {
-				max = size;
-				largestCluster = key;
+		if (ClassifyProperties.POSITIVE_CLUSTER == -1) {
+			// 如果没指定正例簇号， 选取最大簇为正例簇
+			for (String key : clusterInstanceMap.keySet()) {
+				int s = clusterInstanceMap.get(key).size();
+				if (s > size) {
+					size = s;
+					positiveCluster = key;
+				}
 			}
+		} else {
+			//如果指定了正例簇号
+			positiveCluster = String
+					.valueOf(ClassifyProperties.POSITIVE_CLUSTER);
+			size = clusterInstanceMap.get(positiveCluster).size();
 		}
 
-		double class1SizeLimit = max * class1SizePercent;
+		double class1SizeLimit = size * class1SizePercent;
 		if (class1SizeLimit < minClass1SizeLimit)
 			class1SizeLimit = minClass1SizeLimit;// 至少要标20个
 
 		// 正例集合
 		List<String> bestCluster = new LinkedList<String>(
-				clusterInstanceMap.get(largestCluster));
-		clusterInstanceMap.remove(largestCluster);
+				clusterInstanceMap.get(positiveCluster));
+		clusterInstanceMap.remove(positiveCluster);
 
 		// 负例集合
 		List<String> otherCluster = new LinkedList<String>();
@@ -75,7 +80,7 @@ public class AutoAnotation implements Annotation {
 		// 取正例标注数据
 		int labelSize = 0;
 		for (String instance : bestCluster) {
-			labeledInstanceSet.put(instance, largestCluster);
+			labeledInstanceSet.put(instance, positiveCluster);
 			labelSize++;
 			if (labelSize > class1SizeLimit)
 				break;
@@ -91,7 +96,6 @@ public class AutoAnotation implements Annotation {
 				break;
 		}
 
-		
 		return labeledInstanceSet;
 
 	}
@@ -99,8 +103,8 @@ public class AutoAnotation implements Annotation {
 	@Override
 	public Map<String, String> annotation(String clusterfile)
 			throws IOException {
-		
+
 		return this.annotation(clusterfile, 1);
 	}
-	
+
 }

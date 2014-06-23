@@ -660,7 +660,7 @@ def run(file_cfg, feature_cfg, db_cfg):
         write_dataset(sample_block, feature_fields(fields), features, class_block, result_output)
 
         write_lines(file_configs["sample_output"],sample_block)
-        write_lines(file_configs["not_sample"],diff_items(sample_block,all_sample))
+        #write_lines(file_configs["not_sample"],diff_items(sample_block,all_sample))
 
         print "Finish!"
         print "Time Consumming:",str(time.time()-time_start)
