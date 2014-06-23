@@ -6,6 +6,7 @@ def cluster_feature(cluster_file, feature_file, result_file, cluster_num):
     title_feature = {}
     with open(feature_file) as f:
         with open(result_file,"w") as fout:
+            fout.write(str(len(_ids))+"\n")
             head = f.readline().strip("\n").split(",")
             line = f.readline()
             while line:

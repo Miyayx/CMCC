@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.python.modules.math;
 
@@ -181,15 +182,17 @@ public class Cluster {
 		}
 
 		Iterator it = result.entrySet().iterator();
+		Map<Integer, Integer> sortedResult = new TreeMap<Integer, Integer>();
 		while (it.hasNext()) {
 			Map.Entry pairs = (Map.Entry) it.next();
 			LinkedList<String> v = (LinkedList<String>) pairs.getValue();
 			Collections.sort(v);
 			result.put((Integer) pairs.getKey(), v);
+			sortedResult.put((Integer) pairs.getKey(), v.size());
 		}
 		
-		for(Entry entry:result.entrySet()){
-			System.out.println("Cluster "+entry.getKey()+":"+((LinkedList<String>)entry.getValue()).size());
+		for(Entry entry:sortedResult.entrySet()){
+			System.out.println("Cluster "+entry.getKey()+":"+entry.getValue());
 		}
 	}
 
