@@ -99,8 +99,9 @@ public class Cluster {
 			csv.load(resultfile, true);
 			csv.column(colname, sample2cluster);
 			// csv.addEmptyColumn("flag"+ClassifyProperties.Iteration_ID);
-			csv.write(resultfile, ",", true, true,
-					ClassifyProperties.CLUSTER_INDEX);
+			//csv.write(resultfile, ",", true, true,
+			//		ClassifyProperties.CLUSTER_INDEX);
+			csv.write(resultfile, ",", true, true,0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -150,7 +151,6 @@ public class Cluster {
 		ins.deleteAttributeAt(0); // 删不删第一列sample结果都是一样的
 
 		cluster.setSeed(ClassifyProperties.BEST_SEED);
-		System.out.println("SEED:" + ClassifyProperties.BEST_SEED);
 
 		// 3.初始化聚类器
 		cluster.setNumClusters(clusterNum);// 设置类别数量～～～～～
