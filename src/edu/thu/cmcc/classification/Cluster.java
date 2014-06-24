@@ -14,14 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.python.modules.math;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
-
 import edu.thu.cmcc.basic.CSVFileIO;
 import edu.thu.cmcc.classification.instances.ClusterInstances;
 import edu.thu.cmcc.classification.instances.InstancesGetter;
@@ -50,7 +42,7 @@ public class Cluster {
 		cluster = new SimpleKMeans();
 		cluster = (SimpleKMeans) cluster;
 		try {
-			cluster.setMaxIterations(800);// 设置迭代次数
+			cluster.setMaxIterations(500);// 设置迭代次数
 			cluster.setPreserveInstancesOrder(true);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

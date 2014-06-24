@@ -37,6 +37,7 @@ public abstract class InstancesGetter {
 		int end = begin + featureCount;
 
 		Instances instances = getInstances(filename);
+		instances.sort(0);
 
 		if (filterIndex > 0 && filterIndex < instances.numAttributes()) {
 			System.out.println("FILTER COLOMN:"+instances.attribute(filterIndex).name());
@@ -92,6 +93,7 @@ public abstract class InstancesGetter {
 
 		int end = begin + featureCount;
 		Instances instances = getInstances(filename);
+		instances.sort(0);
 	
 		// col
 		if (filterIndex > 0 && filterIndex < instances.numAttributes()) {
