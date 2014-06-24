@@ -51,7 +51,6 @@ public class Cluster {
 		cluster = (SimpleKMeans) cluster;
 		try {
 			cluster.setMaxIterations(800);// 设置迭代次数
-			cluster.setSeed(ClassifyProperties.BEST_SEED);
 			cluster.setPreserveInstancesOrder(true);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -158,6 +157,9 @@ public class Cluster {
 		String[] labelAttr = InstancesGetter.getIDs(ins);
 		ins.deleteAttributeAt(0); // 删不删第一列sample结果都是一样的
 
+		cluster.setSeed(ClassifyProperties.BEST_SEED);
+		System.out.println("SEED:" + ClassifyProperties.BEST_SEED);
+
 		// 3.初始化聚类器
 		cluster.setNumClusters(clusterNum);// 设置类别数量～～～～～
 
@@ -190,9 +192,10 @@ public class Cluster {
 			result.put((Integer) pairs.getKey(), v);
 			sortedResult.put((Integer) pairs.getKey(), v.size());
 		}
-		
-		for(Entry entry:sortedResult.entrySet()){
-			System.out.println("Cluster "+entry.getKey()+":"+entry.getValue());
+
+		for (Entry entry : sortedResult.entrySet()) {
+			System.out.println("Cluster " + entry.getKey() + ":"
+					+ entry.getValue());
 		}
 	}
 
@@ -216,7 +219,8 @@ public class Cluster {
 			// ins = new ClusterInstances().getInstances(featureFile);
 			int insNum = ins.numInstances();
 
-			for (int i = (int) Math.log(Math.sqrt(insNum)); i < Math.sqrt(insNum); i++) {
+			for (int i = (int) Math.log(Math.sqrt(insNum)); i < Math
+					.sqrt(insNum); i++) {
 				// 1.读入样本
 
 				KM.setNumClusters(i);
@@ -257,7 +261,7 @@ public class Cluster {
 		System.out.println("FINAL CLUSTER NUM: " + clusterNum);
 		return clusterNum;
 	}
-	
+
 	/**
 	 * 获得分类簇数 取类间比类内最大值
 	 * 
