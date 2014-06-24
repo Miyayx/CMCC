@@ -245,7 +245,7 @@ public class DatasetGenerator2 {
 			String trainfile, String testfile, String trainPlusTestfile)
 			throws Exception {
 
-		Map<String, String> s2c = annotation.annotation(clusterfile);
+		Map<String, String> s2c = annotation.annotation(clusterfile,ClassifyProperties.CLUSTER_INDEX);
 		// ================ write annotation result to file =================
 		this.writeAnnotationResultToFile(clusterfile, s2c);
 

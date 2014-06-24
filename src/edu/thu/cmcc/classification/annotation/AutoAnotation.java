@@ -25,7 +25,7 @@ public class AutoAnotation implements Annotation {
 			throws IOException {
 		Map<String, String> labeledInstanceSet = new HashMap<String, String>();
 		Map<String, String> instanceClusterMap = FileManipulator.loadOneToOne(
-				clusterfile, ",", 0, clusterIndex);
+				clusterfile, ",", 0, clusterIndex+2);
 
 		// 得到cluster和instance的对应
 		Map<String, Set<String>> clusterInstanceMap = new HashMap<String, Set<String>>();
@@ -42,6 +42,9 @@ public class AutoAnotation implements Annotation {
 		String positiveCluster = ""; // 最大簇的簇号
 		int size = 0;
 
+		for (String k : clusterInstanceMap.keySet())
+			System.out.println(k);
+
 		if (ClassifyProperties.POSITIVE_CLUSTER == -1) {
 			// 如果没指定正例簇号， 选取最大簇为正例簇
 			for (String key : clusterInstanceMap.keySet()) {
@@ -52,10 +55,10 @@ public class AutoAnotation implements Annotation {
 				}
 			}
 		} else {
-			//如果指定了正例簇号
+			// 如果指定了正例簇号
 			positiveCluster = String
 					.valueOf(ClassifyProperties.POSITIVE_CLUSTER);
-			System.out.println("Positive cluster ID:"+positiveCluster);
+			System.out.println("Positive cluster ID:" + positiveCluster);
 			size = clusterInstanceMap.get(positiveCluster).size();
 		}
 
