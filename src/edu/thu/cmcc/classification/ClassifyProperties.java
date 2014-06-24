@@ -28,7 +28,7 @@ public class ClassifyProperties {
 	public static double   POSITIVE_ALL_RATIO = 0.15; //正例/全部
 	public static double   STOP_RATIO         = 0.1;
 	public static int 	   MAX_CLUSTER_NUM    = 4;//为0的话就由程序计算
-	public static int      BEST_SEED          = 50;
+	public static int      BEST_SEED          = -1;
 	public static boolean  PROCESS_OUTPUT     = true;	
 	public static String   ONTOLOGY_FILE      = null;
 	public static double   LOWEST_ACCURACY    = 0;
@@ -107,7 +107,7 @@ public class ClassifyProperties {
 			POSITIVE_ALL_RATIO = Double.valueOf(prop.getProperty("positive_all_ratio", String.valueOf(0.15)));
 			STOP_RATIO         = Double.valueOf(prop.getProperty("stop_ratio", String.valueOf(0.1)));
 			MAX_CLUSTER_NUM    = Integer.valueOf(prop.getProperty("max_cluster_num", String.valueOf(0)));
-			BEST_SEED          = Integer.valueOf(prop.getProperty("best_seed", String.valueOf(0)));
+			BEST_SEED          = Integer.valueOf(prop.getProperty("best_seed", String.valueOf(-1)));
 			PROCESS_OUTPUT     = Boolean.valueOf(prop.getProperty("process_output", String.valueOf(1)));
 			ONTOLOGY_FILE      = prop.getProperty("ontology", "etc/ontology.txt");
 			LOWEST_ACCURACY    = Double.valueOf(prop.getProperty("lowest_accuracy",String.valueOf(0.85)));

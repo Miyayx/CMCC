@@ -55,6 +55,7 @@ public class AutoAnotation implements Annotation {
 			//如果指定了正例簇号
 			positiveCluster = String
 					.valueOf(ClassifyProperties.POSITIVE_CLUSTER);
+			System.out.println("Positive cluster ID:"+positiveCluster);
 			size = clusterInstanceMap.get(positiveCluster).size();
 		}
 

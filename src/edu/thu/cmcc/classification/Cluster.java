@@ -50,7 +50,7 @@ public class Cluster {
 		cluster = new SimpleKMeans();
 		cluster = (SimpleKMeans) cluster;
 		try {
-			cluster.setMaxIterations(300);// 设置迭代次数
+			cluster.setMaxIterations(800);// 设置迭代次数
 			cluster.setSeed(ClassifyProperties.BEST_SEED);
 			cluster.setPreserveInstancesOrder(true);
 		} catch (Exception e) {
