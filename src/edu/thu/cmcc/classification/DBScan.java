@@ -129,9 +129,10 @@ public class DBScan {
 		this.clusterNum = eval.getNumClusters();
 
 		// 将簇号按顺序写入list
-		for (int i = 0; i < ins.numInstances(); i++) {
-			Instance instance = ins.instance(i);
-			int c = cluster.clusterInstance(instance);
+		for (int i = 0; i < num.length; i++) {
+			//Instance instance = ins.instance(i);
+			//int c = cluster.clusterInstance(instance);
+			int c= (int)num[i];
 			LinkedList list = null;
 			docClusterMap.put(labelAttr[i], c);
 			if (result.containsKey(c)) {
