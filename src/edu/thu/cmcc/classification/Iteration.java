@@ -279,9 +279,11 @@ public class Iteration {
 
 		filenameInit(ClassifyProperties.Iteration_ID);
 
+//		DatasetGenerator2 dg = new DatasetGenerator2(
+//				AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
 		DatasetGenerator2 dg = new DatasetGenerator2(
-				AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
-		dg.run(clusterResult, featurefile, leftfile, trainfile, testfile,
+		AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
+		dg.run(classifyResult, featurefile, leftfile, trainfile, testfile,
 				trainPlusTest);
 
 		Classify c = new Classify();
