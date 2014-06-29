@@ -541,6 +541,10 @@ def run(file_cfg, feature_cfg, db_cfg):
         write_lines("delelte_samples.txt", diff_items(all_sample, sample_block))
 
         #sample_block = filter_sample(sample_block, u'04-资费')
+        if fconfigs["doc"]:
+            sample_block = delete_items(sample_block, db.get_word_doc())
+        print "sample count:",len(sample_block)
+
         db.set_allsample(sample_block)
 
         ################  class ####################
@@ -560,6 +564,7 @@ def run(file_cfg, feature_cfg, db_cfg):
             db.all_samples = sample_block
             for k,v in filter_result.items():
                 print k,v
+
         
         #把过滤掉的那些文档写入最终分类输出文件中
         result_output = file_configs["output_path"]+file_configs["result_output_name2"]+"_"+section+".csv"
