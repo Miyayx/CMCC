@@ -109,20 +109,20 @@ public class Iteration {
 		// ClassifyProperties.updateFilename(ClassifyProperties.CLUSTER_INPUT);
 		// samplefile = ClassifyProperties.INNER_FILE_PATH + "samples" + iter
 		// + ".txt";
-		
-//		leftfile = ClassifyProperties.INNER_FILE_PATH
-//				+ ClassifyProperties
-//						.updateFilename(ClassifyProperties.CLASSIFY_PREDICT);
-//		trainfile = ClassifyProperties.INNER_FILE_PATH
-//				+ ClassifyProperties
-//						.updateFilename(ClassifyProperties.CLASSIFY_TRAIN);
-//		testfile = ClassifyProperties.INNER_FILE_PATH
-//				+ ClassifyProperties
-//						.updateFilename(ClassifyProperties.CLASSIFY_TEST);
-//		trainPlusTest = ClassifyProperties.INNER_FILE_PATH
-//				+ ClassifyProperties
-//						.updateFilename(ClassifyProperties.TRAIN_AND_TEST);
-		
+
+		// leftfile = ClassifyProperties.INNER_FILE_PATH
+		// + ClassifyProperties
+		// .updateFilename(ClassifyProperties.CLASSIFY_PREDICT);
+		// trainfile = ClassifyProperties.INNER_FILE_PATH
+		// + ClassifyProperties
+		// .updateFilename(ClassifyProperties.CLASSIFY_TRAIN);
+		// testfile = ClassifyProperties.INNER_FILE_PATH
+		// + ClassifyProperties
+		// .updateFilename(ClassifyProperties.CLASSIFY_TEST);
+		// trainPlusTest = ClassifyProperties.INNER_FILE_PATH
+		// + ClassifyProperties
+		// .updateFilename(ClassifyProperties.TRAIN_AND_TEST);
+
 		leftfile = ClassifyProperties.FILE_PATH
 				+ ClassifyProperties
 						.updateFilename(ClassifyProperties.CLASSIFY_PREDICT);
@@ -160,10 +160,9 @@ public class Iteration {
 				.getMaxClusterNum(featurefile)
 				: ClassifyProperties.MAX_CLUSTER_NUM;
 		System.out.println("Cluster Num:" + maxClusterNum);
-		
+
 		ClassifyProperties.BEST_SEED = ClassifyProperties.BEST_SEED == -1 ? Cluster
-				.getBestSeed(featurefile)
-				: ClassifyProperties.BEST_SEED;
+				.getBestSeed(featurefile) : ClassifyProperties.BEST_SEED;
 		System.out.println("Seed:" + ClassifyProperties.BEST_SEED);
 
 		for (; ClassifyProperties.Iteration_ID < iterend; ClassifyProperties.Iteration_ID++) {
@@ -175,17 +174,18 @@ public class Iteration {
 			// 聚类。。。
 			filenameInit(ClassifyProperties.Iteration_ID);
 			ClassifyProperties.updateFieldIndex();
-			Cluster cluster = new Cluster();
-			// cluster.run(maxClusterNum, featurefile, samplefile,
-			// clusterResult);
-			cluster.run(maxClusterNum, classifyResult);
+			// Cluster cluster = new Cluster();
+			// cluster.run(maxClusterNum, classifyResult);
+			DBScan cluster = new DBScan();
+			cluster.run(ClassifyProperties.DBSCAN_EPS,
+					ClassifyProperties.DBSCAN_MINP, classifyResult);
 			cluster.appendToResultFile(classifyResult);
 			cluster.writeToFile(clusterResult);
 
 			// 根据人工标注文件选择簇，选择标注数据等
 			// Preprocessing.run(clusterResult, samplefile, iter);
 
-			//int annotationType = AnnotationType.FILTER_ANOTATION;
+			// int annotationType = AnnotationType.FILTER_ANOTATION;
 			int annotationType = AnnotationType.AUTO_ANOTATION;
 			DatasetGenerator2 dg = new DatasetGenerator2(
 					AnnotationFactory.create(annotationType));
@@ -245,20 +245,22 @@ public class Iteration {
 				.getMaxClusterNum(featurefile)
 				: ClassifyProperties.MAX_CLUSTER_NUM;
 		System.out.println("Cluster Num:" + maxClusterNum);
-		
+
 		ClassifyProperties.BEST_SEED = ClassifyProperties.BEST_SEED == -1 ? Cluster
-				.getBestSeed(featurefile)
-				: ClassifyProperties.BEST_SEED;
+				.getBestSeed(featurefile) : ClassifyProperties.BEST_SEED;
 		System.out.println("Seed:" + ClassifyProperties.BEST_SEED);
 
 		System.out.println("-------------------------------f" + featureid
 				+ "--i" + ClassifyProperties.Iteration_ID
 				+ "--cluster -----------------------------------------");
 
-		Cluster cluster = new Cluster();
+		//Cluster cluster = new Cluster();
 		// cluster.run(maxClusterNum, featurefile, samplefile, clusterResult);
 		try {
-			cluster.run(maxClusterNum, classifyResult);
+			DBScan cluster = new DBScan();
+			cluster.run(ClassifyProperties.DBSCAN_EPS,
+					ClassifyProperties.DBSCAN_MINP, classifyResult);
+			//cluster.run(maxClusterNum, classifyResult);
 			cluster.appendToResultFile(classifyResult);
 			cluster.writeToFile(clusterResult);
 		} catch (Exception e) {

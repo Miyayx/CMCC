@@ -157,7 +157,7 @@ public class Cluster {
 
 		// 4.使用聚类算法对样本进行聚类
 		cluster.buildClusterer(ins);
-		// 5.打印聚类结果
+	
 		tempIns = cluster.getClusterCentroids();// 得到质心
 
 		// 将簇号按顺序写入list

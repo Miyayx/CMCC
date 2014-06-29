@@ -29,6 +29,8 @@ public class ClassifyProperties {
 	public static double   STOP_RATIO         = 0.1;
 	public static int 	   MAX_CLUSTER_NUM    = 4;//为0的话就由程序计算
 	public static int      BEST_SEED          = -1;
+	public static double   DBSCAN_EPS         = 2;
+	public static int      DBSCAN_MINP        = 3;
 	public static boolean  PROCESS_OUTPUT     = true;	
 	public static String   ONTOLOGY_FILE      = null;
 	public static double   LOWEST_ACCURACY    = 0;
@@ -108,14 +110,16 @@ public class ClassifyProperties {
 			STOP_RATIO         = Double.valueOf(prop.getProperty("stop_ratio", String.valueOf(0.1)));
 			MAX_CLUSTER_NUM    = Integer.valueOf(prop.getProperty("max_cluster_num", String.valueOf(0)));
 			BEST_SEED          = Integer.valueOf(prop.getProperty("best_seed", String.valueOf(-1)));
-			PROCESS_OUTPUT     = Boolean.valueOf(prop.getProperty("process_output", String.valueOf(1)));
+			DBSCAN_EPS         = Double.valueOf(prop.getProperty("dbscan_eps", String.valueOf(2)));
+			DBSCAN_MINP        = Integer.valueOf(prop.getProperty("dbscan_minp", String.valueOf(3)));
+			PROCESS_OUTPUT     = Boolean.valueOf(prop.getProperty("process_output", "true"));
 			ONTOLOGY_FILE      = prop.getProperty("ontology", "etc/ontology.txt");
 			LOWEST_ACCURACY    = Double.valueOf(prop.getProperty("lowest_accuracy",String.valueOf(0.85)));
 			OTHER_CLASS        = prop.getProperty("other_class","others");
 			STOP_LIMITATION    = Integer.valueOf(prop.getProperty("stop_limitation", String.valueOf(0)));
 			POSITIVE_CLUSTER   = Integer.valueOf(prop.getProperty("positive_cluster", String.valueOf(-1)));
-			SECTION_LABEL      = Boolean.valueOf(prop.getProperty("section_label", String.valueOf(1)));
-			BLOCK_LABEL        = Boolean.valueOf(prop.getProperty("block_label", String.valueOf(1)));
+			SECTION_LABEL      = Boolean.valueOf(prop.getProperty("section_label", "true"));
+			BLOCK_LABEL        = Boolean.valueOf(prop.getProperty("block_label", "true"));
 			
 			fis = new FileInputStream(ClassifyProperties.FILENAME_PROP);
 			prop.load(fis);//将属性文件流装载到Properties对象中  
@@ -167,6 +171,7 @@ public class ClassifyProperties {
 		if(BLOCK_LABEL)
 			feature_kind++;
 		CLUSTER_INDEX            = 1+FEATURE_COUNT+1+feature_kind+(3 * (Iteration_ID - 1));
+		System.out.println("Iteration_id:"+Iteration_ID);
 		System.out.println("CLUSTER_INDEX:"+CLUSTER_INDEX);
 		FLAG_INDEX               = CLUSTER_INDEX + 1;
 		CLASSIFY_INDEX           = FLAG_INDEX + 1;

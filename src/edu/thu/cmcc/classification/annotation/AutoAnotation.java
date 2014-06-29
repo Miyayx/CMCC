@@ -25,7 +25,7 @@ public class AutoAnotation implements Annotation {
 			throws IOException {
 		Map<String, String> labeledInstanceSet = new HashMap<String, String>();
 		Map<String, String> instanceClusterMap = FileManipulator.loadOneToOne(
-				clusterfile, ",", 0, clusterIndex+2);
+				clusterfile, ",", 0, clusterIndex);
 
 		// 得到cluster和instance的对应
 		Map<String, Set<String>> clusterInstanceMap = new HashMap<String, Set<String>>();
