@@ -34,17 +34,32 @@ def no_feature_file(feature_file):
 
 
 if __name__=="__main__":
-    #import sys,os
-    #k = int(sys.argv[1])
-    #seed = int(sys.argv[2])
-    #path = "cluster_result/k=%d seed=%d/"%(k,seed)
-    #try:
-    #    os.mkdir(path)
-    #except:
-    #    pass
 
-    #for i in range(k):
-    #    cluster_feature("../../data/Classify/cluster1_f1_result.csv","../../data/Classify/result_features1.csv",path+"cluster"+str(i)+".dat",i)
-    no_feature_file("../../data/Classify/result_features1.csv")
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-k", "--k", dest="k", type="int", help="Num of KMeans Cluster")
+    parser.add_option("-s", "--seed", dest="seed", type="int", help="Seed of KMeans Cluster")
+    parser.add_option("-e", "--eps", dest="eps", type = "float", help="Eps of DBSCAN Cluster")
+    parser.add_option("-m", "--minp", dest="minp", type="int",help="Minp of DBSCAN Cluster")
+
+    (options, args) = parser.parse_args()
+
+    import sys,os
+    if not options.k:
+        print "Error:k is required"
+    else:
+        print options
+        path = "cluster_result/"
+        for kk,vv in options.__dict__.items():
+            path += "%s=%s "%(kk,str(vv))
+        path += "/"
+        try:
+            os.mkdir(path)
+        except:
+            pass
+
+        for i in range(-1,options.k):
+            cluster_feature("../../data/Classify/cluster1_f1_result.csv","../../data/Classify/result_features1.csv",path+"cluster"+str(i)+".dat",i)
+    #no_feature_file("../../data/Classify/result_features1.csv")
 
         
