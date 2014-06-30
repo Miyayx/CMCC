@@ -54,7 +54,7 @@ public class DBScan {
 			FileWriter fw = new FileWriter(file);
 			BufferedWriter out = new BufferedWriter(fw);
 
-			for (int w = 0; w < clusterNum; w++) {
+			for (int w = -1; w < clusterNum; w++) {
 
 				List<String> docs = result.get(w);
 				for (String d : docs)
