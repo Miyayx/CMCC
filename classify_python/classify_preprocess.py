@@ -662,6 +662,11 @@ def run(file_cfg, feature_cfg, db_cfg):
         fields.append(["block label"])
         features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 
+        features = [f for f in features if f.count(1) > 0]
+        sample_block = common_items([f[0] for f in features], sample_block)
+
+        sorted(sample_block)
+
         write_dataset(sample_block, feature_fields(fields), features, class_block, result_output)
 
         write_lines(file_configs["sample_output"],sample_block)
