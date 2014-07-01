@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.TreeMap;
 
 import edu.thu.cmcc.basic.CSVFileIO;
@@ -264,6 +265,7 @@ public class Cluster {
 		SimpleKMeans KM = new SimpleKMeans();
 		Instances ins = null;
 		Instances tempIns = null;
+		int seedN = 100;
 		int seed = 0;
 		double maxRatio = 0;
 
@@ -273,11 +275,17 @@ public class Cluster {
 					ClassifyProperties.FILTER_INDEX);
 			// ins = new ClusterInstances().getInstances(featureFile);
 
-			for (int i = 0; i < ins.numInstances(); i++) {
+			Random r = new Random();
+			int[] seeds = new int[seedN]; 
+			for(int i = 0; i< seedN; i++)
+				seeds[i] = r.nextInt(ins.numInstances());
+			
+			for (int i = 0; i < seedN; i++) {
 				// 1.读入样本
 
+				int s = seeds[i];
 				KM.setNumClusters(ClassifyProperties.MAX_CLUSTER_NUM);
-				KM.setSeed(i);
+				KM.setSeed(s);
 
 				// 4.使用聚类算法对样本进行聚类
 				KM.buildClusterer(ins);
@@ -287,7 +295,7 @@ public class Cluster {
 				double intra = 0;
 				EuclideanDistance distance = new EuclideanDistance();
 				distance.setInstances(ins);
-				System.out.println(i);
+				System.out.println(s);
 
 				// 计算类内距离
 				for (int j = 0; j < ins.numInstances(); j++) {
@@ -303,7 +311,7 @@ public class Cluster {
 				double ratio = (KM.getSquaredError() / intra);
 				System.out.println("Ratio:" + ratio);
 				if (ratio > maxRatio) {
-					seed = i;
+					seed = s;
 					maxRatio = ratio;
 				}
 			}
