@@ -174,11 +174,11 @@ public class Iteration {
 			// 聚类。。。
 			filenameInit(ClassifyProperties.Iteration_ID);
 			ClassifyProperties.updateFieldIndex();
-			// Cluster cluster = new Cluster();
-			// cluster.run(maxClusterNum, classifyResult);
-			DBScan cluster = new DBScan();
-			cluster.run(ClassifyProperties.DBSCAN_EPS,
-					ClassifyProperties.DBSCAN_MINP, classifyResult);
+			Cluster cluster = new Cluster();
+			cluster.run(maxClusterNum, classifyResult);
+			// DBScan cluster = new DBScan();
+			// cluster.run(ClassifyProperties.DBSCAN_EPS,
+			// ClassifyProperties.DBSCAN_MINP, classifyResult);
 			cluster.appendToResultFile(classifyResult);
 			cluster.writeToFile(clusterResult);
 
@@ -254,13 +254,14 @@ public class Iteration {
 				+ "--i" + ClassifyProperties.Iteration_ID
 				+ "--cluster -----------------------------------------");
 
-		//Cluster cluster = new Cluster();
-		// cluster.run(maxClusterNum, featurefile, samplefile, clusterResult);
 		try {
-			DBScan cluster = new DBScan();
-			cluster.run(ClassifyProperties.DBSCAN_EPS,
-					ClassifyProperties.DBSCAN_MINP, classifyResult);
-			//cluster.run(maxClusterNum, classifyResult);
+			// DBScan cluster = new DBScan();
+			// cluster.run(ClassifyProperties.DBSCAN_EPS,
+			// ClassifyProperties.DBSCAN_MINP, classifyResult);
+			Cluster cluster = new Cluster();
+			// cluster.run(maxClusterNum, featurefile, samplefile,
+			// clusterResult);
+			cluster.run(maxClusterNum, classifyResult);
 			cluster.appendToResultFile(classifyResult);
 			cluster.writeToFile(clusterResult);
 		} catch (Exception e) {
@@ -279,10 +280,10 @@ public class Iteration {
 
 		filenameInit(ClassifyProperties.Iteration_ID);
 
-//		DatasetGenerator2 dg = new DatasetGenerator2(
-//				AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
+		// DatasetGenerator2 dg = new DatasetGenerator2(
+		// AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
 		DatasetGenerator2 dg = new DatasetGenerator2(
-		AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
+				AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
 		dg.run(classifyResult, featurefile, leftfile, trainfile, testfile,
 				trainPlusTest);
 

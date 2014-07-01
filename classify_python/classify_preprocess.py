@@ -663,14 +663,14 @@ def run(file_cfg, feature_cfg, db_cfg):
         features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 
         no_feature_samples = []
-        for s in sample_block():
+        for s in sample_block:
             values = []
             for f in features:
                 values += f[s]
             if values.count(1) == 0:
                 no_feature_samples.append(s)
 
-        sample_block = delete_sample(sample_block,no_feature_samples)
+        sample_block = diff_items(sample_block,no_feature_samples)
 
         sorted(sample_block)
 
