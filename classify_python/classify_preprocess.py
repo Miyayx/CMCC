@@ -662,8 +662,15 @@ def run(file_cfg, feature_cfg, db_cfg):
         fields.append(["block label"])
         features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 
-        features = [f for f in features if f.count(1) > 0]
-        sample_block = common_items([f[0] for f in features], sample_block)
+        no_feature_samples = []
+        for s in sample_block():
+            values = []
+            for f in features:
+                values += f[s]
+            if values.count(1) == 0:
+                no_feature_samples.append(s)
+
+        sample_block = delete_sample(sample_block,no_feature_samples)
 
         sorted(sample_block)
 
