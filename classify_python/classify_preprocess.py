@@ -537,14 +537,24 @@ def run(file_cfg, feature_cfg, db_cfg):
         sample_block = db.all_samples
         all_sample = sample_block
 
+        #Delete samples whose name has ','
         sample_block = delete_sample(sample_block, u',')
         write_lines("delelte_samples.txt", diff_items(all_sample, sample_block))
 
+        #Leave samples with str
         #sample_block = filter_sample(sample_block, u'04-资费')
-        if fconfigs["doc"]:
-            sample_block = delete_items(sample_block, db.get_word_doc())
-        print "sample count:",len(sample_block)
 
+        #Delete Doc type samples
+        if fconfigs["doc"]:
+            print "Delete Doc"
+            docs = db.get_word_doc()
+            print "Num of Doc:",len(docs)
+            sample_block = delete_items(sample_block, docs)
+            write_lines(file_configs["doc_output"], docs)
+            del docs
+            print "sample count:",len(sample_block)
+
+        #After delete all specific samples, reset allsample in db
         db.set_allsample(sample_block)
 
         ################  class ####################
@@ -567,7 +577,7 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         
         #把过滤掉的那些文档写入最终分类输出文件中
-        result_output = file_configs["output_path"]+file_configs["result_output_name2"]+"_"+section+".csv"
+        result_output = file_configs["output_path"]+file_configs["result_output_name"]+"_"+section+".csv"
 
         import os
         if os.path.exists(result_output):
@@ -662,15 +672,19 @@ def run(file_cfg, feature_cfg, db_cfg):
         fields.append(["block label"])
         features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 
-        no_feature_samples = []
-        for s in sample_block:
-            values = []
-            for f in features:
-                values += f[s]
-            if values.count(1) == 0:
-                no_feature_samples.append(s)
+        if fconfigs["no_feature"]:
+            print "Delete no feature samples"
+            no_feature_samples = []
+            for s in sample_block:
+                values = []
+                for f in features:
+                    values += f[s]
+                if values.count(1) == 0:
+                    no_feature_samples.append(s)
 
-        sample_block = diff_items(sample_block,no_feature_samples)
+            print "Num of no feature samples",len(no_feature_samples)
+            sample_block = delete_items(sample_block,no_feature_samples)
+            print "sample count:",len(sample_block)
 
         sorted(sample_block)
 
