@@ -551,12 +551,12 @@ def run(file_cfg, feature_cfg, db_cfg):
             sample_block,filter_result = filter_doc(sample_block, label_block, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
         
         #################### Delete Doc type samples #############
-        if fconfigs["doc"]:
+        if fconfigs["word_doc"]:
             print "Delete Doc"
             docs = db.get_word_doc()
             print "Num of Doc:",len(docs)
             sample_block = delete_items(sample_block, docs)
-            write_lines(file_configs["doc_output"], docs)
+            write_lines(file_configs["word_output"], docs)
             del docs
             print "sample count:",len(sample_block)
 
@@ -668,7 +668,7 @@ def run(file_cfg, feature_cfg, db_cfg):
         fields.append(["block label"])
         features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 
-        if fconfigs["no_feature"]:
+        if fconfigs["feature0"]:
             print "Delete no feature samples"
             no_feature_samples = []
             for s in sample_block:
@@ -679,7 +679,7 @@ def run(file_cfg, feature_cfg, db_cfg):
                     no_feature_samples.append(s)
 
             print "Num of no feature samples",len(no_feature_samples)
-            write_lines(file_configs["no_feature_output"],no_feature_samples)
+            write_lines(file_configs["feature0_output"],no_feature_samples)
             sample_block = delete_items(sample_block,no_feature_samples)
             print "sample count:",len(sample_block)
 
