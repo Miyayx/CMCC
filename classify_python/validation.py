@@ -17,6 +17,7 @@
 from classify_preprocess import *
 from db import *
 from utils import *
+from synonym import *
 
 TITLE_SPLIT = "../etc/title_word_segmentation.txt"
 KEYWORD_SPLIT = "../etc/document_segmentation.txt"
@@ -51,6 +52,8 @@ def exist_val(data, origin):
     print "origin len:",len(origin)
     fields = [d.strip("\c") for d in data[0]]
     index_list = []
+    syns = get_synonym_words("../etc/synonym_dict.csv")
+
     for d in data[1:]:
         print "\n==================="
         items = d
@@ -69,12 +72,12 @@ def exist_val(data, origin):
         print "+++++++  feature  +++++++++++++"
         for i in mine_index:
             print "    "+fields[i].encode("utf-8")
-            if not fields[i] in ls:
+            if (not fields[i] in ls) and (fields[i] in syns):
                 print "同义词：",fields[i].encode("utf-8")
         print "++++++++  origin  +++++++++++++"
         for l in ls:
             print "    "+l.encode("utf-8")
-            if l not in fields:
+            if (l not in fields) and (l in syns):
                 print "同义词：",l.encode("utf-8")
         index_list.append(mine_index)
     return index_list

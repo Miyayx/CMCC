@@ -5,6 +5,15 @@
 和同义词相关的代码
 """
 
+def get_synonym_words(fn):
+    """
+    """
+    words = set()
+    for line in open(fn):
+        line = line.strip("\n").strip("\r").decode("utf-8")
+        words.update(line.split(",")[:2])
+    return list(words)
+
 def get_synonym_dict(fn):
     """
     Returns:
