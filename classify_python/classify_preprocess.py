@@ -544,6 +544,15 @@ def run(file_cfg, feature_cfg, db_cfg):
         #Leave samples with str
         #sample_block = filter_sample(sample_block, u'04-资费')
 
+        ##################### HUB ATTRIBUTE  ##################
+
+        if fconfigs["hub"] or fconfigs["attribute"]:
+            label_block = db.get_sample2section()
+            sample_block,filter_result = filter_doc(sample_block, label_block, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
+            db.all_samples = sample_block
+            #for k,v in filter_result.items():
+            #    print k,v
+        
         #Delete Doc type samples
         if fconfigs["doc"]:
             print "Delete Doc"
@@ -566,16 +575,6 @@ def run(file_cfg, feature_cfg, db_cfg):
         features = []
         fields = []
 
-        ##################### HUB ATTRIBUTE  ##################
-
-        if fconfigs["hub"] or fconfigs["attribute"]:
-            label_block = db.get_sample2section()
-            sample_block,filter_result = filter_doc(sample_block, label_block, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
-            db.all_samples = sample_block
-            for k,v in filter_result.items():
-                print k,v
-
-        
         #把过滤掉的那些文档写入最终分类输出文件中
         result_output = file_configs["output_path"]+file_configs["result_output_name"]+"_"+section+".csv"
 
@@ -683,6 +682,7 @@ def run(file_cfg, feature_cfg, db_cfg):
                     no_feature_samples.append(s)
 
             print "Num of no feature samples",len(no_feature_samples)
+            write_lines(file_configs["no_feature_output"],no_feature_samples)
             sample_block = delete_items(sample_block,no_feature_samples)
             print "sample count:",len(sample_block)
 
