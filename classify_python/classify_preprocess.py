@@ -549,11 +549,8 @@ def run(file_cfg, feature_cfg, db_cfg):
         if fconfigs["hub"] or fconfigs["attribute"]:
             label_block = db.get_sample2section()
             sample_block,filter_result = filter_doc(sample_block, label_block, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
-            db.all_samples = sample_block
-            #for k,v in filter_result.items():
-            #    print k,v
         
-        #Delete Doc type samples
+        #################### Delete Doc type samples #############
         if fconfigs["doc"]:
             print "Delete Doc"
             docs = db.get_word_doc()
