@@ -207,7 +207,7 @@ def validation(featurefile, options):
             #验证section label
             print "=============== section label validation ================="
             d = split_feature(data,options["section"]["begin"], options["section"]["end"])
-            print "section feature length:",len(d[0][0])-1
+            print "section feature length:",len(d[0])-1
             sample_block,label_block,class_block = read_xls()
             label_block = db.get_sample2section()
             exist_val(d, label_block)
@@ -227,7 +227,7 @@ def validation(featurefile, options):
         if options.has_key("block"):
             print "=============== block label validation ================="
             d = split_feature(data,options["block"]["begin"], options["block"]["end"])
-            print "block feature length:",len(d[0][0])-1
+            print "block feature length:",len(d[0])-1
 
             sample_sl = db.get_sample2subsection()
             
