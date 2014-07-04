@@ -86,8 +86,8 @@ def run():
     left = delete_items(left, items)
     print "Left Num:",len(left)
 
-    items = [i for i in attrfiles if db.no_mean(i)]
-    write_lines("attr/attr_no_mean.dat", items)
+    items = [i for i in attrfiles if db.no_meaning(i)]
+    write_lines("attr/attr_no_meaning.dat", items)
     print "Has No Meaning Num:",len(items)
     left = delete_items(left, items)
     print "Left Num:",len(left)
@@ -104,7 +104,7 @@ def run():
     left = delete_items(left, items)
     print "Left Num:",len(left)
 
-    items = [i for i in attrfiles if db.has_one_table(i)]
+    items = [i for i in attrfiles if db.has_one_big_table(i)]
     write_lines("attr/attr_one_table.dat", items)
     print "Has One Table Num:",len(items)
     left = delete_items(left, items)
@@ -116,6 +116,11 @@ def run():
     left = delete_items(left, items)
     print "Left Num:",len(left)
 
+    items = [i for i in attrfiles if db.pure_text(i)]
+    write_lines("attr/attr_pure_text.dat", items)
+    print "Pure Text Num:",len(items)
+    left = delete_items(left, items)
+
     items = [i for i in attrfiles if db.has_block_label(i)]
     write_lines("attr/attr_block_label.dat", items)
     print "Has Block Label Num:",len(items)
@@ -126,8 +131,8 @@ def run():
     print "Hub Num:",len(items)
     left = delete_items(left, items)
 
-    print "Left Num:",len(left)
-    write_lines("attr/attr_left.dat",left)
+    print "Others Num:",len(left)
+    write_lines("attr/attr_other.dat",left)
     #write_class_to_file("attr_class.csv",attrfiles,attr_class)
 
 if __name__=="__main__":

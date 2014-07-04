@@ -5,6 +5,7 @@ from utils import *
 from pymongo import *
 from classify_preprocess import *
 from bs4 import BeautifulSoup
+from bs4 import BeautifulStoneSoup
 
 class DB():
     all_samples= []
@@ -291,7 +292,29 @@ class DB():
 
 
     #################  for attrbute file  ###############
-    def no_mean(self, f):
+    def has_heading2(self, sections):
+        """
+        Has end 
+        """
+        for s in sections:
+            html = s["html"]
+            soup = BeautifulSoup(html, features="xml")
+            if soup.find(class_ = "heading2"):
+                return True
+        return False
+
+    def has_header(self, sections):
+        """
+        Has header
+        """
+        for s in sections:
+            html = s["html"]
+            soup = BeautifulSoup(html, features="xml")
+            if soup.find(class_ = "title"):
+                return True
+        return False
+
+    def no_meaning(self, f):
         """
         If the attribute file has no context
         """
@@ -315,7 +338,8 @@ class DB():
         sections = self.collection.find({"level":"section","_id.path":f })
         for s in sections:
             html = s["html"]
-            if "img" in html:
+            soup = BeautifulSoup(html)
+            if soup.find("img"):
                 return True
         return False
 
@@ -324,13 +348,23 @@ class DB():
         If the attribute file has only one img element
         """
         sections = self.collection.find({"level":"section","_id.path":f })
+        if sections.count() == 3:
+            if not self.has_heading2(sections.clone()):
+                return False
+
+        if sections.count() > 1:
+            if not self.has_header(sections.clone()):
+                return False
+
         for s in sections:
             html = s["html"]
-            num = html.count("img")
-            if num >0 and num<= 2 :
+            soup = BeautifulSoup(html)
+            for p in soup.findAll("p"):
+                if not p.find("img"):
+                    return False
+            if len(soup.findAll("img")) == 1:
                 return True
         return False
-
 
     def has_table(self,f):
         """
@@ -346,26 +380,76 @@ class DB():
         sections = self.collection.find({"level":"section","_id.path":f })
         for s in sections:
             html = s["html"]
-            if "table" in html:
+            soup = BeautifulSoup(html)
+            if soup.find("table"):
                 return True
         return False
 
-    def has_one_table(self,f):
+    def has_one_big_table(self,f):
         """
         If the attribute file has only one table element
+        1. One section except header and end head
+        2. A table at the beginning
+        3. No paragraph
         """
         sections = self.collection.find({"level":"section","_id.path":f })
-        for s in sections:
+        if sections.count() == 3:
+            if not self.has_heading2(sections.clone()):
+                return False
+
+        for s in sections[:2]:
             html = s["html"]
-            num = html.count("table")
-            if num > 0 and num <= 2 :
-                return True
+            soup = BeautifulSoup(html, features="xml")
+            if soup.tr.td.find("p", recursive = False):
+                return False
+            if len(soup.findAll("table")) == 1:
+                try:
+                    if soup.find("div").find("p",recursive=False):
+                        return False
+                    if soup.find("div").findChildren()[0].name == "table":
+                        return True
+                except:
+                    continue
+
         return False
 
-    def is_pure_text(self,f):
+    def pure_text(self,f):
         """
+        1. Only one content section between heading and end head
+        2. No block label in the content section
+        3. No table
+        4. No image
         """
-        pass
+        sections = self.collection.find({"level":"section","_id.path":f })
+        sec_copy = sections.clone()
+
+        if sections.count() == 3:
+            if not self.has_heading2(sections.clone()):
+                return False
+
+        if sections.count() > 1:
+            if not self.has_header(sections.clone()):
+                return False
+
+            for s in sections:
+                html = s["html"]
+                soup = BeautifulSoup(html, features="xml")
+                if soup.find("table"):
+                    return False
+                if soup.find("img"):
+                    return False
+                #ps = soup.findAll("p")
+                #if p and len(p) == 1:
+                #    if not p.find("table")
+                #        return True
+
+        for s in sec_copy:
+            for block in s["children"]:
+                block_id = block.rsplit("/",1)[-1]
+                b = self.collection.find({"level":"block","_id.name":block_id })[0]
+                if b["label"] and len(b["label"]) > 0:
+                    return False
+        return True
 
     def is_hub(self, f):
         f = f.strip("/")
@@ -373,6 +457,8 @@ class DB():
         doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
 
     def has_block_label(self,f):
+        """
+        """
         sections = self.collection.find({"level":"section","_id.path":f })
         for s in sections:
             for block in s["children"]:
@@ -380,10 +466,12 @@ class DB():
                 b = self.collection.find({"level":"block","_id.name":block_id })[0]
                 if b["label"] and len(b["label"]) > 0:
                     return True
-                else:
-                    return False
+        return False
 
 
 if __name__ == "__main__":
-    db = DB('db.config')
+    db = DB('../../conf/conf.properties')
+    files = [i.strip("\n") for i in open("./attr/attr_other.dat")]
+    for f in files:
+        print db.pure_text(f)
 

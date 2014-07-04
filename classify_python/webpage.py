@@ -18,12 +18,14 @@ def open_file(filepath):
 
 if __name__=="__main__":
     import os
-    with open("hubfiles") as f:
+    #with open("../../data/Classify/attribute_files.txt") as f:
+    with open("./attr/attr_pure_text.dat") as f:
         lines = f.readlines()
-        i = 3
+        i = 0
         for line in lines[i*10:(i+1)*10]:
             line = line.strip("\n").decode("utf-8")
-            line = line.replace("etc","/mnt/wind/tsinghua/CMCC")
+            #line = line.replace("etc","/mnt/wind/tsinghua/CMCC/移动/")
+            line = u"/mnt/wind/tsinghua/CMCC/移动"+line
             line = line[:-1]
             line = line.rstrip("/")
             open_file(line)
