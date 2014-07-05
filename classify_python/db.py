@@ -319,10 +319,7 @@ class DB():
         If the attribute file has no context
         """
         sections = self.collection.find({"level":"section","_id.path":f })
-        if sections.count() > 1:
-            return False
-        else: 
-            return True
+        return False if sections.count() > 0 else True
 
     def has_img(self, f):
         """
@@ -348,22 +345,26 @@ class DB():
         If the attribute file has only one img element
         """
         sections = self.collection.find({"level":"section","_id.path":f })
-        if sections.count() == 3:
-            if not self.has_heading2(sections.clone()):
-                return False
+        #if sections.count() == 3:
+        #    if not self.has_heading2(sections.clone()):
+        #        return False
 
-        if sections.count() > 1:
-            if not self.has_header(sections.clone()):
-                return False
+        #if sections.count() > 1:
+        #    if not self.has_header(sections.clone()):
+        #        return False
+
+        if sections.count() > 3:
+            return False
 
         for s in sections:
             html = s["html"]
             soup = BeautifulSoup(html)
-            for p in soup.findAll("p"):
-                if not p.find("img"):
-                    return False
-            if len(soup.findAll("img")) == 1:
-                return True
+            if soup.find("img"):
+                for p in soup.findAll("p"):
+                    if not p.find("img"):
+                        return False
+                if len(soup.findAll("img")) == 1:
+                    return True
         return False
 
     def has_table(self,f):
@@ -393,23 +394,27 @@ class DB():
         3. No paragraph
         """
         sections = self.collection.find({"level":"section","_id.path":f })
-        if sections.count() == 3:
-            if not self.has_heading2(sections.clone()):
-                return False
+        #if sections.count() == 3:
+        #    if not self.has_heading2(sections.clone()):
+        #        return False
 
-        for s in sections[:2]:
+        if sections.count() > 3:
+            return False
+
+        for s in sections:
             html = s["html"]
             soup = BeautifulSoup(html, features="xml")
-            if soup.tr.td.find("p", recursive = False):
-                return False
-            if len(soup.findAll("table")) == 1:
-                try:
-                    if soup.find("div").find("p",recursive=False):
-                        return False
-                    if soup.find("div").findChildren()[0].name == "table":
-                        return True
-                except:
-                    continue
+            if soup.find("table"):
+                if soup.tr.td.find("p", recursive = False):
+                    return False
+                if len(soup.findAll("table")) == 1:
+                    try:
+                        if soup.find("div").find("p",recursive=False):
+                            return False
+                        if soup.find("div").findChildren()[0].name == "table":
+                            return True
+                    except:
+                        continue
 
         return False
 

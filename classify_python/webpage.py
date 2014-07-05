@@ -9,6 +9,7 @@ def open_file(filepath):
     print "file:",filepath
     import sys
     import subprocess, os
+    #webbrowser.get('firefox').open_new_tab(filepath)
     if sys.platform.startswith('darwin'):
         subprocess.call(('open', filepath))
     elif os.name == 'nt':
@@ -26,6 +27,7 @@ if __name__=="__main__":
             line = line.strip("\n").decode("utf-8")
             #line = line.replace("etc","/mnt/wind/tsinghua/CMCC/移动/")
             line = u"/mnt/wind/tsinghua/CMCC/移动"+line
+            #line = u"/home/ontologyshare/data"+line
             line = line[:-1]
             line = line.rstrip("/")
             open_file(line)
