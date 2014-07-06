@@ -30,20 +30,23 @@ class DB():
 
         self.all_samples = self.get_allid()
 
-    def filter(self, regex):
+    def filter(self, regex, type="string"):
         new_samples = []
 
-        if type(regex) == str or type(regex) == unicode:
-            for s in self.all_samples:
-                if regex in s:
-                    new_samples.append(s)
-                    
-        if type(regex) == list:
-            for s in self.all_samples:
-                for r in regex:
-                    if r.decode('utf-8') in s:
+        if type == "string":
+            if type(regex) == str or type(regex) == unicode:
+                for s in self.all_samples:
+                    if regex in s:
                         new_samples.append(s)
-                        break
+                        
+            if type(regex) == list:
+                for s in self.all_samples:
+                    for r in regex:
+                        if r.decode('utf-8') in s:
+                            new_samples.append(s)
+                            break
+        if type == "file":
+            new_samples = [line.strip("\n").decode("utf-8") for line in open(regex)]
 
         self.all_samples = new_samples
 

@@ -274,6 +274,75 @@ def subsection_label_feature(sample_block, sample_sl, common = False):
                 sublabel_feature[s].append(0)
     return sublabels, sublabel_feature
 
+def get_doc_keywords(sample_key):
+    """
+    get_section_labels(label_block) -> list of labels
+
+    1. Get section labels from xls
+    2. Delete the label occurs only once
+    Args: 
+        dict (k:样本id v:对应section labels)
+    Returns: 
+        所有section label列表（所有文档范围内）
+    """
+    keywords = set() 
+    for s,ks in sample_key.items():
+        for k in ks:
+            keywords.add(k)
+    return list(keywords)
+
+def get_common_doc_keywords(sample_key):
+    """
+    get_common_doc_keywords(sample_key) -> list of common keywords
+
+    1. Get keywords from db
+    2. Delete the label occurs only once
+    Args: 
+        dict (k:样本id v:对应keywords)
+    Returns: 
+        出现次数大于1的keyword列表（所有文档范围内）
+    """
+    keywords = []
+    keywords_count = {}
+
+    for s, ks in sample_key.items():
+        for k in ks:
+            keywords_count[k] = keywords_count.get(k, 0) + 1
+
+    keywords = [k for k,v in keywords_count.items() if v > 1]
+
+    return keywords
+
+def doc_keyword_feature(samples, sample_key, common = False):
+    """
+    doc_keyword_feature(list of sample ids, sample_key) -> (list of keywords, dict of features) 
+
+    Take section labels appear more than once as feature.
+    If a section label has this label, value is 1.
+    Value of the feature dict is list type
+
+    Args: 
+        samples:       list 所有样本id（路径+标题）
+        label_block:   dict (k:样本id v:对应section labels)
+    Returns: 
+        labels:        出现次数大于1的section label列表（所有文档范围内）
+        label_feature: dict(k:样本id v:section label 特征值，因label不止一个，因此v是个list，每个元素对应一个label)
+    """
+    if common:
+        keywords = get_doc_keywords(sample_key)
+    else:
+        keywords = get_common_doc_keywords(sample_key)
+    keyword_feature = {}
+    for s in samples:
+        this_keyword = sample_key[s] if sample_key.has_key(s) else []
+        keyword_feature[s] = []
+        for k in keywords:
+            if k in this_keyword:
+                keyword_feature[s].append(1)
+            else:
+                keyword_feature[s].append(0)
+    return keywords, keyword_feature
+
 #feature functions
 ########################################################
 
@@ -504,7 +573,7 @@ def read_feature_config(fn):
 
         configs[s] = d
 
-    return configs
+    return sorted(configs.items(), key=lambda e:e[0],reverse=True)
 
 def read_file_config(fn):
     """
@@ -525,11 +594,13 @@ def run(file_cfg, feature_cfg, db_cfg):
     feature_configs = read_feature_config(feature_cfg)
     file_configs = read_file_config(file_cfg)
 
-    for section, fconfigs in feature_configs.items():
+    for section, fconfigs in feature_configs:
 
         db = DB(db_cfg)
-        if len(fconfigs["sample_filter"]) > 0:
-            db.filter(fconfigs["sample_filter"].split(","))
+        if len(fconfigs["sample_filter_str"]) > 0:
+            db.filter(fconfigs["sample_filter_str"].split(","))
+        if len(fconfigs["sample_filter_file"]) > 0:
+            db.filter(fconfigs["sample_filter_file"],type="file")
 
         class_block = {}
         #sample_block,label_block,class_block = read_xls()
@@ -640,6 +711,14 @@ def run(file_cfg, feature_cfg, db_cfg):
 
             fields.append(kws)
             features.append(kw_feature)
+
+        ###################  content keyword(not tfidf)###################
+        if fconfigs["document_keyword"]:
+            sample_key = db.get_sample2keywords()
+            keywords,keyword_features = doc_keyword_feature(sample_block, sample_key, fconfigs["section_label_common"])
+
+            fields.append(keywords)
+            features.append(keyword_features)
 
         ###################### Weight #################
 
