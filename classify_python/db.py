@@ -54,6 +54,14 @@ class DB():
     def set_allsample(self, samples):
         self.all_samples = samples
 
+    def find_sample(self, s):
+        path = s.rsplit("/",2)[:-1][0]+"/"
+        name = s.rsplit("/",2)[:-1][-1]
+        coll = self.collection.find({"level":"document","_id.path":path,"_id.name":name})
+        for k,v in coll[0].items():
+            print k+":"
+            print v
+
     def get_inlink_count(self):
         """
         从数据库获取inlink信息(暂没用上)
@@ -479,7 +487,7 @@ class DB():
 
 if __name__ == "__main__":
     db = DB('../../conf/conf.properties')
-    files = [i.strip("\n") for i in open("./attr/attr_other.dat")]
+    files = [i.strip("\n") for i in open("./attr/attr_pure_text.dat")]
     for f in files:
-        print db.pure_text(f)
+        print db.find_sample(f)
 
