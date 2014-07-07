@@ -75,64 +75,6 @@ def run():
     for i in attrfiles:
         print i.encode("utf-8")
 
-    from utils import delete_items
-    left = attrfiles
-    print "Left Num:",len(left)
-    #print "WordDoc Num:",[db.is_word(i) for i in attrfiles].count(True)
-    items = []
-    items = common_items(attrfiles,db.get_word_doc())
-    write_lines("attr/attr_doc.dat", items)
-    print "WordDoc Num:",len(items)
-    left = delete_items(left, items)
-    print "Left Num:",len(left)
-
-    items = [i for i in attrfiles if db.no_meaning(i)]
-    write_lines("attr/attr_no_meaning.dat", items)
-    print "Has No Meaning Num:",len(items)
-    left = delete_items(left, items)
-    print "Left Num:",len(left)
-
-    items = [i for i in attrfiles if db.has_one_img(i)]
-    write_lines("attr/attr_one_img.dat", items)
-    print "Has One Img Num:",len(items)
-    left = delete_items(left, items)
-    print "Left Num:",len(left)
-
-    items = [i for i in attrfiles if db.has_img(i)]
-    write_lines("attr/attr_img.dat", items)
-    print "Has Img Num:",len(items)
-    left = delete_items(left, items)
-    print "Left Num:",len(left)
-
-    items = [i for i in attrfiles if db.has_one_big_table(i)]
-    write_lines("attr/attr_one_table.dat", items)
-    print "Has One Table Num:",len(items)
-    left = delete_items(left, items)
-    print "Left Num:",len(left)
-
-    items = [i for i in attrfiles if db.has_table(i)]
-    write_lines("attr/attr_table.dat", items)
-    print "Has Table Num:",len(items)
-    left = delete_items(left, items)
-    print "Left Num:",len(left)
-
-    items = [i for i in attrfiles if db.pure_text(i)]
-    write_lines("attr/attr_pure_text.dat", items)
-    print "Pure Text Num:",len(items)
-    left = delete_items(left, items)
-
-    items = [i for i in attrfiles if db.has_block_label(i)]
-    write_lines("attr/attr_block_label.dat", items)
-    print "Has Block Label Num:",len(items)
-    left = delete_items(left, items)
-
-    items = common_items(attrfiles,hubs)
-    write_lines("attr/attr_hub.dat", items)
-    print "Hub Num:",len(items)
-    left = delete_items(left, items)
-
-    print "Others Num:",len(left)
-    write_lines("attr/attr_other.dat",left)
     #write_class_to_file("attr_class.csv",attrfiles,attr_class)
 
 if __name__=="__main__":
