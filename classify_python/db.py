@@ -488,6 +488,15 @@ class DB():
                     return True
         return False
 
+    def has_section_label(self, f):
+        """
+        """
+        sections = self.collection.find({"level":"section","_id.path":f })
+        for s in sections:
+            if s["label"]:
+                if len(s["label"].strip()) > 0
+                    return True
+        return False
 
 if __name__ == "__main__":
     db = DB('../../conf/conf.properties')
