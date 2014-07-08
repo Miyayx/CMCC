@@ -4,6 +4,12 @@
 from db import DB
 
 def file_check(files, path):
+    import os
+    try:
+        os.mkdir(path)
+    except:
+        pass
+
     db = DB("../../conf/conf.properties")
     from utils import *
     left = files
@@ -65,7 +71,8 @@ def file_check(files, path):
     write_lines(path+"other.dat",left)
 
 if __name__=="__main__":
-    #files = [line.strip("\n") for line in open("../../data/Classify/others/feature0_files.dat")]
+    files = [line.strip("\n").decode("utf-8") for line in open("../../data/Classify/others/feature0_files.dat")]
+    file_check(files, "feature0_check/")
     files = [line.strip("\n").decode("utf-8") for line in open("../../data/Classify/others/attribute_files.dat")]
     file_check(files, "attr/")
 
