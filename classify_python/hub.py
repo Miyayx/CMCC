@@ -71,6 +71,24 @@ def detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links):
 
     return list(files), sample_class
 
+def attribute_val(attrfiles, section_label, block_label, inlinks):
+    for a in attrfiles:
+        print ""
+        print "Sample:",a
+        print "section label num:",len(section_label[a])
+        assert len(section_label[a]) == 0
+        print "section label:"
+        for s in section_label[a]:
+            print s
+        print "block label num:",len(block_label[a])
+        print "block label:"
+        for s in block_label[a]:
+            print s
+        assert inlinks.has_key(a)
+        print "Inlinks:"
+        for i in inlinks[a]:
+            print i
+
 def run():
     db = DB("../../conf/conf.properties")
     #sample_block,label_block,class_block = read_xls()
@@ -98,6 +116,7 @@ def run():
         print i.encode("utf-8")
 
     #write_class_to_file("attr_class.csv",attrfiles,attr_class)
+    attribute_val(attrfiles, section_label, block_label, inlinks)
 
 if __name__=="__main__":
     run()
