@@ -104,17 +104,6 @@ class DB():
 
         return sample_links, sample_linknum
 
-    def get_samples_in_level(self, level):
-        """
-        获得某一层次的文档列表
-        Args:
-            level:层级id
-        """
-        coll = self.collection.find({"level":"document","linklevel":str(level)})
-        
-        samples = [(c["_id"]["path"].replace("../data","etc")+c["_id"]["name"]).strip("/")+"/" for c in coll]
-        return samples
-
     def get_keywords(self):
         """
         从mongodb中获取所有文档关键字
@@ -233,7 +222,7 @@ class DB():
         s2s = {}
         coll = self.collection.find({"level":"section"})
         for c in coll:
-            sample = c["_id"]["path"].replace("../data","etc")
+            sample = c["_id"]["path"]
             if not s2s.has_key(sample):
                 s2s[sample] = set()
             label = c["label"].strip()
@@ -245,6 +234,21 @@ class DB():
         for sample in diff_items(self.all_samples,s2s.keys()):
             s2s[sample] = []
         return s2s 
+
+    def get_section_label(self, f):
+        """
+        从数据库获取某文档的section label
+        Return:
+            labels: list of section labels
+        """
+        labels = []
+        sections = self.collection.find({"level":"section","_id.path":f })
+        for s in sections:
+            if s["label"]:
+                l = s["label"].strip()
+                if len(l) > 0 and (not self.is_bad_label(l)):
+                    labels.append(l)
+        return labels
 
     def get_sample2subsection(self):
         """

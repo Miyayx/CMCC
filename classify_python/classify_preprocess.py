@@ -192,14 +192,14 @@ def section_label_feature(samples, label_block, common = False, synonym_merge = 
         label_feature[samples[i]] = fs
     return labels,label_feature
 
-def section_label_count(samples, label_block):
+def label_count(samples, label_block):
     """
     How many label are there is a document
     Args: 
         samples: list 所有样本id（路径+标题）
-        label_block: dict (k:样本id v:对应section labels)
+        label_block: dict (k:样本id v:对应 labels)
     Returns: 
-        label_count: dict(k:样本id v:此文档中的section label 数量)
+        label_count: dict(k:样本id v:此文档中的label 数量)
     """
     label_count = {}
     for i in range(len(samples)):
@@ -505,7 +505,7 @@ def filter_doc(sample_block, label_block, hubfile = True, attrfile = True):
     Returns:
         sample_block:过滤掉Hub和属性文档后的文档集合
     """
-    label_count = section_label_count(sample_block,label_block)
+    label_count = label_count(sample_block,label_block)
     links,linknum = get_link(file_configs["outlink"])
     inlinks,inlinknum = get_link(file_configs["inlink"])
 
@@ -520,7 +520,7 @@ def filter_doc(sample_block, label_block, hubfile = True, attrfile = True):
         sample_block = [s for s in sample_block if s not in hubs] 
 
     if attrfile:
-        attrfiles,attr_class = detect_attributefile(label_count,inlinknum,links)
+        attrfiles,attr_class = detect_attributefile(label_count, inlinks, inlinknum, links)
         sample_class.update(attr_class)
         print "attrfiles:",len(attrfiles)
         write_lines(file_configs["attribute_output"], attrfiles)
