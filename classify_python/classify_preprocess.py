@@ -496,7 +496,7 @@ def get_link(fn):
             sample_linknum[k] = len(v)
     return sample_links, sample_linknum
 
-def filter_doc(sample_block, label_block, hubfile = True, attrfile = True):
+def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfile = True):
     """
     获取link信息，依规则判断Hub和属性文档，从文档集合中过滤出去
     Args: 
@@ -505,14 +505,15 @@ def filter_doc(sample_block, label_block, hubfile = True, attrfile = True):
     Returns:
         sample_block:过滤掉Hub和属性文档后的文档集合
     """
-    label_count = label_count(sample_block,label_block)
+    slabel_count = label_count(sample_block,section_label)
+    blabel_count = label_count(sample_block,block_label)
     links,linknum = get_link(file_configs["outlink"])
     inlinks,inlinknum = get_link(file_configs["inlink"])
 
     sample_class = {}
 
     if hubfile:
-        hubs,hub_class = detect_hub(label_count, linknum)
+        hubs,hub_class = detect_hub(slabel_count, linknum)
         sample_class.update(hub_class)
         print "hub files:",len(hubs)
         write_lines(file_configs["hub_output"], hubs)
@@ -520,7 +521,7 @@ def filter_doc(sample_block, label_block, hubfile = True, attrfile = True):
         sample_block = [s for s in sample_block if s not in hubs] 
 
     if attrfile:
-        attrfiles,attr_class = detect_attributefile(label_count, inlinks, inlinknum, links)
+        attrfiles,attr_class = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links)
         sample_class.update(attr_class)
         print "attrfiles:",len(attrfiles)
         write_lines(file_configs["attribute_output"], attrfiles)
@@ -618,8 +619,10 @@ def run(file_cfg, feature_cfg, db_cfg):
         ##################### HUB ATTRIBUTE  ##################
 
         if fconfigs["hub"] or fconfigs["attribute"]:
-            label_block = db.get_sample2section()
-            sample_block,filter_result = filter_doc(sample_block, label_block, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
+            section_label = db.get_sample2section()
+            block_label = db.get_sample2subsection()
+
+            sample_block,filter_result = filter_doc(sample_block, section_label,block_label, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
         
         #################### Delete Doc type samples #############
         if fconfigs["word_doc"]:
