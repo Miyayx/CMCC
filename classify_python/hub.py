@@ -32,13 +32,13 @@ def detect_hub(slabel_count,linknum):
     return files,sample_class
 
 
-def detect_attributefile(slabel_count,inlinks, inlinknum, links):
+def detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links):
     """
     提取属性文档
     依据规则：
         1. section label 数量为0
         2. 此文档被大于ATTR_MIN_INLINK个其他文档链接（有inlink）
-        3. inlink文档有section label
+        3. inlink文档有section label 或 block label
         4. link（链接）数量小于ATTR_MAX_LINK
         5. 若inlink数量大于1，则此文档的链接文件也是属性文件
     """
@@ -47,7 +47,9 @@ def detect_attributefile(slabel_count,inlinks, inlinknum, links):
 
     def inlink_has_label(k):
         for i in inlinks[k]:
-            if slabel_count[i] > 0:
+            if slabel_count[i] > 0 :
+                return True
+            if blabel_count[i] > 0:
                 return True
         for i in inlinks[k]:
             print "inlink doc:",i
@@ -73,8 +75,10 @@ def run():
     db = DB("../../conf/conf.properties")
     #sample_block,label_block,class_block = read_xls()
     sample_block = db.get_allid()
-    label_block = db.get_sample2section()
-    slabel_count = label_count(sample_block,label_block)
+    section_label = db.get_sample2section()
+    slabel_count = label_count(sample_block,section_label)
+    block_label = db.get_sample2subsection()
+    blabel_count = label_count(sample_block,block_label)
     
     links,linknum = get_link("../../data/docparse/outlink.txt")
     inlinks,inlinknum = get_link("../../data/docparse/inlink.txt")
@@ -88,7 +92,7 @@ def run():
     #write_class_to_file("hub_class.csv",hubs,hub_class)
 
     print "detect_attributefile"
-    attrfiles,attr_class = detect_attributefile(slabel_count, inlinks, inlinknum, links)
+    attrfiles,attr_class = detect_attributefile(slabel_count,blabel_count, inlinks, inlinknum, links)
     print "attr len:",len(attrfiles)
     for i in sorted(attrfiles):
         print i.encode("utf-8")
