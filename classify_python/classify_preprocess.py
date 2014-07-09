@@ -106,7 +106,7 @@ def tfidf_gensim(doc_segs):
 
     return kws, doc_tfidf
 
-def get_section_labels(label_block):
+def get_labels(label_list):
     """
     get_section_labels(label_block) -> list of labels
 
@@ -117,11 +117,25 @@ def get_section_labels(label_block):
     Returns: 
         所有section label列表（所有文档范围内）
     """
-    section_labels = set() 
-    for s,labels in label_block.items():
-        for l in labels:
-            section_labels.add(l)
-    return list(section_labels)
+    labels = set() 
+    for label_block in label_list:
+        for s,lls in label_block.items():
+            for l in lls:
+                labels.add(l)
+    return list(labels)
+
+def get_common_labels(label_list):
+    labels = []
+    label_c = {}
+
+    for sample_sl in label_list:
+        for sample, ls in sample_sl.items():
+            for label in ls:
+                label_c[label] = label_c.get(label, 0) + 1
+
+    labels = [k for k,v in label_c.items() if v > 1]
+
+    return labels
 
 def get_common_section_labels(label_block, synonym_merge = True):
     """
@@ -163,7 +177,7 @@ def section_label_feature(samples, label_block, common = False, synonym_merge = 
     if common:
         labels = get_common_section_labels(label_block, synonym_merge)
     else:
-        labels = get_section_labels(label_block)
+        labels = get_labels([label_block])
 
     print "Have",len(labels),"labels"
 
@@ -237,32 +251,12 @@ def title_keyword_feature(samples):
         title_kw_feature[sample] = fs
     return title_keywords2, title_kw_feature
 
-def get_subsection_labels(sample_sl):
-    sublabels = set()
-
-    for sample, sls in sample_sl.items():
-        for s in sls:
-            sublabels.add(s)
-
-    return list(sublabels)
-
-def get_common_subsection_labels(sample_sl):
-    sublabels = []
-    sublabel_count = {}
-
-    for sample, sls in sample_sl.items():
-        for sublabel in sls:
-            sublabel_count[sublabel] = sublabel_count.get(sublabel, 0) + 1
-
-    sublabels = [k for k,v in sublabel_count.items() if v > 1]
-
-    return sublabels
 
 def subsection_label_feature(sample_block, sample_sl, common = False):
     if common:
-        sublabels = get_common_subsection_labels(sample_sl)
+        sublabels = get_common_labels([sample_sl])
     else:
-        sublabels = get_subsection_labels(sample_sl)
+        sublabels = get_labels([sample_sl])
     sublabel_feature = {}
     for s in sample_block:
         labels = sample_sl[s] if sample_sl.has_key(s) else []
@@ -273,6 +267,23 @@ def subsection_label_feature(sample_block, sample_sl, common = False):
             else:
                 sublabel_feature[s].append(0)
     return sublabels, sublabel_feature
+
+def merge_label_feature(sample_block, sample_sl, sample_bl, common = False):
+    if common:
+        mlabels = get_common_labels([sample_sl, sample_bl])
+    else:
+        mlabels = get_labels([sample_sl])
+    mlabel_feature = {}
+    for s in sample_block:
+        labels = list(sample_sl.get(s,[]))
+        labels += list(sample_bl.get(s,[]))
+        mlabel_feature[s] = []
+        for l in mlabels:
+            if l in labels:
+                mlabel_feature[s].append(labels.count(l))
+            else:
+                mlabel_feature[s].append(0)
+    return mlabels, mlabel_feature
 
 def get_doc_keywords(sample_key):
     """
@@ -659,13 +670,30 @@ def run(file_cfg, feature_cfg, db_cfg):
         #features.append(dict((k,"") for k in sample_block))
 
         ##################  section label  ####################
-        if fconfigs["section_label"]:
+        if fconfigs["section_label"] and not fconfigs["merge_label"]:
             label_block = db.get_sample2section()
   
             labels,label_features = section_label_feature(sample_block, label_block, fconfigs["section_label_common"], fconfigs["synonym_merge"])
 
             fields.append(labels)
             features.append(label_features)
+
+        ###################  block label  ####################
+        if fconfigs["block_label"] and not fconfigs["merge_label"]:
+            sample_sl = db.get_sample2subsection()
+
+            sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_sl, fconfigs["section_label_common"])
+            fields.append(sublabels)
+            features.append(sublabel_feature)
+
+        ################### merge section and block label ############
+        if fconfigs["merge_label"]:
+            sample_sl = db.get_sample2section()
+            sample_bl = db.get_sample2subsection()
+
+            labels, label_feature = merge_label_feature(sample_block, sample_sl, sample_bl, fconfigs["section_label_common"])
+            fields.append(labels)
+            features.append(label_feature)
 
         ################## title keyword tfidf  #####################
         if fconfigs["title_tfidf"]:
@@ -687,15 +715,6 @@ def run(file_cfg, feature_cfg, db_cfg):
 
             fields.append(title_keywords2)
             features.append(title_kw_feature)
-
-        ###################  subsection label  ####################
-        if fconfigs["block_label"]:
-            #sample_sl = read_subsection("../etc/blockIdLabel2.txt")
-            sample_sl = db.get_sample2subsection()
-
-            sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_sl, fconfigs["section_label_common"])
-            fields.append(sublabels)
-            features.append(sublabel_feature)
 
         ###################  content keyword  ###################
         if fconfigs["document_tfidf"]:
@@ -735,8 +754,10 @@ def run(file_cfg, feature_cfg, db_cfg):
         #先写个原始的feature文件
         #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
         with open("../conf/file_col.properties","w") as f:
-            f.write("section_count="+str(len(fields[0]))+"\n")
-            f.write("block_count="+str(len(fields[1]))+"\n")
+            if fconfigs["section_label"] and not fconfigs["merge_label"]:
+                f.write("section_count="+str(len(fields[0]))+"\n")
+            if fconfigs["block_label"] and not fconfigs["merge_label"]:
+                f.write("block_count="+str(len(fields[1]))+"\n")
             f.write("feature_count="+str(len(feature_fields(fields))))
 
         fields.append(["sample2"])

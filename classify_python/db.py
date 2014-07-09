@@ -494,7 +494,7 @@ class DB():
         sections = self.collection.find({"level":"section","_id.path":f })
         for s in sections:
             if s["label"]:
-                if len(s["label"].strip()) > 0
+                if len(s["label"].strip()) > 0:
                     return True
         return False
 
