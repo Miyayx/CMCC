@@ -486,8 +486,8 @@ def read_link_file(fn):
             items[0] += "/"
             items[1] += "/"
             if not d.has_key(items[0]):
-                d[items[0]] = []
-            d[items[0]].append(items[1])
+                d[items[0]] = set()
+            d[items[0]].add(items[1])
             line = f.readline().decode("utf-8")
     return d
 
@@ -501,10 +501,7 @@ def get_link(fn):
     sample_links = read_link_file(fn)
     sample_linknum = {}
     for k,v in sample_links.items():
-        if sample_linknum.has_key(k):
-            sample_linknum[k] += len(v)
-        else:
-            sample_linknum[k] = len(v)
+        sample_linknum[k] = sample_linknum.get(k,0)+len(v)
     return sample_links, sample_linknum
 
 def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfile = True):
@@ -527,7 +524,7 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
         hubs,hub_class = detect_hub(slabel_count, linknum)
         sample_class.update(hub_class)
         print "hub files:",len(hubs)
-        write_lines(file_configs["hub_output"], hubs)
+        write_lines(file_configs["hub_output"], sorted(hubs))
         print "sample count:",len(sample_block)
         sample_block = [s for s in sample_block if s not in hubs] 
 
@@ -535,7 +532,7 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
         attrfiles,attr_class = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links)
         sample_class.update(attr_class)
         print "attrfiles:",len(attrfiles)
-        write_lines(file_configs["attribute_output"], attrfiles)
+        write_lines(file_configs["attribute_output"], sorted(attrfiles))
         print "sample count:",len(sample_block)
         sample_block = [s for s in sample_block if s not in attrfiles] 
     print "sample count:",len(sample_block)
@@ -782,7 +779,7 @@ def run(file_cfg, feature_cfg, db_cfg):
                     no_feature_samples.append(s)
 
             print "Num of no feature samples",len(no_feature_samples)
-            write_lines(file_configs["feature0_output"],no_feature_samples)
+            write_lines(file_configs["feature0_output"],sorted(no_feature_samples))
             sample_block = delete_items(sample_block,no_feature_samples)
             print "sample count:",len(sample_block)
 
