@@ -731,14 +731,6 @@ def run(file_cfg, feature_cfg, db_cfg):
             fields.append(kws)
             features.append(kw_feature)
 
-        ###################  content keyword(not tfidf)###################
-        if fconfigs["document_keyword"]:
-            sample_key = db.get_sample2keywords()
-            keywords,keyword_features = doc_keyword_feature(sample_block, sample_key, fconfigs["section_label_common"])
-
-            fields.append(keywords)
-            features.append(keyword_features)
-
         ###################### Weight #################
 
         #set_weight([1,1000], label_features,title_tfidf)

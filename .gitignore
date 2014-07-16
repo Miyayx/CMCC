@@ -7,4 +7,6 @@
 *.csv
 *~
 *.val
+classify_python/attr
+classify_python/cluster_result
 

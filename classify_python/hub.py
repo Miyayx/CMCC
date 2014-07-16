@@ -57,14 +57,14 @@ def detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links):
 
     for k,v in inlinknum.items():
         # 1,2,3
-        if not slabel_count.has_key(k) and v > ATTR_MIN_INLINK and not inlink_has_label(k):
+        #if not slabel_count.has_key(k) and v > ATTR_MIN_INLINK and not inlink_has_label(k):
         # 1,2
-        #if not slabel_count.has_key(k) and v > ATTR_MIN_INLINK:
+        if not slabel_count.has_key(k) and v > ATTR_MIN_INLINK:
             files.append(k)
         # 1,2,3
-        if slabel_count.has_key(k) and slabel_count[k] == 0 and v > ATTR_MIN_INLINK and not inlink_has_label(k):
+        #if slabel_count.has_key(k) and slabel_count[k] == 0 and v > ATTR_MIN_INLINK and not inlink_has_label(k):
         # 1,2
-        #if slabel_count.has_key(k) and slabel_count[k] == 0 and v > ATTR_MIN_INLINK:
+        if slabel_count.has_key(k) and slabel_count[k] == 0 and v > ATTR_MIN_INLINK:
             files.append(k)
 
             # Rule 4
@@ -87,16 +87,16 @@ def attribute_val(attrfiles, section_label, block_label, inlinks):
     for a in attrfiles:
         print ""
         print "Sample:",a.encode("utf-8")
-        #print "section label num:",(0 if not section_label.has_key(a) else len(section_label[a]))
-        #if section_label.has_key(a) and not len(section_label[a]) == 0:
-        #    print "Error!",a.encode("utf-8")
-        #print "section label:"
-        #for s in section_label.get(a,[]):
-        #    print s.encode("utf-8")
-        #print "block label num:",(0 if not block_label.has_key(a) else len(block_label[a]))
-        #print "block label:"
-        #for s in block_label.get(a,[]):
-        #    print s.encode("utf-8")
+        print "section label num:",(0 if not section_label.has_key(a) else len(section_label[a]))
+        if section_label.has_key(a) and not len(section_label[a]) == 0:
+            print "Error!",a.encode("utf-8")
+        print "section label:"
+        for s in section_label.get(a,[]):
+            print s.encode("utf-8")
+        print "block label num:",(0 if not block_label.has_key(a) else len(block_label[a]))
+        print "block label:"
+        for s in block_label.get(a,[]):
+            print s.encode("utf-8")
         assert inlinks.has_key(a)
         print "Source links:"
         for i in inlinks[a]:
@@ -123,7 +123,7 @@ def run():
 
     #write_class_to_file("hub_class.csv",hubs,hub_class)
 
-    #print "detect_attributefile"
+    print "detect_attributefile"
     attrfiles,attr_class = detect_attributefile(slabel_count,blabel_count, inlinks, inlinknum, links)
     print "attr len:",len(attrfiles)
     for i in sorted(attrfiles):
