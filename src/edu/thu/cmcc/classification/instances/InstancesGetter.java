@@ -118,6 +118,7 @@ public abstract class InstancesGetter {
 		instances.insertAttributeAt(labelAttr, 0);
 		
 		for(int i = 0; i < instances.numInstances(); i++){
+			
 			instances.instance(i).setValue(0, labels[i]);
 		}
 
@@ -141,8 +142,12 @@ public abstract class InstancesGetter {
 	public static String[] getIDs(Instances instances) {
 		double sum = instances.numInstances(); // 样本数
 		String[] names = new String[(int) (sum)];
-		for (int i = 0; i < sum; i++)
+		for (int i = 0; i < sum; i++){
 			names[i] = instances.instance(i).toString(0);
+			if(names[i].contains("'"))
+				names[i].replace("'", "");
+		}
+		
 		return names;
 	}
 
