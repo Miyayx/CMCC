@@ -9,8 +9,7 @@ import weka.filters.unsupervised.attribute.NominalToString;
 
 /**
  * 
- * @author Miyayx
- * 读取feature文档，生成Instances
+ * @author Miyayx 读取feature文档，生成Instances
  */
 public abstract class InstancesGetter {
 
@@ -39,11 +38,13 @@ public abstract class InstancesGetter {
 		Instances instances = getInstances(filename);
 
 		if (filterIndex > 0 && filterIndex < instances.numAttributes()) {
-			System.out.println("FILTER COLOMN:"+instances.attribute(filterIndex).name());
+			System.out.println("FILTER COLOMN:"
+					+ instances.attribute(filterIndex).name());
 			// 为防止删除前面的会影响index，从后往前删除不是本次迭代的instances
 			for (int i = instances.numInstances() - 1; i >= 0; i--) {
 				Instance ins = instances.instance(i);
-				if (!ins.stringValue(filterIndex).equals(ClassifyProperties.OTHER_CLASS))
+				if (!ins.stringValue(filterIndex).equals(
+						ClassifyProperties.OTHER_CLASS))
 					instances.delete(i);
 			}
 		}
@@ -59,18 +60,19 @@ public abstract class InstancesGetter {
 		for (int i = begin - 1; i >= 0; i--)
 			instances.deleteAttributeAt(i);
 
-		// 文档名整合回去  // 类别整合回去
+		// 文档名整合回去 // 类别整合回去
 		instances.insertAttributeAt(labelAttr, 0);
 		instances.insertAttributeAt(classAttr, instances.numAttributes());
 		for (int i = 0; i < instances.numInstances(); i++) {
 			instances.instance(i).setValue(0, labels[i]);
 			instances.instance(i).setValue(classAttr, classAttr.value(i));
-		}	
-//		NominalToString filter = new NominalToString();
-//		filter.setInputFormat(instances);
-//		instances = Filter.useFilter(instances, filter);
-		
-		System.out.println("Iteration "+ClassifyProperties.Iteration_ID+": Classify"+instances.numInstances()+" instances");
+		}
+		// NominalToString filter = new NominalToString();
+		// filter.setInputFormat(instances);
+		// instances = Filter.useFilter(instances, filter);
+
+		System.out.println("Iteration " + ClassifyProperties.Iteration_ID
+				+ ": Classify" + instances.numInstances() + " instances");
 		return instances;
 	}
 
@@ -92,14 +94,16 @@ public abstract class InstancesGetter {
 
 		int end = begin + featureCount;
 		Instances instances = getInstances(filename);
-	
+
 		// col
 		if (filterIndex > 0 && filterIndex < instances.numAttributes()) {
-			System.out.println("FILTER COLOMN:"+instances.attribute(filterIndex).name());
+			System.out.println("FILTER COLOMN:"
+					+ instances.attribute(filterIndex).name());
 			// 为防止删除前面的会影响index，从后往前删除不是本次迭代的instances
 			for (int i = instances.numInstances() - 1; i >= 0; i--) {
 				Instance ins = instances.instance(i);
-				if (!ins.stringValue(filterIndex).equals(ClassifyProperties.OTHER_CLASS))
+				if (!ins.stringValue(filterIndex).equals(
+						ClassifyProperties.OTHER_CLASS))
 					instances.delete(i);
 			}
 		}
@@ -116,23 +120,24 @@ public abstract class InstancesGetter {
 
 		// 文档名整合回去
 		instances.insertAttributeAt(labelAttr, 0);
-		
-		for(int i = 0; i < instances.numInstances(); i++){
-			
+
+		for (int i = 0; i < instances.numInstances(); i++) {
+
 			instances.instance(i).setValue(0, labels[i]);
 		}
 
-//		NominalToString filter = new NominalToString();
-//		//filter.setAttributeIndexes("sample");
-//		String[] options= new String[2];
-//        options[0]="-R";
-//        options[1]="1";
-//		filter.setInputFormat(instances);
-//		instances = Filter.useFilter(instances, filter);
-		System.out.println("Iteration "+ClassifyProperties.Iteration_ID+": Cluster"+instances.numInstances()+" instances");
+		// NominalToString filter = new NominalToString();
+		// //filter.setAttributeIndexes("sample");
+		// String[] options= new String[2];
+		// options[0]="-R";
+		// options[1]="1";
+		// filter.setInputFormat(instances);
+		// instances = Filter.useFilter(instances, filter);
+		System.out.println("Iteration " + ClassifyProperties.Iteration_ID
+				+ ": Cluster" + instances.numInstances() + " instances");
 		return instances;
 	}
-	
+
 	/**
 	 * 获得文档名（IDs），在instance的第一个attribute
 	 * 
@@ -142,10 +147,10 @@ public abstract class InstancesGetter {
 	public static String[] getIDs(Instances instances) {
 		double sum = instances.numInstances(); // 样本数
 		String[] names = new String[(int) (sum)];
-		for (int i = 0; i < sum; i++){
+		for (int i = 0; i < sum; i++) {
 			names[i] = instances.instance(i).toString(0);
-			if(names[i].contains("'"))
-				names[i].replace("'", "");
+			if (names[i].contains("'"))
+				names[i] = names[i].replace("'", "");
 		}
 		
 		return names;
