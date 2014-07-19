@@ -24,8 +24,7 @@ public class ClassifyProperties {
 	public static int      FEATURE_ID         = 0;
 	public static String   SAMPLE_FILE        = null;
 	public static int      CLASS_NUMBER       = 1; //分类数量 二分类设为1，三分类设为2
-	public static double   NEG_POSITIVE_RATIO = 1;    //负例/正例
-	public static double   POSITIVE_ALL_RATIO = 0.15; //正例/全部
+	public static double   INSTANCE_RATIO     = 0.3;
 	public static double   STOP_RATIO         = 0.1;
 	public static int 	   MAX_CLUSTER_NUM    = 4;//为0的话就由程序计算
 	public static int      BEST_SEED          = -1;
@@ -105,8 +104,7 @@ public class ClassifyProperties {
 			FEATURE_ID         = Integer.valueOf(prop.getProperty("featureid", String.valueOf(0)));
 			SAMPLE_FILE        = FILE_PATH+prop.getProperty("samplefile", "samples1.txt");
 			CLASS_NUMBER       = Integer.valueOf(prop.getProperty("class_number", String.valueOf(1)));
-			NEG_POSITIVE_RATIO = Double.valueOf(prop.getProperty("neg_positive_ratio", String.valueOf(1)));
-			POSITIVE_ALL_RATIO = Double.valueOf(prop.getProperty("positive_all_ratio", String.valueOf(0.15)));
+			INSTANCE_RATIO     = Double.valueOf(prop.getProperty("instance_ratio", String.valueOf(0.3)));
 			STOP_RATIO         = Double.valueOf(prop.getProperty("stop_ratio", String.valueOf(0.1)));
 			MAX_CLUSTER_NUM    = Integer.valueOf(prop.getProperty("max_cluster_num", String.valueOf(0)));
 			BEST_SEED          = Integer.valueOf(prop.getProperty("best_seed", String.valueOf(-1)));

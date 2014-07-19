@@ -40,11 +40,8 @@ public class AutoAnotation implements Annotation {
 		}
 
 		String positiveCluster = ""; // 最大簇的簇号
+
 		int size = 0;
-
-		for (String k : clusterInstanceMap.keySet())
-			System.out.println(k);
-
 		if (ClassifyProperties.POSITIVE_CLUSTER == -1) {
 			// 如果没指定正例簇号， 选取最大簇为正例簇
 			for (String key : clusterInstanceMap.keySet()) {
@@ -59,12 +56,7 @@ public class AutoAnotation implements Annotation {
 			positiveCluster = String
 					.valueOf(ClassifyProperties.POSITIVE_CLUSTER);
 			System.out.println("Positive cluster ID:" + positiveCluster);
-			size = clusterInstanceMap.get(positiveCluster).size();
 		}
-
-		double class1SizeLimit = size * class1SizePercent;
-		if (class1SizeLimit < minClass1SizeLimit)
-			class1SizeLimit = minClass1SizeLimit;// 至少要标20个
 
 		// 正例集合
 		List<String> bestCluster = new LinkedList<String>(
@@ -82,21 +74,25 @@ public class AutoAnotation implements Annotation {
 		Collections.shuffle(otherCluster, new Random(seed));
 
 		// 取正例标注数据
+		double posSizeLimit = bestCluster.size() * instanceRatio;
+		if (posSizeLimit < minClass1SizeLimit)
+			posSizeLimit = minClass1SizeLimit;// 至少要标20个
+		
 		int labelSize = 0;
 		for (String instance : bestCluster) {
-			labeledInstanceSet.put(instance, positiveCluster);
+			labeledInstanceSet.put(instance, "cluster"+positiveCluster);
 			labelSize++;
-			if (labelSize > class1SizeLimit)
+			if (labelSize > posSizeLimit)
 				break;
 		}
 
 		// 取负例标注数据
 		labelSize = 0;
-		double class0SizeLimit = class0SizePercent * class1SizeLimit;
+		double negSizeLimit = otherCluster.size()*instanceRatio;
 		for (String instance : otherCluster) {
 			labeledInstanceSet.put(instance, ClassifyProperties.OTHER_CLASS);
 			labelSize++;
-			if (labelSize > class0SizeLimit)
+			if (labelSize > negSizeLimit)
 				break;
 		}
 

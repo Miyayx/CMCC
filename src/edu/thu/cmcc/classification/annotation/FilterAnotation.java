@@ -76,8 +76,9 @@ public class FilterAnotation implements Annotation {
 	public static Map<String, String> generateLabeledData(
 			Map<String, String> clusterMap,
 			Map<String, String> instanceConceptTaxonomy) throws IOException {
+		
 		double class1SizeLimit = instanceConceptTaxonomy.size()
-				* class1SizePercent;
+				* instanceRatio;
 		if (class1SizeLimit < minClass1SizeLimit)
 			class1SizeLimit = minClass1SizeLimit;// 至少要标20个
 		Map<String, String> labeledInstanceSet = new HashMap<String, String>();
@@ -205,7 +206,7 @@ public class FilterAnotation implements Annotation {
 		// System.out.println(otherInstances.size());
 		Random rdm = new Random();
 		Set<Integer> doneIndex = new HashSet<Integer>();
-		double class0Size = class0SizePercent * class1Size;
+		double class0Size = otherInstances.size() * instanceRatio;
 		while (count < class0Size && count < otherInstances.size()) {
 			int index = Math.abs(rdm.nextInt() % otherInstances.size());
 			if (doneIndex.contains(index)) {
