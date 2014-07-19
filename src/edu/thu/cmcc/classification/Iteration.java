@@ -280,10 +280,10 @@ public class Iteration {
 
 		filenameInit(ClassifyProperties.Iteration_ID);
 
-		 //DatasetGenerator2 dg = new DatasetGenerator2(
-		// AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
 		DatasetGenerator2 dg = new DatasetGenerator2(
-				AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
+		 AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
+		//DatasetGenerator2 dg = new DatasetGenerator2(
+		//		AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
 		dg.run(classifyResult, classifyResult, leftfile, trainfile,
 				testfile, trainPlusTest);
 
