@@ -280,20 +280,28 @@ public class Iteration {
 
 		filenameInit(ClassifyProperties.Iteration_ID);
 
-		// DatasetGenerator2 dg = new DatasetGenerator2(
+		 //DatasetGenerator2 dg = new DatasetGenerator2(
 		// AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
 		DatasetGenerator2 dg = new DatasetGenerator2(
 				AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
-		dg.run(classifyResult, featurefile, leftfile, trainfile, testfile,
-				trainPlusTest);
+		dg.run(classifyResult, classifyResult, leftfile, trainfile,
+				testfile, trainPlusTest);
 
 		Classify c = new Classify();
-		List<Object> statistics1 = c.test(trainfile, testfile,
-				classifyTestResult);
-		List<Object> statistics2 = c.classify(trainPlusTest, leftfile,
-				classifyResult);
-		samplefile = "etc/samples" + (ClassifyProperties.Iteration_ID + 1)
-				+ ".txt";
+		c.initDataset(dg);
+		// List<Object> statistics1 = c.test(trainfile, testfile,
+		// classifyTestResult);
+		// List<Object> statistics2 = c.classify(trainPlusTest, leftfile,
+		// classifyResult);
+		// samplefile = "etc/samples" + (ClassifyProperties.Iteration_ID + 1)
+		// + ".txt";
+		// c.writeSuspiciousToFile(samplefile);
+		
+		List<Object> statistics1 = c.test(classifyTestResult);
+		c.writeTestStatisticsToFile(statisticsResult);
+		List<Object> statistics2 = c.classify(classifyResult);
+		samplefile = ClassifyProperties.INNER_FILE_PATH + "samples"
+				+ (ClassifyProperties.Iteration_ID + 1) + ".txt";
 		c.writeSuspiciousToFile(samplefile);
 
 		StringBuilder stringBuilder = new StringBuilder();
