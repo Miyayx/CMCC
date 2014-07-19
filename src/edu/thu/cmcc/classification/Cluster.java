@@ -265,7 +265,7 @@ public class Cluster {
 		SimpleKMeans KM = new SimpleKMeans();
 		Instances ins = null;
 		Instances tempIns = null;
-		int seedN = 100;
+		int seedN = ClassifyProperties.SEED_ITER;
 		int seed = 0;
 		double maxRatio = 0;
 

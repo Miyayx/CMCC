@@ -28,6 +28,7 @@ public class ClassifyProperties {
 	public static double   STOP_RATIO         = 0.1;
 	public static int 	   MAX_CLUSTER_NUM    = 4;//为0的话就由程序计算
 	public static int      BEST_SEED          = -1;
+	public static int      SEED_ITER          = 100;
 	public static double   DBSCAN_EPS         = 2;
 	public static int      DBSCAN_MINP        = 3;
 	public static boolean  PROCESS_OUTPUT     = true;	
@@ -108,6 +109,7 @@ public class ClassifyProperties {
 			STOP_RATIO         = Double.valueOf(prop.getProperty("stop_ratio", String.valueOf(0.1)));
 			MAX_CLUSTER_NUM    = Integer.valueOf(prop.getProperty("max_cluster_num", String.valueOf(0)));
 			BEST_SEED          = Integer.valueOf(prop.getProperty("best_seed", String.valueOf(-1)));
+			SEED_ITER          = Integer.valueOf(prop.getProperty("seed_iter", String.valueOf(100)));
 			DBSCAN_EPS         = Double.valueOf(prop.getProperty("dbscan_eps", String.valueOf(2)));
 			DBSCAN_MINP        = Integer.valueOf(prop.getProperty("dbscan_minp", String.valueOf(3)));
 			PROCESS_OUTPUT     = Boolean.valueOf(prop.getProperty("process_output", "true"));
