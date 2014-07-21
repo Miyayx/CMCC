@@ -80,19 +80,20 @@ public class Classify {
 		this.instancesTrainPlusTest = dg.getInstancesTrainPlusTest();
 		this.instancePredict = dg.getInstancePredict();
 	}
-	
-    /**
-     * 从Instances里提取出class信息
-     * @param instances
-     * @return
-     */
+
+	/**
+	 * 从Instances里提取出class信息
+	 * 
+	 * @param instances
+	 * @return
+	 */
 	public Map<String, String> generateClassMapFromInstances(Instances instances) {
 		Map<String, String> map = new HashMap<String, String>();
 		String[] labelAttr = InstancesGetter.getIDs(instances);
 		Attribute classAttr = instances.classAttribute();
 		for (int i = 0; i < instances.numInstances(); i++) {
 			Instance ins = instances.instance(i);
-			map.put(labelAttr[i],classAttr.value((int)ins.classValue()));
+			map.put(labelAttr[i], classAttr.value((int) ins.classValue()));
 		}
 		return map;
 	}
@@ -106,8 +107,8 @@ public class Classify {
 	 *            结果文件
 	 * @throws IOException
 	 */
-	public void writeAllClassificationResult(Map<String, String> map, String file)
-			throws IOException {
+	public void writeAllClassificationResult(Map<String, String> map,
+			String file) throws IOException {
 
 		CSVFileIO csv = new CSVFileIO();
 		csv.load(file, true);
@@ -117,7 +118,7 @@ public class Classify {
 		}
 		csv.write(file, ",", true, true, ClassifyProperties.CLASSIFY_INDEX);
 	}
-	
+
 	/**
 	 * 
 	 * @param map
@@ -129,23 +130,25 @@ public class Classify {
 
 		CSVFileIO csv = new CSVFileIO();
 		csv.load(file, true);
-		csv.column("class"+ClassifyProperties.Iteration_ID, map);
+		csv.column("class" + ClassifyProperties.Iteration_ID, map);
 		csv.write(file, ",", true, true, ClassifyProperties.CLASSIFY_INDEX);
 	}
-	
+
 	/**
 	 * 输出测试结果
+	 * 
 	 * @param evaluatefile
 	 * @throws IOException
 	 */
-	public void writeTestStatisticsToFile(String evaluatefile) throws IOException {
+	public void writeTestStatisticsToFile(String evaluatefile)
+			throws IOException {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(evaluatefile));
 		double[][] matrix = evaluation.confusionMatrix();
 		bw.write("====================\n");
 		for (int i = 0; i < matrix.length; i++)
-			bw.write(matrix[i][0]+"   "+matrix[i][1]+"\n");
+			bw.write(matrix[i][0] + "   " + matrix[i][1] + "\n");
 		bw.write("====================\n");
-		bw.write(evaluation.toSummaryString("\nResults\n======",false) + "\n");
+		bw.write(evaluation.toSummaryString("\nResults\n======", false) + "\n");
 		bw.close();
 	}
 
@@ -187,8 +190,8 @@ public class Classify {
 		this.train(instancesTrain);
 		return this.test(instancesTest, testResultFile);
 	}
-	
-	public List<Object> test(String testResultFile) throws Exception{
+
+	public List<Object> test(String testResultFile) throws Exception {
 		this.train(instancesTrain);
 		return this.test(instancesTest, testResultFile);
 	}
@@ -229,9 +232,11 @@ public class Classify {
 			} else {
 				wrong++;
 				// 输出分类错误样本
-				wrongInfo.append(instancesTest.instance(i).toString(
-						instancesTest.numAttributes() - 1)
-						+ "->" + resultString + ";");
+				wrongInfo.append(testLabels[i]
+						+ " "
+						+ instancesTest.instance(i).toString(
+								instancesTest.numAttributes() - 1) + "->"
+						+ resultString + ";");
 			}
 		}
 		precision = right / sum;
@@ -242,15 +247,16 @@ public class Classify {
 		// =============== Evaluation output =====================
 		evaluation = new Evaluation(instancesTrain);
 		evaluation.evaluateModel(m_classifier, instancesTest);
-		System.out.println("Correct number:"+evaluation.correct());
+		System.out.println("Correct number:" + evaluation.correct());
 		double[][] matrix = evaluation.confusionMatrix();
 		System.out.println("====================");
 		for (int i = 0; i < matrix.length; i++)
-			System.out.println(matrix[i][0]+" "+matrix[i][1]);
+			System.out.println(matrix[i][0] + " " + matrix[i][1]);
 		System.out.println("====================");
-		System.out.println(evaluation.toSummaryString("\nResults\n======", false));
+		System.out.println(evaluation.toSummaryString("\nResults\n======",
+				false));
 		// =============== Evaluation output =====================
-		
+
 		List<Object> statistics = new LinkedList<Object>();// 输出各种数据结果
 		statistics.add(precision);
 		statistics.add(wrong);
@@ -321,16 +327,17 @@ public class Classify {
 		// 先把训练集中的others类别放入下一次迭代list
 		for (int i = 0; i < this.instancesTrainPlusTest.numInstances(); i++) {
 			Instance ins = this.instancesTrainPlusTest.instance(i);
-			if (ins.classAttribute().value((int)ins.classValue()).equals(ClassifyProperties.OTHER_CLASS))
+			if (ins.classAttribute().value((int) ins.classValue())
+					.equals(ClassifyProperties.OTHER_CLASS))
 				suspicious.add(ins.stringValue(0));
 		}
 
 		// train的时候已经把第一列sample删除了，因此要先提取sample和class关系
 		Attribute classAttribute = this.instancesTrainPlusTest.classAttribute();
 		Map<String, String> labeledClass = generateClassMapFromInstances(this.instancesTrainPlusTest);
-		
+
 		this.train(this.instancesTrainPlusTest);// 训练获得分类器
-		
+
 		String[] labelAttr = InstancesGetter.getIDs(instances);
 		instances.deleteAttributeAt(0);// 第一列是文档名，删除
 		Map<String, String> resultMap = new LinkedHashMap<String, String>();
@@ -343,12 +350,13 @@ public class Classify {
 			result = (int) this.m_classifier.classifyInstance(instance);
 			String resultString = classAttribute.value(result);
 			resultMap.put(labelAttr[i], resultString);
-			
+
 			if (resultString.equals(ClassifyProperties.OTHER_CLASS))
 				suspicious.add(labelAttr[i]);
 			else {
 				sumCount++;
-				if (resultString.equals(instances.instance(i).classAttribute().name())) {
+				if (resultString.equals(instances.instance(i).classAttribute()
+						.name())) {
 					rightCount++;
 				} else {
 					wrongInfoBuilder.append(labelAttr[i]
@@ -356,12 +364,12 @@ public class Classify {
 							+ instances.instance(i).toString(
 									instances.numAttributes() - 1) + "->"
 							+ resultString + ");");
-//					System.out.println(labelAttr.value(i)
-//							+ " ours:"
-//							+ resultString
-//							+ ": true: "
-//							+ instances.instance(i).toString(
-//									instances.numAttributes() - 1));
+					// System.out.println(labelAttr.value(i)
+					// + " ours:"
+					// + resultString
+					// + ": true: "
+					// + instances.instance(i).toString(
+					// instances.numAttributes() - 1));
 				}
 			}
 		}
@@ -381,15 +389,16 @@ public class Classify {
 		System.out.println(classAttribute + ":" + sumCount + ";wrong:"
 				+ (sumCount - rightCount) + ";suspicious:" + suspicious.size());
 
-		//allSample2Class = FileManipulator.loadOneToOne(resultfile, ",", 0, ClassifyProperties.ALL_CLASS_INDEX);// 结果文件原来的分类数据
+		// allSample2Class = FileManipulator.loadOneToOne(resultfile, ",", 0,
+		// ClassifyProperties.ALL_CLASS_INDEX);// 结果文件原来的分类数据
 		allSample2Class = new HashMap<String, String>(labeledClass);
-		
-		//allSample2Class.putAll(labeledClass);
+
+		// allSample2Class.putAll(labeledClass);
 		allSample2Class.putAll(resultMap);// 本次迭代结果加入最终结果
-		
-		//for(String key: resultMap.keySet())
-		//	System.out.println(key+":"+resultMap.get(key));
-		
+
+		// for(String key: resultMap.keySet())
+		// System.out.println(key+":"+resultMap.get(key));
+
 		writeClassificationResult(allSample2Class, resultfile);
 		// writeToMongo(allSample2Class);
 		return statistics;
