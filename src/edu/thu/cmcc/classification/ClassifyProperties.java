@@ -35,6 +35,7 @@ public class ClassifyProperties {
 	public static String   ONTOLOGY_FILE      = null;
 	public static double   LOWEST_ACCURACY    = 0;
 	public static String   OTHER_CLASS        = null;
+	public static String   POS_CLASS          = null;
 	public static int      STOP_LIMITATION    = 0;
 	public static int      POSITIVE_CLUSTER   = -1;
 	public static boolean  SECTION_LABEL      = true;
@@ -116,6 +117,7 @@ public class ClassifyProperties {
 			ONTOLOGY_FILE      = prop.getProperty("ontology", "etc/ontology.txt");
 			LOWEST_ACCURACY    = Double.valueOf(prop.getProperty("lowest_accuracy",String.valueOf(0.85)));
 			OTHER_CLASS        = prop.getProperty("other_class","others");
+			POS_CLASS          = prop.getProperty("positive_class","");
 			STOP_LIMITATION    = Integer.valueOf(prop.getProperty("stop_limitation", String.valueOf(0)));
 			POSITIVE_CLUSTER   = Integer.valueOf(prop.getProperty("positive_cluster", String.valueOf(-1)));
 			SECTION_LABEL      = Boolean.valueOf(prop.getProperty("section_label", "true"));

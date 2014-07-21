@@ -280,12 +280,14 @@ public class Iteration {
 
 		filenameInit(ClassifyProperties.Iteration_ID);
 
+		// DatasetGenerator2 dg = new DatasetGenerator2(
+		// AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
 		DatasetGenerator2 dg = new DatasetGenerator2(
-		 AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
-		//DatasetGenerator2 dg = new DatasetGenerator2(
-		//		AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
-		dg.run(classifyResult, classifyResult, leftfile, trainfile,
-				testfile, trainPlusTest);
+				AnnotationFactory.create(AnnotationType.MANUAL_ALL_ANOTATION));
+		// DatasetGenerator2 dg = new DatasetGenerator2(
+		// AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
+		dg.run(classifyResult, classifyResult, leftfile, trainfile, testfile,
+				trainPlusTest);
 
 		Classify c = new Classify();
 		c.initDataset(dg);
@@ -296,7 +298,7 @@ public class Iteration {
 		// samplefile = "etc/samples" + (ClassifyProperties.Iteration_ID + 1)
 		// + ".txt";
 		// c.writeSuspiciousToFile(samplefile);
-		
+
 		List<Object> statistics1 = c.test(classifyTestResult);
 		c.writeTestStatisticsToFile(statisticsResult);
 		List<Object> statistics2 = c.classify(classifyResult);
