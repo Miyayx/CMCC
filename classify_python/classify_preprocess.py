@@ -764,10 +764,12 @@ def run(file_cfg, feature_cfg, db_cfg):
             print "Delete no feature samples"
             no_feature_samples = []
             for s in sample_block:
-                values = []
-                for f in features:
-                    values += f[s]
-                if values.count(1) == 0:
+                #values = []
+                #for f in features:
+                #    values += f[s]
+                #if values.count(1) == 0:
+                #    no_feature_samples.append(s)
+                if len(label_block[s]) == 0 and len(sample_sl[s]) == 0:
                     no_feature_samples.append(s)
 
             print "Num of no feature samples",len(no_feature_samples)
