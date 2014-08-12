@@ -57,16 +57,16 @@ public class Classify {
 		 * of class i to weight[i]*C, for C-SVC (default 1)
 		 */
 
-		// String[] options = {// SVM的参数配置
-		// // "-split-percentage","50",
-		// "-K", "0", "-S", "0", "-x", "10", "-N", "0", "-M", "100", "-W",
-		// "1.0 1.0", "-G", "0.5", "-P", "0.8", "-b", "1" };
-		// try {
-		// m_classifier.setOptions(options);
-		// } catch (Exception e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		String[] options = {// SVM的参数配置
+				// "-split-percentage","50",
+				"-K", "0", "-S", "0", "-x", "10", "-N", "0", "-M", "100", "-W",
+				"1.0 1.0", "-G", "0.5", "-P", "0.8", "-b", "1" };
+		try {
+			m_classifier.setOptions(options);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public Classify(Classifier c) {
@@ -192,6 +192,11 @@ public class Classify {
 	}
 
 	public List<Object> test(String testResultFile) throws Exception {
+//		for (int i = 0; i < instancesTrain.numInstances(); i++)// 测试分类结果
+//		{
+//			Instance ins = instancesTrain.instance(i);
+//			System.out.println(ins.stringValue(0)+","+ins.stringValue(ins.classIndex()));
+//		}
 		this.train(instancesTrain);
 		return this.test(instancesTest, testResultFile);
 	}
@@ -236,7 +241,7 @@ public class Classify {
 						+ " "
 						+ instancesTest.instance(i).toString(
 								instancesTest.numAttributes() - 1) + "->"
-						+ resultString + ";");
+						+ resultString + ";\n");
 			}
 		}
 		precision = right / sum;
