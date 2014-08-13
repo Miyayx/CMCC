@@ -24,6 +24,7 @@ import weka.filters.unsupervised.attribute.NominalToString;
 import weka.filters.unsupervised.attribute.NumericToNominal;
 import edu.thu.cmcc.basic.CSVFileIO;
 import edu.thu.cmcc.classification.annotation.Annotation;
+import edu.thu.cmcc.classification.annotation.AnnotationType;
 import edu.thu.cmcc.classification.instances.ClassifyInstances;
 import edu.thu.cmcc.classification.instances.ClusterInstances;
 import edu.thu.cmcc.classification.instances.InstancesGetter;
@@ -61,9 +62,10 @@ public class DatasetGenerator2 {
 	public Instances getInstancePredict() {
 		return instancePredict;
 	}
-    
+
 	/**
 	 * 合并两个Instances，即ins1个数+ins2个数
+	 * 
 	 * @param ins1
 	 * @param ins2
 	 * @return
@@ -80,8 +82,9 @@ public class DatasetGenerator2 {
 	 * 
 	 * @param s2c
 	 *            sample to class
-	 * @param featurefile 含有feature的文件
-	 *            
+	 * @param featurefile
+	 *            含有feature的文件
+	 * 
 	 * @param ratio
 	 *            TRAIN_TEST_RATIO
 	 * @param leftfile
@@ -101,13 +104,13 @@ public class DatasetGenerator2 {
 		Instances instances = new ClusterInstances().getInstances(featurefile,
 				0, 1, ClassifyProperties.FEATURE_COUNT,
 				ClassifyProperties.FILTER_INDEX);
-		
-		//这样写保证Class列是Nominal类型的数据
+
+		// 这样写保证Class列是Nominal类型的数据
 		FastVector fv = new FastVector();
 		for (String c : new HashSet<String>(s2c.values()))
 			fv.addElement(c);
 
-		//添加class列
+		// 添加class列
 		Attribute classAttr = new Attribute("class", fv);
 		instances.insertAttributeAt(classAttr, instances.numAttributes());
 		instances.setClassIndex(instances.numAttributes() - 1);
@@ -117,11 +120,11 @@ public class DatasetGenerator2 {
 		instancesTrain = new Instances(instances, 0);
 		instancesTest = new Instances(instances, 0);
 		instancePredict = new Instances(instances, 0);
-		
+
 		Map<String, String> trainSet = new HashMap<String, String>();
 		Map<String, String> testSet = new HashMap<String, String>();
-		List<String> predictSet     = new ArrayList<String>();
-		
+		List<String> predictSet = new ArrayList<String>();
+
 		// 一下的map都是 key:类别 value:属于此类别的文档list
 		Map<String, Instances> labeledConceptInstanceMap = new HashMap<String, Instances>();
 
@@ -136,7 +139,7 @@ public class DatasetGenerator2 {
 					instanceSet = new Instances(instances, 0);
 				instanceSet.add(ins);
 				labeledConceptInstanceMap.put(c, instanceSet);
-			} else{
+			} else {
 				instancePredict.add(ins);
 				predictSet.add(s);
 			}
@@ -168,8 +171,8 @@ public class DatasetGenerator2 {
 		}
 
 		instancesTrainPlusTest = mergeInstances(instancesTrain, instancesTest);
-		outputWithClass(instancesTrain, trainfile); 
-		outputWithClass(instancesTest, testfile);  
+		outputWithClass(instancesTrain, trainfile);
+		outputWithClass(instancesTest, testfile);
 		output(instancePredict, leftfile);
 
 		// instancesTest.setClassIndex(instancesTest.numAttributes()-1);
@@ -181,6 +184,7 @@ public class DatasetGenerator2 {
 
 	/**
 	 * 输出带有feature数值与class信息的文件
+	 * 
 	 * @param instances
 	 * @param outfile
 	 * @throws IOException
@@ -197,6 +201,7 @@ public class DatasetGenerator2 {
 
 	/**
 	 * 输出仅有class信息的文件
+	 * 
 	 * @param instances
 	 * @param outfile
 	 * @throws IOException
@@ -207,7 +212,8 @@ public class DatasetGenerator2 {
 		Attribute classAttr = instances.classAttribute();
 		for (int i = 0; i < instances.numInstances(); i++) {
 			Instance ins = instances.instance(i);
-			out.write(ins.stringValue(0) + "," + classAttr.value((int)ins.classValue())+"\n");
+			out.write(ins.stringValue(0) + ","
+					+ classAttr.value((int) ins.classValue()) + "\n");
 			out.flush();
 		}
 		out.close();
@@ -215,6 +221,7 @@ public class DatasetGenerator2 {
 
 	/**
 	 * 仅输出id
+	 * 
 	 * @param instances
 	 * @param outfile
 	 * @throws IOException
@@ -245,8 +252,22 @@ public class DatasetGenerator2 {
 			String trainfile, String testfile, String trainPlusTestfile)
 			throws Exception {
 
-		//Map<String, String> s2c = annotation.annotation(clusterfile,ClassifyProperties.CLUSTER_INDEX);
-		Map<String, String> s2c = annotation.annotation("../data/Classify/annotation.csv",0);
+		Map<String, String> s2c = null;
+
+		switch (ClassifyProperties.ANNOTATION_TYPE) {
+		case AnnotationType.MANUAL_ANOTATION:
+			s2c = annotation.annotation(clusterfile,
+					ClassifyProperties.CLUSTER_INDEX);
+		case AnnotationType.MANUAL_ALL_ANOTATION:
+			s2c = annotation.annotation(ClassifyProperties.ANNOTATION_FILE, 0);
+		case AnnotationType.MANUAL_ONFILE_ANOTATION:
+			s2c = annotation.annotation(clusterfile,
+					ClassifyProperties.CLUSTER_INDEX);
+		default:
+			s2c = annotation.annotation(clusterfile,
+					ClassifyProperties.CLUSTER_INDEX);
+		}
+
 		// ================ write annotation result to file =================
 		this.writeAnnotationResultToFile(clusterfile, s2c);
 
@@ -259,7 +280,7 @@ public class DatasetGenerator2 {
 		CSVFileIO csv = new CSVFileIO();
 		csv.load(file, true);
 		csv.column("flag" + ClassifyProperties.Iteration_ID, map);
-		csv.write(file, "", true,true,ClassifyProperties.FLAG_INDEX);
+		csv.write(file, "", true, true, ClassifyProperties.FLAG_INDEX);
 	}
 
 }

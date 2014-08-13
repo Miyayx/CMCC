@@ -12,8 +12,8 @@ public interface Annotation {
 	static double instanceRatio   = ClassifyProperties.INSTANCE_RATIO;
 	static int minClass1SizeLimit = 20;
 	
-	public Map<String,String> annotation(String clusterfile)throws IOException;
+	public Map<String,String> annotation(String annotationfile)throws IOException;
 	
-	public Map<String,String> annotation(String clusterfile,int clusterIndex)throws IOException;
+	public Map<String,String> annotation(String annotationfile,int clusterIndex)throws IOException;
 
 }

@@ -43,6 +43,8 @@ public class XMEANS {
 		cluster = (XMeans) cluster;
 		try {
 			cluster.setMaxIterations(500);// 设置迭代次数
+			cluster.setMaxNumClusters(50);
+			cluster.setMinNumClusters(3);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

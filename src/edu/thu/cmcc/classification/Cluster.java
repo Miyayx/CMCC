@@ -347,13 +347,15 @@ public class Cluster {
 			int n = ins.numInstances();
 			double  disMatrix[][] = new double[n][n]; 
 			for(int i = 0; i < n; i++){
-				for(int j = 0; j < n; j++){
+				System.out.println("Distance instance1 "+i);
+				for(int j = i; j < n; j++){
 					
 					disF.setInstances(ins);
 					Instance i1 = ins.instance(i);
 					Instance i2 = ins.instance(j);
-					
-					disMatrix[i][j] = disF.distance(i1,i2 );
+					double d = disF.distance(i1,i2 );
+					disMatrix[i][j] = d;
+					disMatrix[j][i] = d;
 				}
 			}
 			double disSum[] = new double[n];

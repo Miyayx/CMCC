@@ -29,10 +29,9 @@ public class ClassifyProperties {
 	public static int 	   MAX_CLUSTER_NUM    = 4;//为0的话就由程序计算
 	public static int      BEST_SEED          = -1;
 	public static int      SEED_ITER          = 100;
-	public static double   DBSCAN_EPS         = 2;
-	public static int      DBSCAN_MINP        = 3;
 	public static boolean  PROCESS_OUTPUT     = true;	
-	public static String   ONTOLOGY_FILE      = null;
+	public static String   ANNOTATION_FILE      = null;
+	public static int      ANNOTATION_TYPE      = 0;
 	public static double   LOWEST_ACCURACY    = 0;
 	public static String   OTHER_CLASS        = null;
 	public static String   POS_CLASS          = null;
@@ -104,17 +103,16 @@ public class ClassifyProperties {
 			
 			INNER_FILE_PATH    = prop.getProperty("inner_file_path", "etc/");
 			FEATURE_ID         = Integer.valueOf(prop.getProperty("featureid", String.valueOf(0)));
-			SAMPLE_FILE        = FILE_PATH+prop.getProperty("samplefile", "samples1.txt");
+			SAMPLE_FILE        = FILE_PATH + prop.getProperty("samplefile", "samples1.txt");
 			CLASS_NUMBER       = Integer.valueOf(prop.getProperty("class_number", String.valueOf(1)));
 			INSTANCE_RATIO     = Double.valueOf(prop.getProperty("instance_ratio", String.valueOf(0.3)));
 			STOP_RATIO         = Double.valueOf(prop.getProperty("stop_ratio", String.valueOf(0.1)));
 			MAX_CLUSTER_NUM    = Integer.valueOf(prop.getProperty("max_cluster_num", String.valueOf(0)));
 			BEST_SEED          = Integer.valueOf(prop.getProperty("best_seed", String.valueOf(-1)));
 			SEED_ITER          = Integer.valueOf(prop.getProperty("seed_iter", String.valueOf(100)));
-			DBSCAN_EPS         = Double.valueOf(prop.getProperty("dbscan_eps", String.valueOf(2)));
-			DBSCAN_MINP        = Integer.valueOf(prop.getProperty("dbscan_minp", String.valueOf(3)));
 			PROCESS_OUTPUT     = Boolean.valueOf(prop.getProperty("process_output", "true"));
-			ONTOLOGY_FILE      = prop.getProperty("ontology", "etc/ontology.txt");
+			ANNOTATION_TYPE    = Integer.valueOf(prop.getProperty("annotation_type", String.valueOf(0)));
+			ANNOTATION_FILE    = FILE_PATH + prop.getProperty("annotation", "etc/ontology.txt");
 			LOWEST_ACCURACY    = Double.valueOf(prop.getProperty("lowest_accuracy",String.valueOf(0.85)));
 			OTHER_CLASS        = prop.getProperty("other_class","others");
 			POS_CLASS          = prop.getProperty("positive_class","");

@@ -104,25 +104,6 @@ public class Iteration {
 				+ ClassifyProperties
 						.updateFilename(ClassifyProperties.CLASSIFY_TEST_STATISTICS);
 
-		// ************* 临时文件 *********************
-		// samplefile = ClassifyProperties.INNER_FILE_PATH +
-		// ClassifyProperties.updateFilename(ClassifyProperties.CLUSTER_INPUT);
-		// samplefile = ClassifyProperties.INNER_FILE_PATH + "samples" + iter
-		// + ".txt";
-
-		// leftfile = ClassifyProperties.INNER_FILE_PATH
-		// + ClassifyProperties
-		// .updateFilename(ClassifyProperties.CLASSIFY_PREDICT);
-		// trainfile = ClassifyProperties.INNER_FILE_PATH
-		// + ClassifyProperties
-		// .updateFilename(ClassifyProperties.CLASSIFY_TRAIN);
-		// testfile = ClassifyProperties.INNER_FILE_PATH
-		// + ClassifyProperties
-		// .updateFilename(ClassifyProperties.CLASSIFY_TEST);
-		// trainPlusTest = ClassifyProperties.INNER_FILE_PATH
-		// + ClassifyProperties
-		// .updateFilename(ClassifyProperties.TRAIN_AND_TEST);
-
 		leftfile = ClassifyProperties.FILE_PATH
 				+ ClassifyProperties
 						.updateFilename(ClassifyProperties.CLASSIFY_PREDICT);
@@ -186,8 +167,7 @@ public class Iteration {
 			// 根据人工标注文件选择簇，选择标注数据等
 			// Preprocessing.run(clusterResult, samplefile, iter);
 
-			// int annotationType = AnnotationType.FILTER_ANOTATION;
-			int annotationType = AnnotationType.AUTO_ANOTATION;
+			int annotationType = ClassifyProperties.ANNOTATION_TYPE;
 			DatasetGenerator2 dg = new DatasetGenerator2(
 					AnnotationFactory.create(annotationType));
 			dg.run(classifyResult, classifyResult, leftfile, trainfile,
@@ -282,12 +262,8 @@ public class Iteration {
 
 		filenameInit(ClassifyProperties.Iteration_ID);
 
-		// DatasetGenerator2 dg = new DatasetGenerator2(
-		// AnnotationFactory.create(AnnotationType.MANUAL_ANOTATION));
 		DatasetGenerator2 dg = new DatasetGenerator2(
-				AnnotationFactory.create(AnnotationType.MANUAL_ALL_ANOTATION));
-		// DatasetGenerator2 dg = new DatasetGenerator2(
-		// AnnotationFactory.create(AnnotationType.AUTO_ANOTATION));
+				AnnotationFactory.create(ClassifyProperties.ANNOTATION_TYPE));
 		dg.run(classifyResult, classifyResult, leftfile, trainfile, testfile,
 				trainPlusTest);
 
