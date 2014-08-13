@@ -174,7 +174,8 @@ public class Iteration {
 			// 聚类。。。
 			filenameInit(ClassifyProperties.Iteration_ID);
 			ClassifyProperties.updateFieldIndex();
-			Cluster cluster = new Cluster();
+			// Cluster cluster = new Cluster();
+			XMEANS cluster = new XMEANS();
 			cluster.run(maxClusterNum, classifyResult);
 			// DBScan cluster = new DBScan();
 			// cluster.run(ClassifyProperties.DBSCAN_EPS,
@@ -247,7 +248,7 @@ public class Iteration {
 		System.out.println("Cluster Num:" + maxClusterNum);
 
 		ClassifyProperties.BEST_SEED = ClassifyProperties.BEST_SEED == -1 ? Cluster
-				.getBestSeed(featurefile) : ClassifyProperties.BEST_SEED;
+				.getBestSeed2(featurefile) : ClassifyProperties.BEST_SEED;
 		System.out.println("Seed:" + ClassifyProperties.BEST_SEED);
 
 		System.out.println("-------------------------------f" + featureid
@@ -258,7 +259,8 @@ public class Iteration {
 			// DBScan cluster = new DBScan();
 			// cluster.run(ClassifyProperties.DBSCAN_EPS,
 			// ClassifyProperties.DBSCAN_MINP, classifyResult);
-			Cluster cluster = new Cluster();
+			// Cluster cluster = new Cluster();
+			XMEANS cluster = new XMEANS();
 			// cluster.run(maxClusterNum, featurefile, samplefile,
 			// clusterResult);
 			cluster.run(maxClusterNum, classifyResult);

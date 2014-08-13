@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,10 +17,14 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.analysis.function.Max;
+
 import edu.thu.cmcc.basic.CSVFileIO;
 import edu.thu.cmcc.classification.instances.ClusterInstances;
 import edu.thu.cmcc.classification.instances.InstancesGetter;
 import weka.clusterers.SimpleKMeans;
+import weka.core.DistanceFunction;
 import weka.core.EuclideanDistance;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -100,9 +106,9 @@ public class Cluster {
 			csv.load(resultfile, true);
 			csv.column(colname, sample2cluster);
 			// csv.addEmptyColumn("flag"+ClassifyProperties.Iteration_ID);
-			//csv.write(resultfile, ",", true, true,
-			//		ClassifyProperties.CLUSTER_INDEX);
-			csv.write(resultfile, ",", true, true,0);
+			// csv.write(resultfile, ",", true, true,
+			// ClassifyProperties.CLUSTER_INDEX);
+			csv.write(resultfile, ",", true, true, 0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -158,7 +164,7 @@ public class Cluster {
 
 		// 4.使用聚类算法对样本进行聚类
 		cluster.buildClusterer(ins);
-	
+
 		tempIns = cluster.getClusterCentroids();// 得到质心
 
 		// 将簇号按顺序写入list
@@ -276,10 +282,10 @@ public class Cluster {
 			// ins = new ClusterInstances().getInstances(featureFile);
 
 			Random r = new Random();
-			int[] seeds = new int[seedN]; 
-			for(int i = 0; i< seedN; i++)
+			int[] seeds = new int[seedN];
+			for (int i = 0; i < seedN; i++)
 				seeds[i] = r.nextInt(ins.numInstances());
-			
+
 			for (int i = 0; i < seedN; i++) {
 				// 1.读入样本
 
@@ -322,5 +328,52 @@ public class Cluster {
 
 		System.out.println("FINAL SEED " + seed);
 		return seed;
+	}
+
+	public static int getBestSeed2(String featureFile) {
+
+		int seedN = ClassifyProperties.SEED_ITER;
+		int seed = 0;
+		double maxRatio = 0;
+		Instances ins = null;
+
+		EuclideanDistance disF = new EuclideanDistance();
+		try {
+			ins = new ClusterInstances().getInstances(featureFile, 0, 1,
+					ClassifyProperties.FEATURE_COUNT,
+					ClassifyProperties.FILTER_INDEX);
+			// ins = new ClusterInstances().getInstances(featureFile);
+			ins.deleteAttributeAt(0);
+			int n = ins.numInstances();
+			double  disMatrix[][] = new double[n][n]; 
+			for(int i = 0; i < n; i++){
+				for(int j = 0; j < n; j++){
+					
+					disF.setInstances(ins);
+					Instance i1 = ins.instance(i);
+					Instance i2 = ins.instance(j);
+					
+					disMatrix[i][j] = disF.distance(i1,i2 );
+				}
+			}
+			double disSum[] = new double[n];
+			for(int i = 0; i < n; i++){
+				for(int j = 0; j < n; j++){
+					disSum[i] += disMatrix[i][j];
+				}
+			}
+			
+			for(int i = 0; i< n; i++)
+				System.out.println(disSum[i]);
+			
+			double m = NumberUtils.min(disSum);
+			for(int i = 0; i < n; i++)
+				if (disSum[i] == m)
+					return i;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
 	}
 }
