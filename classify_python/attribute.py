@@ -28,9 +28,7 @@ def detect_hub(slabel_count,linknum):
             if linknum[k] > HUB_MIN_LINK:
                 files.append(k)
     files = set(files)
-    sample_class = dict((f,"hub") for f in files)
-    return files,sample_class
-
+    return files
 
 def detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links):
     """
@@ -79,14 +77,13 @@ def detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links):
             #    for l in links[k]:
             #        files.append(l)
     files = set(files) #去重
-    sample_class = dict((f,u"属性") for f in files)
 
-    return list(files), sample_class
+    return list(files)
 
 def attribute_val(attrfiles, section_label, block_label, inlinks):
     for a in attrfiles:
         print ""
-        print "Sample:",a.encode("utf-8")
+        print "Sample:",a
         print "section label num:",(0 if not section_label.has_key(a) else len(section_label[a]))
         if section_label.has_key(a) and not len(section_label[a]) == 0:
             print "Error!",a.encode("utf-8")
@@ -102,10 +99,8 @@ def attribute_val(attrfiles, section_label, block_label, inlinks):
         for i in inlinks[a]:
             print i.encode("utf-8")
 
-
-def run():
+def run(attr_file):
     db = DB("../../conf/conf.properties")
-    #sample_block,label_block,class_block = read_xls()
     sample_block = db.get_allid()
     section_label = db.get_sample2section()
     slabel_count = label_count(sample_block,section_label)
@@ -121,16 +116,14 @@ def run():
     #for i in hubs:
     #    print i.encode("utf-8")
 
-    #write_class_to_file("hub_class.csv",hubs,hub_class)
+    #print "detect_attributefile"
+    #attrfiles = detect_attributefile(slabel_count,blabel_count, inlinks, inlinknum, links)
+    #print "attr len:",len(attrfiles)
+    #for i in sorted(attrfiles):
+    #    print i.encode("utf-8")
+    attrfiles = [ l.strip("\n") for l in open(attr_file)]
 
-    print "detect_attributefile"
-    attrfiles,attr_class = detect_attributefile(slabel_count,blabel_count, inlinks, inlinknum, links)
-    print "attr len:",len(attrfiles)
-    for i in sorted(attrfiles):
-        print i.encode("utf-8")
-
-    #write_class_to_file("attr_class.csv",attrfiles,attr_class)
     attribute_val(attrfiles, section_label, block_label, inlinks)
 
 if __name__=="__main__":
-    run()
+    run("../../data/Classify/attribute_files.txt")

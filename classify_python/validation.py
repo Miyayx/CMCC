@@ -39,7 +39,7 @@ def title_keyword_val(data):
         for i in mine_index:
             print "    "+fields[i].encode("utf-8")
 
-def exist_val(data, origin):
+def exist_val(data, origin, fn = None):
     """
     判断样本都有哪些特征存在非0特征值
     Args:
@@ -54,6 +54,18 @@ def exist_val(data, origin):
     index_list = []
     syns = get_synonym_words("../etc/synonym_dict.csv")
 
+    left_dict = {}
+    if fn:
+        for l in open(fn):
+            l = l.decode("utf-8")
+            items =l.strip("\n").split("\t") 
+            if len(items) == 1:
+                left_dict[items[0]] = []
+            else:
+                s,ls = items
+                left_dict[s] = ls.split(",")
+            
+
     for d in data[1:]:
         print "\n==================="
         items = d
@@ -65,9 +77,11 @@ def exist_val(data, origin):
             continue
         print u'sample:',sample.encode("utf-8")
         mine_index = [i for i in range(1,len(items)) if float(items[i]) > 0]
-        print "feature count:",len(mine_index)
+        f_count = len(mine_index)+len(left_dict[sample])
+
+        print "feature count:",f_count
         print "origin count: ",len(ls)
-        if not len(mine_index) == len(ls):
+        if not (f_count == len(ls)):
             print "WARNING: Length not equal"
         print "+++++++  feature  +++++++++++++"
         for i in mine_index:
@@ -208,9 +222,8 @@ def validation(featurefile, options):
             print "=============== section label validation ================="
             d = split_feature(data,options["section"]["begin"], options["section"]["end"])
             print "section feature length:",len(d[0])-1
-            sample_block,label_block,class_block = read_xls()
             label_block = db.get_sample2section()
-            exist_val(d, label_block)
+            exist_val(d, label_block, "left_section.dat")
 
         if options.has_key("title"):
             d = split_feature(data,options["title"]["begin"], options["title"]["end"])
@@ -231,7 +244,7 @@ def validation(featurefile, options):
 
             sample_sl = db.get_sample2subsection()
             
-            exist_val(d, sample_sl)
+            exist_val(d, sample_sl, "left_block.dat" )
 
         if options.has_key("keyword"):
             d = split_feature(data,options["keyword"]["begin"], options["keyword"]["end"])
@@ -242,17 +255,12 @@ def validation(featurefile, options):
             exist_val(d, s2k)
             tfidf_val(d, KEYWORD_SPLIT)
 
-if __name__=="__main__":
-    #sample_block,label_block,class_block = read_xls()
-    #sectionlabel("../etc/features2.csv",label_block)
+def run(prop_file, feature_file):
 
-    prop = read_properties("../conf/file_col.properties")
+    prop = read_properties(prop_file)
 
     options = {
         "section":{
-        #"title":{
-        #"title_tfidf":{
-        #"keyword":{
             "begin":1,
             "end":1+int(prop["section_count"])
         },
@@ -261,5 +269,9 @@ if __name__=="__main__":
             "end":  1+int(prop["section_count"])+int(prop["block_count"])
             }
     }
-    validation("../../data/Classify/result_features1.csv",options)
+    validation(feature_file,options)
+
+if __name__=="__main__":
+    run("../conf/file_col.properties", "../../data/Classify/result_features1.csv")
+
 

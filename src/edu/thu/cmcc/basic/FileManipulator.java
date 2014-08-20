@@ -81,7 +81,7 @@ public class FileManipulator {
 			String separator, int keyColumnNum) throws IOException {
 		Map<String, String> map = new HashMap<String, String>();
 
-		// System.out.println("Start loading " + fileName);
+		 System.out.println("Start loading " + fileName);
 
 		BufferedReader in = new BufferedReader(new FileReader(fileName));
 		String line = null;

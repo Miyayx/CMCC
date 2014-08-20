@@ -471,6 +471,15 @@ def write_features(colname,classify, fn, dataset):
 
         for l in dataset:
             f.write(l)
+def record_left_label(s2l, labels, fn):
+    f = codecs.open(fn,"w","utf-8")
+    for s,l in s2l.items():
+        line = s+"\t"
+        for i in (set(l) - set(labels)):
+            line += (i+",")
+        line = line[:-1]+"\n"
+        f.write(line)
+    f.close()
 
 def read_link_file(fn):
     """
@@ -675,6 +684,8 @@ def run(file_cfg, feature_cfg, db_cfg):
             fields.append(labels)
             features.append(label_features)
 
+            record_left_label(label_block, labels, file_configs["left_section_file"])
+
         ###################  block label  ####################
         if fconfigs["block_label"] and not fconfigs["merge_label"]:
             sample_sl = db.get_sample2subsection()
@@ -682,6 +693,8 @@ def run(file_cfg, feature_cfg, db_cfg):
             sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_sl, fconfigs["section_label_common"])
             fields.append(sublabels)
             features.append(sublabel_feature)
+
+            record_left_label(sample_sl, sublabels, file_configs["left_block_file"])
 
         ################### merge section and block label ############
         if fconfigs["merge_label"]:
