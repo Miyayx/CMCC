@@ -706,28 +706,28 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         ##################  section label  ####################
         if fconfigs["section_label"] and not fconfigs["merge_label"]:
-            label_block = db.get_sample2section()
+            o_label_block = db.get_sample2section()
 
-            label_block = filter_label(label_block)
+            label_block = filter_label(o_label_block)
   
             labels,label_features = section_label_feature(sample_block, label_block, fconfigs["section_label_common"], fconfigs["synonym_merge"])
 
             fields.append(labels)
             features.append(label_features)
 
-            record_left_label(label_block, labels, file_configs["left_section_file"])
+            record_left_label(o_label_block, labels, file_configs["left_section_file"])
 
         ###################  block label  ####################
         if fconfigs["block_label"] and not fconfigs["merge_label"]:
-            sample_bl = db.get_sample2subsection()
+            o_sample_bl = db.get_sample2subsection()
 
-            sample_bl = filter_label(sample_bl)
+            sample_bl = filter_label(o_sample_bl)
 
             sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_bl, fconfigs["section_label_common"])
             fields.append(sublabels)
             features.append(sublabel_feature)
 
-            record_left_label(sample_bl, sublabels, file_configs["left_block_file"])
+            record_left_label(o_sample_bl, sublabels, file_configs["left_block_file"])
 
         ################### merge section and block label ############
         if fconfigs["merge_label"]:

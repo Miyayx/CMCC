@@ -77,11 +77,13 @@ def exist_val(data, origin, fn = None):
             continue
         print u'sample:',sample.encode("utf-8")
         mine_index = [i for i in range(1,len(items)) if float(items[i]) > 0]
-        f_count = len(mine_index)+len(left_dict[sample])
+        f_count = len(mine_index)
+        label_count = f_count+len(left_dict[sample])
 
         print "feature count:",f_count
-        print "origin count: ",len(ls)
-        if not (f_count == len(ls)):
+        print "label count:"label_count
+        print "db count: ",len(ls)
+        if not (label_count == len(ls)):
             print "WARNING: Length not equal"
         print "+++++++  feature  +++++++++++++"
         for i in mine_index:
