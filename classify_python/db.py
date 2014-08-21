@@ -226,8 +226,7 @@ class DB():
             if not s2s.has_key(sample):
                 s2s[sample] = set()
             label = c["label"].strip()
-            #label = c["label"]
-            if label and len(label) > 1 and (not self.is_bad_label(label)):
+            if label and len(label) > 1:
                 s2s[sample].add(label)
         for s, s in s2s.items():
             s2s[sample] = list(s)
@@ -246,7 +245,7 @@ class DB():
         for s in sections:
             if s["label"]:
                 l = s["label"].strip()
-                if len(l) > 0 and (not self.is_bad_label(l)):
+                if len(l) > 0:
                     labels.append(l)
         return labels
 
@@ -263,7 +262,7 @@ class DB():
             if not s2sub.has_key(sample):
                 s2sub[sample] = set() 
             label = c["label"].strip()
-            if label and len(label) > 1 and (not self.is_bad_label(label)):
+            if label and len(label) > 1:
                 s2sub[sample].add(label)
         for s, sub in s2sub.items():
             s2sub[sample] = list(sub)

@@ -139,7 +139,6 @@ public class ClassifyProperties {
 			prop.load(fis);
 			FEATURE_COUNT            = Integer.valueOf(prop.getProperty("feature_count", String.valueOf(0)));
 			ALL_CLASS_INDEX          = 1;
-			updateFieldIndex();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

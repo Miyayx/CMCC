@@ -53,6 +53,7 @@ public class Iteration {
 				iterend = iter + 1;
 			}
 			ClassifyProperties.Iteration_ID = iter;
+			ClassifyProperties.updateFieldIndex();
 
 			if (method.equals("-iter"))
 				iterate();
@@ -262,6 +263,7 @@ public class Iteration {
 
 		filenameInit(ClassifyProperties.Iteration_ID);
 
+		ClassifyProperties.ANNOTATION_TYPE = AnnotationType.MANUAL_ANOTATION;
 		DatasetGenerator2 dg = new DatasetGenerator2(
 				AnnotationFactory.create(ClassifyProperties.ANNOTATION_TYPE));
 		dg.run(classifyResult, classifyResult, leftfile, trainfile, testfile,

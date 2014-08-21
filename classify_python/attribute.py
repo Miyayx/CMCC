@@ -82,8 +82,12 @@ def detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links):
 
 def attribute_val(attrfiles, section_label, block_label, inlinks):
     for a in attrfiles:
+        a = a.strip("\n").strip("/")+"/"
+        if not a.startswith("/"):
+            a = "/"+a
+        a = a.decode("utf-8")
         print ""
-        print "Sample:",a
+        print "Sample:",a.encode("utf-8")
         print "section label num:",(0 if not section_label.has_key(a) else len(section_label[a]))
         if section_label.has_key(a) and not len(section_label[a]) == 0:
             print "Error!",a.encode("utf-8")
@@ -126,4 +130,4 @@ def run(attr_file):
     attribute_val(attrfiles, section_label, block_label, inlinks)
 
 if __name__=="__main__":
-    run("../../data/Classify/attribute_files.txt")
+    run(read_file_config("../conf/file.cfg")["attribute_output"])

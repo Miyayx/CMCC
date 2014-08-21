@@ -3,10 +3,11 @@
 
 from utils import *
 from fileio import *
-from hub import *
+from attribute import *
 from db import *
 from synonym import *
 
+import re
 import codecs
 import ConfigParser
 
@@ -530,16 +531,14 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
     sample_class = {}
 
     if hubfile:
-        hubs,hub_class = detect_hub(slabel_count, linknum)
-        sample_class.update(hub_class)
+        hubs = detect_hub(slabel_count, linknum)
         print "hub files:",len(hubs)
         write_lines(file_configs["hub_output"], sorted(hubs))
         print "sample count:",len(sample_block)
         sample_block = [s for s in sample_block if s not in hubs] 
 
     if attrfile:
-        attrfiles,attr_class = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links)
-        sample_class.update(attr_class)
+        attrfiles = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links)
         print "attrfiles:",len(attrfiles)
         write_lines(file_configs["attribute_output"], sorted(attrfiles))
         print "sample count:",len(sample_block)
@@ -547,6 +546,36 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
     print "sample count:",len(sample_block)
 
     return sample_block, sample_class
+
+def filter_label(s2l):
+
+    def is_bad_label(label):
+        """
+        The label which has character that makes weka disable
+        """
+        ch = ['"',',',"'",'%']
+        for c in ch:
+            if c in label:
+                print "Bad label:",label
+                return True
+        return False
+
+    del_pattens = [u'相关文档',ur'(\S)+年(\S)+月(\S)+日']
+    
+    for k,v in s2l.items():
+        new_v = list(v)
+        for i in v:
+            if is_bad_label(i):
+                new_v.remove(i)
+                continue
+            for p in del_pattens:
+                if re.match(p, i):
+                    print "Delete label:",i
+                    new_v.remove(i)
+                    break
+        s2l[k] = new_v
+
+    return s2l
 
 def feature_fields(fields):
     """
@@ -678,6 +707,8 @@ def run(file_cfg, feature_cfg, db_cfg):
         ##################  section label  ####################
         if fconfigs["section_label"] and not fconfigs["merge_label"]:
             label_block = db.get_sample2section()
+
+            label_block = filter_label(label_block)
   
             labels,label_features = section_label_feature(sample_block, label_block, fconfigs["section_label_common"], fconfigs["synonym_merge"])
 
@@ -688,13 +719,15 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         ###################  block label  ####################
         if fconfigs["block_label"] and not fconfigs["merge_label"]:
-            sample_sl = db.get_sample2subsection()
+            sample_bl = db.get_sample2subsection()
 
-            sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_sl, fconfigs["section_label_common"])
+            sample_bl = filter_label(sample_bl)
+
+            sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_bl, fconfigs["section_label_common"])
             fields.append(sublabels)
             features.append(sublabel_feature)
 
-            record_left_label(sample_sl, sublabels, file_configs["left_block_file"])
+            record_left_label(sample_bl, sublabels, file_configs["left_block_file"])
 
         ################### merge section and block label ############
         if fconfigs["merge_label"]:
