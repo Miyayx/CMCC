@@ -81,7 +81,7 @@ def exist_val(data, origin, fn = None):
         label_count = f_count+len(left_dict[sample])
 
         print "feature count:",f_count
-        print "label count:"label_count
+        print "label count:",label_count
         print "db count: ",len(ls)
         if not (label_count == len(ls)):
             print "WARNING: Length not equal"

@@ -549,6 +549,8 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
 
 def filter_label(s2l):
 
+    s2l = dict(s2l)
+
     def is_bad_label(label):
         """
         The label which has character that makes weka disable
@@ -560,7 +562,7 @@ def filter_label(s2l):
                 return True
         return False
 
-    del_pattens = [u'相关文档',ur'(\S)+年(\S)+月(\S)+日']
+    del_pattens = [u'相关文档',ur'.*年.+月.+日']
     
     for k,v in s2l.items():
         new_v = list(v)
