@@ -39,7 +39,10 @@ class KMEANS:
             self.k = self.calculate_k(self.X)
 
         sample_label, coef = self.cluster(self.X, self.k)
-        self.record_result(sample_label, self.result_file)
+        csv = CSVIO(self.data_file)
+        s2sl = csv.read_one_to_one(0, csv.fields.index("section label"))
+        s2bl = csv.read_one_to_one(0, csv.fields.index("block label"))
+        self.record_result(sample_label, s2sl, s2bl, self.result_file)
         self.append_result(sample_label, self.data_file)
 
     def get_data(self, data_file):
@@ -72,6 +75,7 @@ class KMEANS:
         return names,X
 
     def append_result(self, s2l, fn):
+        print "Add to "+fn
         colname = "cluster"+self.iter_n
         csv = CSVIO(fn)
         #csv.load(fn)
@@ -79,20 +83,27 @@ class KMEANS:
         csv.write(fn, ",", True, True, csv.fields.index(colname))
         #csv.write(fn, ",", True, True, 0)
 
-    def record_result(self, s2l, fn ):
-        print "Writing to "+fn
+    def record_result(self, s2l, s2sl, s2bl, fn ):
+        print "Write to "+fn
 
-        f = open(fn,'w')
-        label_sample = {}
-        for s,l in s2l.items():
-            label_sample[l] = label_sample.get(l,[]) + [s]
-        
-        for k,v in label_sample.items():
-            for n in sorted(v):
-                f.write(n+","+str(k)+"\n")
+        csv = CSVIO(fn,append = False)
+        csv.column("sample", dict((s,s) for s in s2l.keys()))
+        csv.column("section label", s2sl)
+        csv.column("block label", s2bl)
+        csv.column("cluster", s2l)
+        csv.write(fn, ",", True, True, csv.fields.index("cluster"))
 
-        f.close()
-
+#        f = open(fn,'w')
+#        label_sample = {}
+#        for s,l in s2l.items():
+#            label_sample[l] = label_sample.get(l,[]) + [s]
+#        
+#        for k,v in label_sample.items():
+#            for n in sorted(v):
+#                f.write(n+","+str(k)+"\n")
+#
+#        f.close()
+#
     def calculate_k(self, X):
         coef_dict = {}
         for k in range(self.min_cluster,self.max_cluster):
@@ -188,7 +199,7 @@ class KMEANS:
         print "k",k
 
         n = len(X)
-        print "n",n
+        print "n",n,"\n"
 
         # Get centroids ndarray
         #centroids = self.calculate_centroid(X, k)

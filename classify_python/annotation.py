@@ -26,6 +26,8 @@ def auto_annotaion(cfg_file, a_file, iter_n):
         for c, sl in c_sl.items():
             a_num = a_total * (len(sl)*1.0/total)
             a_num = int(a_num)
+            if a_num == 0:
+                a_num = 1
             print "Annotate",str(a_num),"in cluster",str(c)
             r = Random()
             chosen += r.sample(sl, a_num)

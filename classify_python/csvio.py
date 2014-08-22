@@ -3,14 +3,16 @@
 
 class CSVIO:
 
-    def __init__(self, fn, header=True):
+    def __init__(self, fn, header=True, append=True):
         self.header = header
+        self.append = append
         self.fields = []
         self.content = {}
         self.separator = ","
         self.columnN = 0
         self.rowN = 0
-        self.load(fn,header,",")
+        if append:
+            self.load(fn,header,",")
 
     def load(self, fn, header=True, separator=","):
         self.separator = separator
@@ -40,8 +42,10 @@ class CSVIO:
         if colname in self.fields:
             self.update(self.fields.index(colname), col)
         elif(self.rowN == 0):
-            self.insert_column(colname, 1, col)
+            print "first column",colname
+            self.insert_column(colname, 0, col)
         else:
+            print "add column",colname
             self.add_column(colname, col)
 
     def insert_column(self, colName, colindex, newCol):
@@ -52,28 +56,39 @@ class CSVIO:
 
         if self.header:
             if len(self.fields) == 0 or not self.fields:
-                fields.add("samples")
+                self.fields = []
             while len(self.fields) <= colindex:
-                self.fields.append(" ")
+                self.fields.append("")
             self.fields.insert(colindex, colName)
 
         keys = set()
-        keys.update(newCol.keys())
-        keys.update(self.content.keys())
+        if self.append:
+            keys.update(newCol.keys())
+            keys.update(self.content.keys())
+        else:
+            if len(self.content) == 0:
+                keys = newCol.keys()
+            else:
+                keys = set(self.content.keys()) & set(newCol.keys())
 
         for k in keys:
             if not self.content.has_key(k):
-                value = [k]
+                value = []
             else: 
                 value = self.content[k]
             while len(value) < colindex:
-                value.append(" ")
+                value.append("")
             if newCol.has_key(k):
                 value.insert(colindex, newCol[k])
             else:
-                value.insert(colindex, " ")
+                value.insert(colindex, "")
             self.content[k] = value
-        self.columnN = len(value)
+
+        self.columnN = len(self.content.values()[0])
+        print "column",self.columnN
+        print "fields len",len(self.fields)
+        self.rowN = len(self.content)
+        print "row",self.rowN
 
     def add_column(self, colname, col):
         self.insert_column(colname, self.columnN, col)
@@ -106,7 +121,10 @@ class CSVIO:
         Write Content to file 
         """
         if sort:
-            new_content = sorted(self.content.items(), key=lambda x: x[1][sort_index])
+       #     for v in self.content.values():
+       #         print len(v)
+            new_content = sorted(self.content.items(), key=lambda x: x[1][0])
+            new_content = sorted(new_content, key=lambda x: x[1][sort_index])
             #sorted(self.content.items(), key=lambda x: x[1][sort_index], reverse=True)
         f = open(fn, 'w')
         if header:
