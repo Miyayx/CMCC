@@ -172,7 +172,7 @@ class DB():
         s2k = {}
         coll = self.collection.find({"level":"document"})
         for c in coll:
-            sample = (c["_id"]["path"].replace("../data","etc")+c["_id"]["name"]).strip("/")+"/"
+            sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
             kws = ""
             if c.has_key("keyword"):
                 kws = c["keyword"]
@@ -499,7 +499,22 @@ class DB():
 
 if __name__ == "__main__":
     db = DB('../../conf/conf.properties')
-    files = [i.strip("\n") for i in open("./attr/attr_pure_text.dat")]
-    for f in files:
-        print db.find_sample(f)
+    all_ = db.all_samples
+    s2s = db.get_sample2section()
+    s2s = dict((k,":::".join(v)) for k,v in s2s.items())
+    print len(s2s)
+    s2b = db.get_sample2subsection()
+    s2b = dict((k,":::".join(v)) for k,v in s2b.items())
+    print len(s2b)
+    s2k = db.get_sample2keywords()
+    s2k = dict((k,":::".join(v)) for k,v in s2k.items())
+    print len(s2k)
+
+    from csvio import *
+    csv = CSVIO("labels.csv",append=False)
+    csv.column("sample",dict((s,s) for s in all_))
+    csv.column("section label",s2s)
+    csv.column("block label",s2b)
+    csv.column("keyword",s2k)
+    csv.write("labels.csv",separator="\t",header = True)
 

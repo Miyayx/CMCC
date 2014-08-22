@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 #encoding=utf-8
 
+import codecs
+
 class CSVIO:
 
     def __init__(self, fn, header=True, append=True):
@@ -71,6 +73,7 @@ class CSVIO:
             else:
                 keys = set(self.content.keys()) & set(newCol.keys())
 
+        print "keys:",len(keys)
         for k in keys:
             if not self.content.has_key(k):
                 value = []
@@ -84,7 +87,7 @@ class CSVIO:
                 value.insert(colindex, "")
             self.content[k] = value
 
-        self.columnN = len(self.content.values()[0])
+        self.columnN = max(len(v) for v in self.content.values())
         print "column",self.columnN
         print "fields len",len(self.fields)
         self.rowN = len(self.content)
@@ -126,11 +129,11 @@ class CSVIO:
             new_content = sorted(self.content.items(), key=lambda x: x[1][0])
             new_content = sorted(new_content, key=lambda x: x[1][sort_index])
             #sorted(self.content.items(), key=lambda x: x[1][sort_index], reverse=True)
-        f = open(fn, 'w')
+        f = codecs.open(fn, 'w', 'utf-8')
         if header:
-            f.write(",".join(self.fields)+"\n")
+            f.write(separator.join(self.fields)+"\n")
         for k,v in new_content:
-            f.write(",".join(v)+"\n")
+            f.write(separator.join(v)+"\n")
             f.flush()
         f.close()
 
