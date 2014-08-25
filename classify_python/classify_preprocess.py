@@ -672,16 +672,6 @@ def run(file_cfg, feature_cfg, db_cfg):
 
             sample_block,filter_result = filter_doc(sample_block, section_label,block_label, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
         
-        #################### Delete Doc type samples #############
-        if fconfigs["word_doc"]:
-            print "Delete Doc"
-            docs = db.get_word_doc()
-            print "Num of Doc:",len(docs)
-            sample_block = delete_items(sample_block, docs)
-            write_lines(file_configs["word_output"], docs)
-            del docs
-            print "sample count:",len(sample_block)
-
         #After delete all specific samples, reset allsample in db
         db.set_allsample(sample_block)
 
