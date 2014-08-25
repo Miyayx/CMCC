@@ -38,7 +38,7 @@ def auto_annotaion(cfg_file, a_file, iter_n):
     pos_c = configs["cluster"].split(",")
 
     csv = CSVIO(a_file)
-    csv.load(a_file)
+    #csv.load(a_file)
 
     cluster_i = csv.fields.index("cluster"+str(iter_n))
 
@@ -53,9 +53,9 @@ def auto_annotaion(cfg_file, a_file, iter_n):
 
     a_result = {}
     for c in choose_annotation(pos):
-        a_result[c] = configs["pos_class"]
+        a_result[c] = configs["pos_class"].decode("utf-8")
     for c in choose_annotation(neg):
-        a_result[c] = configs["neg_class"]
+        a_result[c] = configs["neg_class"].decode("utf-8")
 
     csv.column("flag"+str(iter_n), a_result)
     csv.write(a_file, sort_index = cluster_i)
@@ -82,7 +82,5 @@ if __name__=="__main__":
     auto_annotaion("../conf/annotation.cfg", data_file, iter_n)
 
     print "Time Consuming:",(time.time()-start)
-
-
 
 

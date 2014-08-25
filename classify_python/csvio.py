@@ -20,7 +20,7 @@ class CSVIO:
         self.separator = separator
         self.header = header
 
-        f = open(fn)
+        f = codecs.open(fn, 'r', 'utf-8')
         if header:
             h = f.readline().strip("\n")
             self.fields = h.split(separator)
@@ -89,9 +89,7 @@ class CSVIO:
 
         self.columnN = max(len(v) for v in self.content.values())
         print "column",self.columnN
-        print "fields len",len(self.fields)
         self.rowN = len(self.content)
-        print "row",self.rowN
 
     def add_column(self, colname, col):
         self.insert_column(colname, self.columnN, col)
@@ -133,8 +131,12 @@ class CSVIO:
         if header:
             f.write(separator.join(self.fields)+"\n")
         for k,v in new_content:
+          #  try:
+          #      v[0] = v[0].encode("utf-8")
+          #  except:
+          #      pass
             f.write(separator.join(v)+"\n")
-            f.flush()
+        #    f.flush()
         f.close()
 
     def read_one_to_one(self, k_i, v_i):

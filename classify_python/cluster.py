@@ -1,4 +1,3 @@
-
 #!/usr/bin/python2.7
 #encoding=utf-8
 
@@ -7,13 +6,11 @@ from sklearn.cluster import KMeans
 from sklearn import metrics
 from sklearn.metrics.pairwise import euclidean_distances
 import time
+import codecs
 
 from utils import *
 from csvio import CSVIO
-
-PROP_FILE = "../conf/classify.properties"
-COL_FILE = "../conf/file_col.properties"
-NAME_FILE = "../conf/filename.properties"
+from config_global import *
 
 class KMEANS:
 
@@ -42,8 +39,8 @@ class KMEANS:
         csv = CSVIO(self.data_file)
         s2sl = csv.read_one_to_one(0, csv.fields.index("section label"))
         s2bl = csv.read_one_to_one(0, csv.fields.index("block label"))
-        self.record_result(sample_label, s2sl, s2bl, self.result_file)
-        self.append_result(sample_label, self.data_file)
+        self.record_result(self.result_file, sample_label, s2sl, s2bl )
+        self.append_result(self.data_file, sample_label)
 
     def get_data(self, data_file):
         data = {}
@@ -52,7 +49,7 @@ class KMEANS:
         begin = 1
         end = 0
         classify_i = 0
-        for line in open(data_file):
+        for line in codecs.open(data_file,'r','utf-8'):
             line = line.strip("\n").split(",")
             if not line[2].isdigit():
                 end = line.index("sample2")
@@ -74,7 +71,7 @@ class KMEANS:
 
         return names,X
 
-    def append_result(self, s2l, fn):
+    def append_result(self, fn, s2l):
         print "Add to "+fn
         colname = "cluster"+self.iter_n
         csv = CSVIO(fn)
@@ -83,7 +80,7 @@ class KMEANS:
         csv.write(fn, ",", True, True, csv.fields.index(colname))
         #csv.write(fn, ",", True, True, 0)
 
-    def record_result(self, s2l, s2sl, s2bl, fn ):
+    def record_result(self, fn, s2l, s2sl, s2bl ):
         print "Write to "+fn
 
         csv = CSVIO(fn,append = False)
@@ -93,17 +90,6 @@ class KMEANS:
         csv.column("cluster", s2l)
         csv.write(fn, ",", True, True, csv.fields.index("cluster"))
 
-#        f = open(fn,'w')
-#        label_sample = {}
-#        for s,l in s2l.items():
-#            label_sample[l] = label_sample.get(l,[]) + [s]
-#        
-#        for k,v in label_sample.items():
-#            for n in sorted(v):
-#                f.write(n+","+str(k)+"\n")
-#
-#        f.close()
-#
     def calculate_k(self, X):
         coef_dict = {}
         for k in range(self.min_cluster,self.max_cluster):
