@@ -562,7 +562,7 @@ def filter_label(s2l):
                 return True
         return False
 
-    del_pattens = [u'相关文档',ur'.*年.+月.+日']
+    del_pattens = [u'相关文档',ur'.*年.+月.+日',ur'.*-.+-.+-']
     
     for k,v in s2l.items():
         new_v = list(v)

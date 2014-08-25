@@ -497,6 +497,24 @@ class DB():
                     return True
         return False
 
+    def section_validation(self):
+        s2s = db.get_sample2section()
+        for k, v in s2s.items():
+            c1 = self.collection.find({"level":"section", "_id.path":k, "label":{$ne:""}}).count()
+            c2 = len(v)
+            print k,c1,c2
+            assert c1 == c2
+
+    def block_validation(self):
+        s2b = db.get_sample2subsection()
+        for k, v in s2b.items():
+            c1 = 0
+            for c in self.collection.find({"level":"section", "_id.path":k},{"_id",1}):
+                s = c["_id.path"]+["_id.name"]+"/"
+                c1 += self.collection.find({"level":"block", "_id.path":s, "label":{$ne:""}}).count()
+            print k,c1,len(v)
+            assert c1 == len(v)
+
 if __name__ == "__main__":
     db = DB('../../conf/conf.properties')
     all_ = db.all_samples
