@@ -498,22 +498,44 @@ class DB():
         return False
 
     def section_validation(self):
-        s2s = db.get_sample2section()
+        s2s = self.get_sample2section()
+        e_count = 0
         for k, v in s2s.items():
-            c1 = self.collection.find({"level":"section", "_id.path":k, "label":{$ne:""}}).count()
+            c1 = self.collection.find({"level":"section", "_id.path":k, "label":{"$ne":""}}).count()
             c2 = len(v)
-            print k,c1,c2
-            assert c1 == c2
+            print k.encode("utf-8"),c1,c2
+            try:
+                assert c1 == c2
+            except:
+                print "WARNING"
+                e_count += 1
+                for c in self.collection.find({"level":"section", "_id.path":k, "label":{"$ne":""}}):
+                    print c["label"].encode("utf-8")
+                print "*********************"
+                for l in v:
+                    print l.encode("utf-8")
 
     def block_validation(self):
-        s2b = db.get_sample2subsection()
+        e_count = 0
+        s2b = self.get_sample2subsection()
         for k, v in s2b.items():
             c1 = 0
-            for c in self.collection.find({"level":"section", "_id.path":k},{"_id",1}):
-                s = c["_id.path"]+["_id.name"]+"/"
-                c1 += self.collection.find({"level":"block", "_id.path":s, "label":{$ne:""}}).count()
-            print k,c1,len(v)
-            assert c1 == len(v)
+            for c in self.collection.find({"level":"section", "_id.path":k},{"_id":1}):
+                s = c["_id"]["path"]+c["_id"]["name"]+"/"
+                c1 += self.collection.find({"level":"block", "_id.path":s, "label":{"$ne":""}}).count()
+            print k.encode("utf-8"),c1,len(v)
+            try:
+                assert c1 == len(v)
+            except:
+                print "WARNING"
+                for c in self.collection.find({"level":"section", "_id.path":k},{"_id":1}):
+                    s = c["_id"]["path"]+c["_id"]["name"]+"/"
+                    for c in self.collection.find({"level":"block", "_id.path":s, "label":{"$ne":""}}):
+                        print c["label"].encode("utf-8")
+                print "*********************"
+                for l in v:
+                    print l.encode("utf-8")
+
 
 if __name__ == "__main__":
     db = DB('../../conf/conf.properties')
