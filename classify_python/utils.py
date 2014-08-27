@@ -66,3 +66,9 @@ def read_properties(fn):
             prop[k.strip()] = v.strip().lstrip()
 
     return prop
+
+def record_log(fn, log):
+   with codecs.open(fn,'w','utf-8') as f:
+       for k,v in log.items():
+           f.write(str(k)+" "+str(v)+"\n")
+    

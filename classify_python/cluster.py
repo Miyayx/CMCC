@@ -193,7 +193,7 @@ class KMEANS:
         #init_c = np.array(init_c)
         #km = KMeans(init=init_c, n_clusters=k )
 
-        km = KMeans(init='k-means++', n_clusters=k)
+        km = KMeans(init='k-means++', n_clusters=k, max_iter = 1000)
         km.fit(X)
         labels = km.labels_
         

@@ -10,11 +10,11 @@
 输出:
 	result_featureY.csv(Y为feature id),此为迭代器的最终输出文件。目前在../data/Classify/中
 配置文件:
-	../conf/conf.properties//公共文件，数据库相关
-	file_col.properties    //最终结果大表列的信息（比如有多少feature列，哪一列是分类结果集合）
-	filename.properties    //各种输入输出文件名的命名规范
-	feature.cfg            //feature选择相关
-	file.cfg               //输入输出文件相关
+	../conf/conf.properties //公共文件，数据库相关
+	file_col.properties     //最终结果大表列的信息（比如有多少feature列，哪一列是分类结果集合）
+	filename.properties     //各种输入输出文件名的命名规范
+	feature.cfg             //feature选择相关
+	file.cfg                //输入输出文件相关
 	
 命令: python classify_preprocess.py(需要在classify_python路径下运行)
 
@@ -22,16 +22,17 @@ feature.cfg说明：
 feature的选择在feature.cfg里设定
 hub                   #输出是删除hub文件   0 保留hub， 1 删除hub
 attribute             #输出是否删除attribute文件   0 保留attribute， 1 删除attribute
-feature0              #是否输出没有label的文档名称
+no_feature            #是否输出没有label的文档名称
 section_label         #特征是否包含section label, 0不包含， 1 包含
-section_label_common  #是否删除只出现一次的section label，1 删除
 block_label           #特征是否包含block label
+label_common          #是否删除只出现一次的section label，1 删除
 synonym_merge         #有同义词出现时，合并同义词，用一个词代替其他所有词
 synonym_expand        #对有同义词的词，所有同义词都标1
 title_keyword         #特征是否包含自定义title关键字
 title_tfidf           #特征是否包含 title tfidf特征
-subsection_label      #特征是否包含subsection label:
 document_tfidf        #特征是否包含文本tfidf值
+sample_filter_str     #名称具有此子字符串的文档保留
+sample_filter_file    #只对此文件中列出的文档列表进行操作
 
 输入输出文件说明：
 输入文件：
@@ -46,14 +47,18 @@ document_tfidf        #特征是否包含文本tfidf值
      output_path               输出文档存放路径
      hub_output                hub文档id列表（现在hub文档进入迭代器进行分类，此文件为空）
      attribute_output          attribute文档id列表
-     feature0_output           没有label的，未进入迭代的文档列表
+     no_feature_output         没有label的，未进入迭代的文档列表
      result_output_name        最终结果文档命名
      left_section_file         删除的只出现的一次的section label与其对应文档的记录
      left_block_file           删除的只出现的一次的block label与其对应文档的记录
   
+**************  数据库读取验证 *************
+代码在classify_python里
+python db_validation.py > outputfile
+
 **************  特征验证 *************
 代码在classify_python里
-python validation.py > outputfile
+python feature_validation.py > outputfile
 
 **************  属性文档验证 *************
 python attribute.py > outputfile
@@ -75,12 +80,11 @@ sudo yum install python-scikit-learn
 file_path=../data/Classify             //文件输出路径
 inner_file_path=../data/Classify             //内部文件路径
 featureid=1                //特征文件id
-class_number = 1           //二分类（1），还是三分类（2）
 instance_ratio = 0.3       //标注比例
-cluster_num=4          //聚类个数，如果设成-1的话程序内部会自动计算
-min_cluster_num=3      //自动计算时的最小簇数
-max_cluster_num=15     //自动计算时的最大簇数
-process_output=true           //是否输出中间文件
+cluster_num=4              //聚类个数，如果设成-1的话程序内部会自动计算
+min_cluster_num=3          //自动计算时的最小簇数
+max_cluster_num=15         //自动计算时的最大簇数
+process_output=true        //是否输出中间文件
 lowest_accuracy=0.85       //测试低于此准确率自动停止
 other_class=others         //负类标注类名
 stop_ratio = 0.1           //迭代停止时剩余样本与总样本的比例
@@ -122,23 +126,24 @@ stop_limitation=30         //迭代停止时剩余样本数量（比例与数量
     注：feature文件的命名在conf/feature.cfg中，每个section的命名，即[]中的内容，即为此feature文件的命名
 结果文件：
     X：第X次迭代；  Y：特征id
-	result_featuresY.csv         分类结果文件，最终结果文件
-	attribute_files.dat          属性文档列表
-	feature0_files.dat           没有label的文档列表 
-    not_sample.txt               其他未进入迭代器的文档列表
+	result_featuresY.csv           分类结果文件，最终结果文件
+	attribute_files.dat            属性文档列表
+	no_feature_files.dat           没有label的文档列表 
+    delete_files.dat               其他未进入迭代器的文档列表
 	
 中间文件：
 	clusterX_fY_result.csv                聚类结果输出文档
-	classifyX_fY_train.csv                测试时的训练数据
-	classifyX_fY_test.csv                 测试时的测试数据
+	classifyX_fY_train.csv                分类时的训练数据
+	classifyX_fY_test.csv                 分类时的测试数据
 	classifyX_fY_predict.csv              需要被分类的数据（本次迭代数据减去train和test）
     classifyX_fY_test_result.csv          记录测试结果，第一列是文档名称，第二列是标注类别，第三列是分类器计算出的类别
     classifyX_fY_test_statistic.txt       记录测试结果，包括准确率，分类结果统计
+    classify_fY_log.csv                   记录所有迭代的文档数量统计
 	
 ***********  写入数据库 ************
 配置文件:
-	../conf/conf.properties//公共文件，数据库相关
+	../conf/conf.properties    //公共文件，数据库相关
 读入文件：
-    最终分类结果的csv文件，作为参数传入(传入参数：-file ../data/Classify/ClassifyResult_f1.csv)
+    最终分类结果的csv文件，作为参数传入(传入参数：-file ../data/Classify/result_features1.csv)
 ant命令：
-ant db -Dfile=../data/Classify/ClassifyResult_f1.csv
+ant db -Dfile=../data/Classify/result_features1.csv

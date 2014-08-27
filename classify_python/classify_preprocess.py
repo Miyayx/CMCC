@@ -528,11 +528,12 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
     links,linknum = get_link(file_configs["outlink"])
     inlinks,inlinknum = get_link(file_configs["inlink"])
 
-    sample_class = {}
+    class_sample = {}
 
     if hubfile:
         hubs = detect_hub(slabel_count, linknum)
         print "hub files:",len(hubs)
+        class_sample["hub"] = hubs
         write_lines(file_configs["hub_output"], sorted(hubs))
         print "sample count:",len(sample_block)
         sample_block = [s for s in sample_block if s not in hubs] 
@@ -540,12 +541,13 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
     if attrfile:
         attrfiles = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links)
         print "attrfiles:",len(attrfiles)
+        class_sample["attribute"] = attrfiles
         write_lines(file_configs["attribute_output"], sorted(attrfiles))
         print "sample count:",len(sample_block)
         sample_block = [s for s in sample_block if s not in attrfiles] 
     print "sample count:",len(sample_block)
 
-    return sample_block, sample_class
+    return sample_block, class_sample 
 
 def filter_label(s2l):
 
@@ -633,7 +635,7 @@ def read_file_config(fn):
     con.read(fn)
     configs = dict((o, con.get("file",o)) for o in con.options("file"))
     return configs
-    
+
 def run(file_cfg, feature_cfg, db_cfg):
     import time
     print "Begin to time!"
@@ -644,6 +646,8 @@ def run(file_cfg, feature_cfg, db_cfg):
     file_configs = read_file_config(file_cfg)
 
     for section, fconfigs in feature_configs:
+
+        log = {}
 
         db = DB(db_cfg)
         if len(fconfigs["sample_filter_str"]) > 0:
@@ -659,7 +663,8 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         #Delete samples whose name has ','
         sample_block = delete_sample(sample_block, u',')
-        write_lines("delelte_samples.txt", diff_items(all_sample, sample_block))
+        write_lines(file_configs["delete_output"], diff_items(all_sample, sample_block))
+        log["delete_sample"] = len(diff_items(all_sample, sample_block))
 
         #Leave samples with str
         #sample_block = filter_sample(sample_block, u'04-资费')
@@ -671,16 +676,12 @@ def run(file_cfg, feature_cfg, db_cfg):
             block_label = db.get_sample2subsection()
 
             sample_block,filter_result = filter_doc(sample_block, section_label,block_label, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
+            for k,v in filter_result.items():
+                log[k] = len(v)
         
         #After delete all specific samples, reset allsample in db
         db.set_allsample(sample_block)
 
-        ################  class ####################
-        #class_block = read_class_file("etc/correctInstance.txt")
-        #sample_class, class_samples = read_all_class("../etc/ontology.txt")
-        #sample_block = common_items(sample_block,sample_class.keys())
-        #sample_block = common_items(sample_block,class_block.keys())
-        
         features = []
         fields = []
 
@@ -702,7 +703,7 @@ def run(file_cfg, feature_cfg, db_cfg):
 
             label_block = filter_label(o_label_block)
   
-            labels,label_features = section_label_feature(sample_block, label_block, fconfigs["section_label_common"], fconfigs["synonym_merge"])
+            labels,label_features = section_label_feature(sample_block, label_block, fconfigs["label_common"], fconfigs["synonym_merge"])
 
             fields.append(labels)
             features.append(label_features)
@@ -715,7 +716,7 @@ def run(file_cfg, feature_cfg, db_cfg):
 
             sample_bl = filter_label(o_sample_bl)
 
-            sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_bl, fconfigs["section_label_common"])
+            sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_bl, fconfigs["label_common"])
             fields.append(sublabels)
             features.append(sublabel_feature)
 
@@ -726,7 +727,7 @@ def run(file_cfg, feature_cfg, db_cfg):
             sample_sl = db.get_sample2section()
             sample_bl = db.get_sample2subsection()
 
-            labels, label_feature = merge_label_feature(sample_block, sample_sl, sample_bl, fconfigs["section_label_common"])
+            labels, label_feature = merge_label_feature(sample_block, sample_sl, sample_bl, fconfigs["label_common"])
             fields.append(labels)
             features.append(label_feature)
 
@@ -798,29 +799,33 @@ def run(file_cfg, feature_cfg, db_cfg):
         fields.append(["block label"])
         features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 
-        if fconfigs["feature0"]:
+        if fconfigs["no_feature"]:
             print "Delete no feature samples"
             no_feature_samples = []
             for s in sample_block:
-                #values = []
-                #for f in features:
-                #    values += f[s]
-                #if values.count(1) == 0:
-                #    no_feature_samples.append(s)
                 if len(label_block[s]) == 0 and len(sample_sl[s]) == 0:
                     no_feature_samples.append(s)
 
             print "Num of no feature samples",len(no_feature_samples)
-            write_lines(file_configs["feature0_output"],sorted(no_feature_samples))
+            write_lines(file_configs["no_feature_output"],sorted(no_feature_samples))
+            log["no_feature_sample"] = len(no_feature_samples)
             sample_block = delete_items(sample_block,no_feature_samples)
             print "sample count:",len(sample_block)
 
+        feature0_samples = []
+        for s in sample_block:
+            values = []
+            for f in features:
+                values += f[s]
+            if values.count(1) == 0:
+                feature0_samples.append(s)
+        log["feature0_sample"] = len(feature0_samples)
+        
         sorted(sample_block)
 
         write_dataset(sample_block, feature_fields(fields), features, class_block, result_output)
 
-        write_lines(file_configs["sample_output"],sample_block)
-        #write_lines(file_configs["not_sample"],diff_items(sample_block,all_sample))
+        record_log(file_configs["file_statistics"],log)
 
         print "Finish!"
         print "Time Consumming:",str(time.time()-time_start)

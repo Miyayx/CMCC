@@ -2,6 +2,7 @@
 #encoding=utf-8
 
 import codecs
+import os
 
 class CSVIO:
 
@@ -14,7 +15,8 @@ class CSVIO:
         self.columnN = 0
         self.rowN = 0
         if append:
-            self.load(fn,header,",")
+            if os.path.isfile(fn):
+                self.load(fn,header,",")
 
     def load(self, fn, header=True, separator=","):
         self.separator = separator
@@ -42,6 +44,7 @@ class CSVIO:
 
     def column(self, colname, col):
         if colname in self.fields:
+            print "update column",colname,self.fields.index(colname)
             self.update(self.fields.index(colname), col)
         elif(self.rowN == 0):
             print "first column",colname
@@ -104,23 +107,32 @@ class CSVIO:
         if not self.content.has_key(key):
             self.content[key] = [key]
         value = self.content[key]
-        if col_index < len(value):
-            value[col_index] = new_s
-        else:
-            value.append(new_s)
+        while len(value) < col_index:
+            value.append("")
+        value[col_index] =  new_s
         self.content[key] = value
 
     def update(self, col_index, new_col):
-        for k in self.content.keys():
+        keys = set()
+        if self.append:
+            keys.update(new_col.keys())
+            keys.update(self.content.keys())
+        else:
+            if len(self.content) == 0:
+                keys = new_col.keys()
+            else:
+                keys = set(self.content.keys()) & set(new_col.keys())
+        for k in keys:
             if(new_col.has_key(k)):
                 self.update_cell(k, col_index, new_col[k])
             else:
-                self.update_cell(k, col_index, " ")
+                self.update_cell(k, col_index, "")
 
     def write(self, fn, separator=',', header=True, sort=True, sort_index=0):
         """
         Write Content to file 
         """
+        print "Writing to ",fn
         if sort:
        #     for v in self.content.values():
        #         print len(v)
@@ -135,6 +147,7 @@ class CSVIO:
           #      v[0] = v[0].encode("utf-8")
           #  except:
           #      pass
+            v = [unicode(i) for i in v]
             f.write(separator.join(v)+"\n")
         #    f.flush()
         f.close()
