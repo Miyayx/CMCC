@@ -46,7 +46,7 @@ class KMEANS:
         data = {}
         names = []
         X = [] 
-        begin = 1
+        begin = 2
         end = 0
         classify_i = 0
         for line in codecs.open(data_file,'r','utf-8'):

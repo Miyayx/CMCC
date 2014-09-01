@@ -81,7 +81,7 @@ class SVM:
         feature = []
         for d in data:
             name.append(d[0])
-            feature.append(d[1:])
+            feature.append(d[2:])
         return name, np.array(feature)
 
     def get_data(self, data_file):

@@ -694,8 +694,8 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         #write_class_to_file(result_output, filter_result)
         
-        #fields.append(["Class"])
-        #features.append(dict((k,"") for k in sample_block))
+        fields.append(["Class"])
+        features.append(dict((k,"") for k in sample_block))
 
         ##################  section label  ####################
         if fconfigs["section_label"] and not fconfigs["merge_label"]:

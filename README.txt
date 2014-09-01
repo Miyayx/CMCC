@@ -91,16 +91,26 @@ stop_ratio = 0.1           //迭代停止时剩余样本与总样本的比例
 stop_limitation=30         //迭代停止时剩余样本数量（比例与数量二选一）
 
 ***************  迭代部分 *********************
-程序的每次迭代分为两步:
+程序的每次迭代分为三步:
 
 第一步:聚类
 	需要运行的是cluster.py，在linux中可以直接"python cluster.py Y"（第Y次迭代）运行程序。也可运行"python cluster.py Y k" 来指定参数k
 	这步的输出文件为clusterX_fY_result.csv,(X是迭代次数，Y是feature文件id)，此结果文件第一列是文档名称，第二列是簇号。
+
+第二步：人工标注
 	人工标注的时候需要在所有cluster里面选择一个聚类效果最好的cluster,抽象成概念，进行标注。标注的正例应为正例簇的样本数量的30%，标注的负例应为其他簇的样本总数的30%。应保证每个簇都有样本标注，标注数量与次簇数量成正比
     标注在resultX_featureY.csv中进行。在flagX列中进行。如果是正例则填写正确分类名称，如果是负例则填写“others”，既不标成正也不标成负分类的留空。
+    人工标注有辅助程序 annotation.py
+    配置文件在conf/annotation.cfg中，
+    cluster 正簇的簇号,可以是多个，以逗号隔开
+    pos_class 正例类别名称
+    neg_class 负例类别名称
+    程序将所有正簇中的所有样本作为正例，自动统计数量，选择30%标注成正例，其他簇选择总数的30%随机标记成负例。每个簇的标记数量与簇内样本数量成正比，并保证每个簇至少有一个样本被标记
+    运行python annotation.py X X是迭代次数
 
-第二步：根据人工标注结果训练分类器分类
-	需要运行的是classify.py，在linux中可以直接运行python classify.py Y（第Y次迭代）运行程序。
+
+第三步：根据人工标注结果训练分类器分类
+	需要运行的是classify.py，在linux中可以直接运行python classify.py X（第X次迭代）运行程序。
     *分类的输出包括部分，第一部分是中间结果记录文件：
     classifyX_fY_train.csv 记录训练数据集
     classifyX_fY_test.csv  记录测试数据集

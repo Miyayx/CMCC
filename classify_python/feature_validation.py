@@ -120,12 +120,12 @@ def run(prop_file, feature_file):
 
     options = {
         "section":{
-            "begin":1,
-            "end":1+int(prop["section_count"])
+            "begin":2,
+            "end":2+int(prop["section_count"])
         },
         "block":{
-            "begin":1+int(prop["section_count"]),
-            "end":  1+int(prop["section_count"])+int(prop["block_count"])
+            "begin":2+int(prop["section_count"]),
+            "end":  2+int(prop["section_count"])+int(prop["block_count"])
             }
     }
     validation(feature_file,options)
