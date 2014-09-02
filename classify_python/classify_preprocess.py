@@ -92,7 +92,7 @@ def tfidf_gensim(doc_segs):
     dictionary = corpora.Dictionary()
 
     corpus = [dictionary.doc2bow(seg,allow_update=True) for seg in segs]
-    kws = [dictionary[i].decode("utf-8") for i in range(len(dictionary))]
+    kws = [dictionary[i] for i in range(len(dictionary))]
     
     tfidf = models.TfidfModel(corpus, normalize=True)
     corpus_tfidf = tfidf[corpus]
@@ -803,13 +803,15 @@ def run(file_cfg, feature_cfg, db_cfg):
         fields.append(["sample2"])
         features.append(dict((k,k) for k in sample_block))
 
-        label_block = db.get_sample2section()
-        fields.append(["section label"])
-        features.append(dict((k,"#".join(label_block[k])) for k in sample_block ))
+        if fconfigs["section_label"]:
+            label_block = db.get_sample2section()
+            fields.append(["section label"])
+            features.append(dict((k,"#".join(label_block[k])) for k in sample_block ))
         
-        sample_sl = db.get_sample2subsection()
-        fields.append(["block label"])
-        features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
+        if fconfigs["block_label"]:
+            sample_sl = db.get_sample2subsection()
+            fields.append(["block label"])
+            features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 
         if fconfigs["no_feature"]:
             print "Delete no feature samples"
@@ -835,6 +837,7 @@ def run(file_cfg, feature_cfg, db_cfg):
         
         sorted(sample_block)
 
+        print "Writing to",result_output
         write_dataset(sample_block, feature_fields(fields), features, class_block, result_output)
 
         record_log(file_statistics, log)

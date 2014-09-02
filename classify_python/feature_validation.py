@@ -101,7 +101,7 @@ def validation(featurefile, options):
             print "section feature length:",len(f_d[0])-1
             section_i = fields.index("section label")
             sample_sl = dict((d[0], d[section_i].split("#") if len(d[section_i].strip()) > 0 else []) for d in data[1:])
-            exist_val(f_d, sample_sl, "left_section.dat")
+            exist_val(f_d, sample_sl, "left_section_features1.dat")
 
         if options.has_key("block"):
             print "=============== block label validation ================="
@@ -111,7 +111,7 @@ def validation(featurefile, options):
             block_i = fields.index("block label")
             sample_bl = dict((d[0], d[block_i].split("#") if len(d[block_i].strip()) > 0 else []) for d in data[1:])
             
-            exist_val(f_d, sample_bl, "left_block.dat" )
+            exist_val(f_d, sample_bl, "left_block_features1.dat" )
 
 
 def run(prop_file, feature_file):
