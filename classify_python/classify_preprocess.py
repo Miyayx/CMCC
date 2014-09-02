@@ -84,6 +84,7 @@ def tfidf_gensim(doc_segs):
     kws = []
     segs = []
     docs = []
+    doc_segs = filter_keyword(doc_segs)
     for doc,seg in doc_segs.items():
         docs.append(doc)
         segs.append(seg)
@@ -582,6 +583,26 @@ def filter_label(s2l):
         s2l[k] = new_v
 
     return s2l
+
+def filter_keyword(doc_segs):
+
+    del_pattens = [ur'\d{4}\.\d{1,2}\.\d{1,2}',ur'\d{4}\.\d{1,2}\.\d{1,2}-\d{4}\.\d{1,2}\.\d{1,2}']]
+    
+    for k,v in doc_segs.items():
+        new_v = list(v)
+        for i in v:
+            if is_bad_label(i):
+                new_v.remove(i)
+                continue
+            for p in del_pattens:
+                if re.match(p, i):
+                    print "Delete label:",i
+                    new_v.remove(i)
+                    break
+        doc_segs[k] = new_v
+
+    return doc_segs
+
 
 def feature_fields(fields):
     """
