@@ -35,7 +35,7 @@ def read_xls():
 def read_all_class(fn):
     sample_class = {}
     class_samples = {}
-    with open(fn) as f:
+    with codecs.open(fn) as f:
         line = f.readline().strip("\n").decode("utf-8")
         while line:
             c,samples = line.split("\t\t")
@@ -58,18 +58,18 @@ def read_segmentation(fn):
     Returns:
         sent_segs: k:sentence, v:list of words
     """
-    with open(fn) as f:
+    with codecs.open(fn, 'r', 'utf-8') as f:
         sent_segs = {}
-        line = f.readline().strip("\n").strip("\r").decode("utf-8")
+        line = f.readline().strip("\n").strip("\r")
         while line:
-            sentence,segs = line.split("\t\t")
+            sentence,segs = line.split("\t")
             ws = []
             for s in segs.split():
                 ws.append(s.split("/")[0])
             if not sentence.endswith("/"):
                 sentence += "/"
             sent_segs[sentence] = ws
-            line = f.readline().strip("\n").strip("\r").decode("utf-8")
+            line = f.readline().strip("\n").strip("\r")
         return sent_segs
 
 def segmetation_result(sent_segs, filename = ""):

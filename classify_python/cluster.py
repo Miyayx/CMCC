@@ -31,6 +31,8 @@ class KMEANS:
         self.iter_n = iter_n 
 
         self.names,self.X = self.get_data(self.data_file)
+
+        write_lines(props["neg_file"], self.names)
         
         if self.k < 0:
             self.k = self.calculate_k(self.X)

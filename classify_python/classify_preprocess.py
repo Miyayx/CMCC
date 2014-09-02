@@ -514,7 +514,7 @@ def get_link(fn):
         sample_linknum[k] = sample_linknum.get(k,0)+len(v)
     return sample_links, sample_linknum
 
-def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfile = True):
+def filter_doc(sample_block, section_label, block_label, hubfile=True, hub_output=None, attrfile=True, attribute_output=None):
     """
     获取link信息，依规则判断Hub和属性文档，从文档集合中过滤出去
     Args: 
@@ -534,7 +534,8 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
         hubs = detect_hub(slabel_count, linknum)
         print "hub files:",len(hubs)
         class_sample["hub"] = hubs
-        write_lines(file_configs["hub_output"], sorted(hubs))
+        if hub_output:
+            write_lines(hub_output, sorted(hubs))
         print "sample count:",len(sample_block)
         sample_block = [s for s in sample_block if s not in hubs] 
 
@@ -542,7 +543,8 @@ def filter_doc(sample_block, section_label, block_label, hubfile = True, attrfil
         attrfiles = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links)
         print "attrfiles:",len(attrfiles)
         class_sample["attribute"] = attrfiles
-        write_lines(file_configs["attribute_output"], sorted(attrfiles))
+        if attribute_output:
+            write_lines(attribute_output, sorted(attrfiles))
         print "sample count:",len(sample_block)
         sample_block = [s for s in sample_block if s not in attrfiles] 
     print "sample count:",len(sample_block)
@@ -647,6 +649,19 @@ def run(file_cfg, feature_cfg, db_cfg):
 
     for section, fconfigs in feature_configs:
 
+        ############### file name ################
+        result_output = file_configs["output_path"] + file_configs["result_output"] + "_" + section + ".csv"
+        delete_output = file_configs["others_output_path"] + file_configs["delete_output"] + "_" + section + ".dat"
+        hub_output = file_configs["others_output_path"] + file_configs["hub_output"] + "_" + section + ".dat"
+        attribute_output = file_configs["others_output_path"] + file_configs["attribute_output"] + "_" + section + ".dat"
+        no_feature_output = file_configs["others_output_path"] + file_configs["no_feature_output"] + "_" + section + ".dat"
+        file_statistics = file_configs["others_output_path"] + file_configs["file_statistics"] + "_" + section + ".dat"
+        left_section_file = file_configs["others_output_path"] + file_configs["left_section_file"] + "_" + section + ".dat"
+        left_block_file = file_configs["others_output_path"] + file_configs["left_block_file"] + "_" + section + ".dat"
+
+        if not fconfigs["run"]:
+            continue
+
         log = {}
 
         db = DB(db_cfg)
@@ -656,14 +671,12 @@ def run(file_cfg, feature_cfg, db_cfg):
             db.filter(fconfigs["sample_filter_file"],type="file")
 
         class_block = {}
-        #sample_block,label_block,class_block = read_xls()
-        #print len(sample_block)
         sample_block = db.all_samples
         all_sample = sample_block
 
         #Delete samples whose name has ','
         sample_block = delete_sample(sample_block, u',')
-        write_lines(file_configs["delete_output"], diff_items(all_sample, sample_block))
+        write_lines(delete_output, diff_items(all_sample, sample_block))
         log["delete_sample"] = len(diff_items(all_sample, sample_block))
 
         #Leave samples with str
@@ -675,7 +688,8 @@ def run(file_cfg, feature_cfg, db_cfg):
             section_label = db.get_sample2section()
             block_label = db.get_sample2subsection()
 
-            sample_block,filter_result = filter_doc(sample_block, section_label,block_label, hubfile = fconfigs["hub"], attrfile = fconfigs["attribute"])
+            sample_block, filter_result = filter_doc(sample_block, section_label,block_label, hubfile = fconfigs["hub"], hub_output = hub_output, attrfile = fconfigs["attribute"], attribute_output = attribute_output)
+
             for k,v in filter_result.items():
                 log[k] = len(v)
         
@@ -685,15 +699,11 @@ def run(file_cfg, feature_cfg, db_cfg):
         features = []
         fields = []
 
-        #把过滤掉的那些文档写入最终分类输出文件中
-        result_output = file_configs["output_path"]+file_configs["result_output_name"]+"_"+section+".csv"
 
         import os
         if os.path.exists(result_output):
             os.remove(result_output)
 
-        #write_class_to_file(result_output, filter_result)
-        
         fields.append(["Class"])
         features.append(dict((k,"") for k in sample_block))
 
@@ -703,12 +713,12 @@ def run(file_cfg, feature_cfg, db_cfg):
 
             label_block = filter_label(o_label_block)
   
-            labels,label_features = section_label_feature(sample_block, label_block, fconfigs["label_common"], fconfigs["synonym_merge"])
+            labels, label_features = section_label_feature(sample_block, label_block, fconfigs["label_common"], fconfigs["synonym_merge"])
 
             fields.append(labels)
             features.append(label_features)
 
-            record_left_label(o_label_block, labels, file_configs["left_section_file"])
+            record_left_label(o_label_block, labels, left_section_file)
 
         ###################  block label  ####################
         if fconfigs["block_label"] and not fconfigs["merge_label"]:
@@ -720,7 +730,7 @@ def run(file_cfg, feature_cfg, db_cfg):
             fields.append(sublabels)
             features.append(sublabel_feature)
 
-            record_left_label(o_sample_bl, sublabels, file_configs["left_block_file"])
+            record_left_label(o_sample_bl, sublabels, left_block_file)
 
         ################### merge section and block label ############
         if fconfigs["merge_label"]:
@@ -736,9 +746,9 @@ def run(file_cfg, feature_cfg, db_cfg):
             sent_segs = read_segmentation(file_configs["title_word_segmentation"])
             #segmetation_result(sent_segs, "../etc/title_keywords.txt")
             title_keywords = get_title_keywords(sent_segs)
-            title_tfidf = tfidf(title_keywords, sent_segs)
+            #title_tfidf = tfidf(title_keywords, sent_segs)
             #record_tfidf(title_keywords, title_tfidf, "../etc/title_tfidf.txt")
-            #title_keywords, title_tfidf = tfidf_gensim(sent_segs)
+            title_keywords, title_tfidf = tfidf_gensim(sent_segs)
             #title_tfidf = read_tfidf("../etc/title_tfidf.txt")
 
             fields.append(title_keywords)
@@ -777,16 +787,18 @@ def run(file_cfg, feature_cfg, db_cfg):
     #####################################################  feature file output  ########################################
 
         outfile = file_configs["feature_output_path"]+section+".csv"
-        print "feature file:", outfile
 
         #先写个原始的feature文件
         #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
-        with open("../conf/file_col.properties","w") as f:
-            if fconfigs["section_label"] and not fconfigs["merge_label"]:
-                f.write("section_count="+str(len(fields[0]))+"\n")
-            if fconfigs["block_label"] and not fconfigs["merge_label"]:
-                f.write("block_count="+str(len(fields[1]))+"\n")
-            f.write("feature_count="+str(len(feature_fields(fields))))
+
+        ############## record feature count ##############
+        if fconfigs["section_label"] or fconfigs["block_label"] or fconfigs["merge_label"]:
+            with codecs.open("../conf/file_col.properties","w") as f:
+                if fconfigs["section_label"] and not fconfigs["merge_label"]:
+                    f.write("section_count="+str(len(fields[0]))+"\n")
+                if fconfigs["block_label"] and not fconfigs["merge_label"]:
+                    f.write("block_count="+str(len(fields[1]))+"\n")
+                f.write("feature_count="+str(len(feature_fields(fields))))
 
         fields.append(["sample2"])
         features.append(dict((k,k) for k in sample_block))
@@ -807,7 +819,7 @@ def run(file_cfg, feature_cfg, db_cfg):
                     no_feature_samples.append(s)
 
             print "Num of no feature samples",len(no_feature_samples)
-            write_lines(file_configs["no_feature_output"],sorted(no_feature_samples))
+            write_lines(no_feature_output,sorted(no_feature_samples))
             log["no_feature_sample"] = len(no_feature_samples)
             sample_block = delete_items(sample_block,no_feature_samples)
             print "sample count:",len(sample_block)
@@ -825,7 +837,7 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         write_dataset(sample_block, feature_fields(fields), features, class_block, result_output)
 
-        record_log(file_configs["file_statistics"],log)
+        record_log(file_statistics, log)
 
         print "Finish!"
         print "Time Consumming:",str(time.time()-time_start)
