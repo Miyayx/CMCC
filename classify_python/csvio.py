@@ -76,7 +76,7 @@ class CSVIO:
             else:
                 keys = set(self.content.keys()) & set(newCol.keys())
 
-        print "keys:",len(keys)
+        #print "keys:",len(keys)
         for k in keys:
             if not self.content.has_key(k):
                 value = []
@@ -91,7 +91,7 @@ class CSVIO:
             self.content[k] = value
 
         self.columnN = max(len(v) for v in self.content.values())
-        print "column",self.columnN
+        #print "column",self.columnN
         self.rowN = len(self.content)
 
     def add_column(self, colname, col):

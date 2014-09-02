@@ -39,8 +39,11 @@ class KMEANS:
 
         sample_label, coef = self.cluster(self.X, self.k)
         csv = CSVIO(self.data_file)
-        s2sl = csv.read_one_to_one(0, csv.fields.index("section label"))
-        s2bl = csv.read_one_to_one(0, csv.fields.index("block label"))
+        s2sl = s2bl = None
+        if "section label" in csv.fields:
+            s2sl = csv.read_one_to_one(0, csv.fields.index("section label"))
+        if "block label" in csv.fields:
+            s2bl = csv.read_one_to_one(0, csv.fields.index("block label"))
         self.record_result(self.result_file, sample_label, s2sl, s2bl )
         self.append_result(self.data_file, sample_label)
 
@@ -60,9 +63,9 @@ class KMEANS:
                 continue
             if classify_i > 0:
                 if line[classify_i] == "others":
-                    data[line[0]] = [int(i) for i in line[begin:end]]
+                    data[line[0]] = [float(i) for i in line[begin:end]]
             else:
-                data[line[0]] = [int(i) for i in line[begin:end]]
+                data[line[0]] = [float(i) for i in line[begin:end]]
                 #X.append([int(i) for i in line[begin:end]])
                 #names.append(line[0])
 
@@ -82,13 +85,15 @@ class KMEANS:
         csv.write(fn, ",", True, True, csv.fields.index(colname))
         #csv.write(fn, ",", True, True, 0)
 
-    def record_result(self, fn, s2l, s2sl, s2bl ):
+    def record_result(self, fn, s2l, s2sl = None, s2bl = None ):
         print "Write to "+fn
 
         csv = CSVIO(fn,append = False)
         csv.column("sample", dict((s,s) for s in s2l.keys()))
-        csv.column("section label", s2sl)
-        csv.column("block label", s2bl)
+        if s2sl:
+            csv.column("section label", s2sl)
+        if s2bl:
+            csv.column("block label", s2bl)
         csv.column("cluster", s2l)
         csv.write(fn, ",", True, True, csv.fields.index("cluster"))
 
@@ -208,7 +213,7 @@ class KMEANS:
         #        print names[i],labels[i]
 
         coef = metrics.silhouette_score(X, labels, metric='sqeuclidean')
-        print("Silhouette Coefficient: %0.3f"% coef)
+        print("Silhouette Coefficient: %0.3f\n"% coef)
 
         return sample_label, coef
         
