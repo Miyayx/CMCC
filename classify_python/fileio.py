@@ -65,7 +65,8 @@ def read_segmentation(fn):
             sentence,segs = line.split("\t")
             ws = []
             for s in segs.split():
-                ws.append(s.split("/")[0])
+                if s.split("/")[1] in ['n','v']:
+                    ws.append(s.split("/")[0])
             if not sentence.endswith("/"):
                 sentence += "/"
             sent_segs[sentence] = ws

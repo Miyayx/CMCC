@@ -56,7 +56,7 @@ class KMEANS:
         classify_i = 0
         for line in codecs.open(data_file,'r','utf-8'):
             line = line.strip("\n").split(",")
-            if not line[2].isdigit():
+            if not line[3].isdigit():
                 end = line.index("sample2")
                 if int(self.iter_n) > 1:
                     classify_i = line.index("class"+str(int(self.iter_n)-1))

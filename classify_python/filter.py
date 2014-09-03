@@ -1,6 +1,8 @@
 #!/usr/bin/python2.7
 #encoding=utf-8
 
+import re
+
 def is_bad_label(label):
     """
     The label which has character that makes weka disable
