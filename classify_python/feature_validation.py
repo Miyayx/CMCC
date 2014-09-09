@@ -92,7 +92,6 @@ def validation(featurefile, options):
     db = DB("../../conf/conf.properties")
     with open(featurefile) as f:
         data = [l.strip("\n").decode("utf-8").split(",") for l in f.readlines()]
-        print data[0]
         fields = data[0]
         if options.has_key("section"):
             #验证section label
