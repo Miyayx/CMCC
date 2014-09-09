@@ -125,7 +125,8 @@ def run(attr_file):
     #print "attr len:",len(attrfiles)
     #for i in sorted(attrfiles):
     #    print i.encode("utf-8")
-    #attrfiles = [ l.strip("\n") for l in open(attr_file)]
+
+    attrfiles = [ l.strip("\n") for l in open(attr_file)]
 
     attribute_val(attrfiles, section_label, block_label, inlinks)
 

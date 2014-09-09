@@ -6,7 +6,7 @@ from csvio import *
 def gather_one_file(fn):
     all_s_c = get_sample2class(fn)
     csv = CSVIO(fn)
-    csv.column("Class",1,all_s_c)
+    csv.column("Class",all_s_c)
     csv.write(fn)
 
 def gather_multi_file(infiles, outfile):
@@ -14,7 +14,7 @@ def gather_multi_file(infiles, outfile):
     for i in infiles:
         all_s_c.update(get_sample2class(i))
     csv = CSVIO(outfile)
-    csv.column("Class",1,all_s_c)
+    csv.column("Class",all_s_c)
     csv.write(outfile)
 
 def get_sample2class(fn):
