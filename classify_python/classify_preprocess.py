@@ -764,9 +764,9 @@ def run(file_cfg, feature_cfg, db_cfg):
         if fconfigs["section_label"] or fconfigs["block_label"] or fconfigs["merge_label"]:
             with codecs.open("../conf/file_col.properties","w") as f:
                 if fconfigs["section_label"] and not fconfigs["merge_label"]:
-                    f.write("section_count="+str(len(fields[0]))+"\n")
+                    f.write("section_count="+str(len(fields[1]))+"\n")
                 if fconfigs["block_label"] and not fconfigs["merge_label"]:
-                    f.write("block_count="+str(len(fields[1]))+"\n")
+                    f.write("block_count="+str(len(fields[2]))+"\n")
                 f.write("feature_count="+str(len(feature_fields(fields))))
 
         fields.append(["sample2"])

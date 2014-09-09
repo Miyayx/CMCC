@@ -1,5 +1,8 @@
 #!/bin/sh
 
+mkdir ../../data/Classify/val
+mkdir ../../data/Classify/others
+
 python classify_preprocess.py
 echo "DB output verify..."
 python db_validation.py > ../../data/Classify/val/db.val
