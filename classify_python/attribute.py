@@ -120,14 +120,15 @@ def run(attr_file):
     #for i in hubs:
     #    print i.encode("utf-8")
 
-    #print "detect_attributefile"
-    #attrfiles = detect_attributefile(slabel_count,blabel_count, inlinks, inlinknum, links)
-    #print "attr len:",len(attrfiles)
-    #for i in sorted(attrfiles):
-    #    print i.encode("utf-8")
+    print "detect_attributefile"
+    attrfiles = detect_attributefile(slabel_count,blabel_count, inlinks, inlinknum, links)
+    print "attr len:",len(attrfiles)
+    for i in sorted(attrfiles):
+        print i.encode("utf-8")
     attrfiles = [ l.strip("\n") for l in open(attr_file)]
 
     attribute_val(attrfiles, section_label, block_label, inlinks)
 
 if __name__=="__main__":
-    run(read_file_config("../conf/file.cfg")["attribute_output"])
+    config = read_file_config("../conf/file.cfg")
+    run(config["others_output_path"]+config["attribute_output"]+"_"+"features1.dat")
