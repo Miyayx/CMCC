@@ -25,7 +25,9 @@ def multi_annotation(cfg_file, a_file, iter_n):
     s_c = csv.read_one_to_one(0, cluster_i)
     for s, c in s_c.items():
         if c in pos_c:
-            a_result[s] = c_c(c)
+            a_result[s] = c_c[c]
+        elif len(c.strip()) == 0:
+            continue
         else:
             a_result[s] = configs["neg_class"].decode("utf-8")
 
@@ -51,6 +53,6 @@ if __name__=="__main__":
 
     data_file = props["file_path"]+props["result"].replace('Y',props["featureid"])
 
-    multi_annotaion("../conf/multi_annotation.cfg", data_file, iter_n)
+    multi_annotation("../conf/multi_annotation.cfg", data_file, iter_n)
 
     print "Time Consuming:",(time.time()-start)
