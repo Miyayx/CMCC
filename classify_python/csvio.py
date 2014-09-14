@@ -6,17 +6,17 @@ import os
 
 class CSVIO:
 
-    def __init__(self, fn, header=True, append=True):
+    def __init__(self, fn, header=True, append=True, separator = ","):
         self.header = header
         self.append = append
         self.fields = []
         self.content = {}
-        self.separator = ","
+        self.separator = separator
         self.columnN = 0
         self.rowN = 0
         if append:
             if os.path.isfile(fn):
-                self.load(fn,header,",")
+                self.load(fn,header,separator)
 
     def load(self, fn, header=True, separator=","):
         self.separator = separator

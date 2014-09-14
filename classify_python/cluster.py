@@ -11,6 +11,7 @@ import codecs
 from utils import *
 from csvio import CSVIO
 from config_global import *
+from centroids import *
 
 class KMEANS:
 
@@ -109,83 +110,17 @@ class KMEANS:
         return best_k
 
     def calculate_centroid(self, X, k):
-        """
-        Algorithm From Paper: Single Pass Seed Selection Algorithm for k-Means 
-        """
-        centroids = []
+        #return CentroidCalculater(X, k).calculate_centroid()
 
-        n = len(X)
-        
-        print len(X),len(X[0])
-        dis = euclidean_distances(X, X)
-        print "dis",len(dis),len(dis[0])
-        s_dis = sum(dis)
+        import nk_means
+#        p_list = nk_means.calculate_centroid(X,k)
+#        name_ndf = []
+#        for i in range(len(p_list)):
+#            name_ndf.append((self.names[i], p_list[i].cluster))
+#        for item in sorted(name_ndf, key=lambda x:x[1], reverse=True):
+#            print item[0], item[1]
 
-        first = list(s_dis).index(max(s_dis))
-        centroids.append(first)
-
-        #maxv = sorted(dis[first], reverse=True)
-
-        #y = sum([m for m in maxv if m > 0][:int(n/k)])
-
-        #print "y =",y
-        
-        #for i in range(0,k):
-        #    D = [0 for j in range(n)]
-        #    for j in range(0,n):
-        #        D[j] = max([dis[j][c] for c in centroids])
-
-        #    D = sorted(D, reverse=True)
-        #    y = sum(D[:int(n/k)])
-        #    print "y =",y
-
-        #    DD = sorted([D[j]**2 for j in range(len(D))])
-
-        #    for j in range(0,n):
-        #        if sum(DD[:j]) >= y and y > sum(DD[:j-1]) and j not in centroids:
-        #            centroids.append(j)
-        #            break
-        
-        #first = list(s_dis).index(min(s_dis))
-        #print first
-        #centroids.append(first)
-        #minv = sorted(dis[first])
-        #s = 0
-        #for j in range(n/k):
-        #    s += minv[j]
-        #y = s
-        #print "y =",y
-        
-        print centroids
-        for i in range(1,k):
-            D = [0 for j in range(n)]
-            for j in range(0,n):
-                D[j] = min([dis[j][c] for c in centroids])
-
-            y = sum(sorted([d for d in D if d > 0])[:int(n/k)])
-
-            s = 0
-            for j in range(n):
-                old_s = s
-                s += (D[j]**2)
-                if s >= y and y > old_s:
-                    centroids.append(j)
-                    break
-
-       # for i in range(1,k):
-       #     D = [0 for j in range(n)]
-       #     for j in range(0,n):
-       #         D[j] = sum([dis[j][c] for c in centroids])
-
-       #     candidates = [D.index(m) for m in sorted(D, reverse=True)[:k]]
-       #     min_sum = [sum(sorted(dis[c])[:int(n/k)]) for c in candidates]
-       #     c = candidates[min_sum.index(min(min_sum))]
-
-       #     centroids.append(c)
-        
-
-        print "Centroids:",centroids
-        return centroids
+        return nk_means.calculate_centroid(X, k)
 
     def cluster(self, X, k, coef_dict = {}):
 
@@ -195,7 +130,7 @@ class KMEANS:
         print "n",n,"\n"
 
         # Get centroids ndarray
-        #centroids = self.calculate_centroid(X, k)
+        #centroids, p_list = self.calculate_centroid(X, k)
         #init_c = [X[c] for c in centroids]
         #init_c = np.array(init_c)
         #km = KMeans(init=init_c, n_clusters=k )
