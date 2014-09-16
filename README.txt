@@ -72,8 +72,11 @@ sh start.sh
 聚类分类部分使用的python的机器学习库scikit-learn
 
 在CentOS上的安装：
-sudo yum -y install gcc gcc-c++ numpy python-devel scipy
-sudo yum install python-scikit-learn
+安装pip
+sudo yum install python-devel
+sudo yum install gcc gcc-gfortran gcc-c++ make automake kernel-devel
+sudo yum install lapack lapack-devel blas blas-devel
+sudo pip install numpy scipy scikit-learn
 
 程序的一部分外部参数在classify.properties里
 参数说明：
