@@ -110,7 +110,7 @@ class KMEANS:
         return best_k
 
     def calculate_centroid(self, X, k):
-        #return CentroidCalculater(X, k).calculate_centroid()
+        return CentroidCalculater(X, k).calculate_centroid()
 
         import nk_means
 #        p_list = nk_means.calculate_centroid(X,k)
@@ -120,7 +120,7 @@ class KMEANS:
 #        for item in sorted(name_ndf, key=lambda x:x[1], reverse=True):
 #            print item[0], item[1]
 
-        return nk_means.calculate_centroid(X, k)
+        #return nk_means.calculate_centroid(X, k)
 
     def cluster(self, X, k, coef_dict = {}):
 
@@ -131,11 +131,12 @@ class KMEANS:
 
         # Get centroids ndarray
         #centroids, p_list = self.calculate_centroid(X, k)
-        #init_c = [X[c] for c in centroids]
-        #init_c = np.array(init_c)
-        #km = KMeans(init=init_c, n_clusters=k )
+        centroids = self.calculate_centroid(X, k)
+        init_c = [X[c] for c in centroids]
+        init_c = np.array(init_c)
+        km = KMeans(init=init_c, n_clusters=k, n_init=1 )
 
-        km = KMeans(init='k-means++', n_clusters=k, max_iter = 1000)
+        #km = KMeans(init='k-means++', n_clusters=k, max_iter = 1000)
         km.fit(X)
         labels = km.labels_
         

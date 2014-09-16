@@ -2,11 +2,13 @@
 #encoding=utf-8
 
 from csvio import *
+import sys
 
 def gather_one_file(fn):
     all_s_c = get_sample2class(fn)
     csv = CSVIO(fn)
-    csv.column("Class",all_s_c)
+    #csv.column("Class",all_s_c)
+    csv.insert_column("Class", 1, all_s_c)
     csv.write(fn)
 
 def gather_multi_file(infiles, outfile):
@@ -20,7 +22,7 @@ def gather_multi_file(infiles, outfile):
 def get_sample2class(fn):
     csv = CSVIO(fn)
     all_s_c = {}
-    for i in range(1,10000):
+    for i in range(1,sys.maxint):
         try:
             class_i = csv.fields.index("class"+str(i))
         except Exception,e:
