@@ -473,6 +473,7 @@ def write_features(colname,classify, fn, dataset):
 
         for l in dataset:
             f.write(l)
+
 def record_left_label(s2l, labels, fn):
     f = codecs.open(fn,"w","utf-8")
     for s,l in s2l.items():

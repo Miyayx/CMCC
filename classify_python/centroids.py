@@ -1,8 +1,33 @@
 #!/usr/bin/python
 #encoding=utf-8
 
+import sys
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.decomposition import PCA
+from sklearn import datasets
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from itertools import cycle
+import pylab as pl
+
+
+def plot_2D(data, target, target_names, p_list=None):
+    target = np.array(target)
+    colors = cycle('rgbcmykw')
+    target_ids = range(len(target_names))
+    pl.figure()
+    for i, c, label in zip(target_ids, colors, target_names):
+        pl.plot(data[target == i, 0],
+        data[target == i, 1], 'o',c=c, label=label)
+        pl.legend(target_names)
+    if p_list:
+        for p in p_list:
+            i = p.id_
+            #pl.text(data[i][0],data[i][1],"%.3f"%p.NDF)
+            pl.text(data[i][0], data[i][1], p.id_)
+
 
 def normalize(X):
     X = np.array(X)
@@ -11,122 +36,118 @@ def normalize(X):
     stded = meanRemoved / np.std(X) #用标准差归一化  
     return stded
 
-def calculate_centroid_PCA(X, k):
-    #from sklearn.decomposition import PCA
-    #pca = PCA(n_components=k)
-    #pca.fit(X)
-    #print pca.explained_variance_ratio_
-    #print pca.components_
+class CentroidCalculater(object):
 
-    X = np.mat(X)
-    X = np.transpose(X)
-    X = np.array(X)
-    meanVals = np.mean(X, axis=0)  
-    meanRemoved = X - meanVals #减去均值  
-    stded = meanRemoved / np.std(X) #用标准差归一化  
-    covMat = np.cov(stded, rowvar=0) #求协方差方阵  
-    eigVals, eigVects = np.linalg.eig(np.mat(covMat)) #求特征值和特征向量  
-    print len(eigVals)
-    print eigVals
-    eigd = dict((i,eigVals[i]) for i in range(len(eigVals)))
-    sorted_eig = sorted(eigd, key=eigd.get)
-    print sorted_eig[:k]
-    return sorted_eig[:k]
+    def __init__(self, strategy=None):
 
-def calculate_centroid_even(X, k):
-    """
-    Takes N, the number of points in the dataset, and uses the points at the indexes of the integer values of N/K, 2N/K, 3N/K a        nd so on, as the initial center points, until reaching the points at (K-1)*N/K and finally N, the last point in the sorted         data set. 
-    """
+        if strategy:
+           #get a handle to the object
+           self.action = strategy()
+           
+    def calculate(self, X, k):
+        if(self.action):
+            print type(self.action)
+            return self.action.calculate(X, k)
+        else:
+            raise UnboundLocalError('Exception raised, no strategyClass supplied to CentroidCalculater!')
 
-    n = len(X)
-    centroids = [(i*n)/k for i in range(k)]
-    return centroids
 
-def calculate_centroid_SPSS(X, k):
-    """
-    Algorithm From Paper: Single Pass Seed Selection Algorithm for k-Means 
-    """
-    centroids = []
+class CentroidEven(object):
 
-    n = len(X)
-    
-    print len(X),len(X[0])
-    dis = euclidean_distances(X, X)
-    print "dis",len(dis),len(dis[0])
-    s_dis = sum(dis)
+    def calculate(self, X, k):
+        """
+        Takes N, the number of points in the dataset, and uses the points at the indexes of the integer values of N/K, 2N/K, 3N/K a        nd so on, as the initial center points, until reaching the points at (K-1)*N/K and finally N, the last point in the sorted         data set. 
+        """
 
-    first = list(s_dis).index(max(s_dis))
-    centroids.append(first)
+        n = len(X)
+        centroids = [(i*n)/k for i in range(k)]
+        return centroids
 
-    #maxv = sorted(dis[first], reverse=True)
+class CentroidSPSS(object):
 
-    #y = sum([m for m in maxv if m > 0][:int(n/k)])
+    def calculate(self, X, k):
+        """
+        An enhanced kmeans++ method
+        Algorithm From Paper: Single Pass Seed Selection Algorithm for k-Means 
+        """
+        centroids = []
 
-    #print "y =",y
-    
-    #for i in range(0,k):
-    #    D = [0 for j in range(n)]
-    #    for j in range(0,n):
-    #        D[j] = max([dis[j][c] for c in centroids])
+        n = len(X)
+        
+        print len(X),len(X[0])
+        dis = euclidean_distances(X, X)
+        s_dis = sum(dis)
 
-    #    D = sorted(D, reverse=True)
-    #    y = sum(D[:int(n/k)])
-    #    print "y =",y
+        first = list(s_dis).index(max(s_dis))
+        centroids.append(first)
 
-    #    DD = sorted([D[j]**2 for j in range(len(D))])
+        #maxv = sorted(dis[first], reverse=True)
 
-    #    for j in range(0,n):
-    #        if sum(DD[:j]) >= y and y > sum(DD[:j-1]) and j not in centroids:
-    #            centroids.append(j)
-    #            break
-    
-    #first = list(s_dis).index(min(s_dis))
-    #print first
-    #centroids.append(first)
-    #minv = sorted(dis[first])
-    #s = 0
-    #for j in range(n/k):
-    #    s += minv[j]
-    #y = s
-    #print "y =",y
-    
-    print centroids
-    for i in range(1,k):
-        D = [0 for j in range(n)]
-        for j in range(0,n):
-            D[j] = min([dis[j][c] for c in centroids])
+        #y = sum([m for m in maxv if m > 0][:int(n/k)])
 
-        y = sum(sorted([d for d in D if d > 0])[:int(n/k)])
+        #print "y =",y
+        
+        #for i in range(0,k):
+        #    D = [0 for j in range(n)]
+        #    for j in range(0,n):
+        #        D[j] = max([dis[j][c] for c in centroids])
 
-        s = 0
-        for j in range(n):
-            old_s = s
-            s += (D[j]**2)
-            if s >= y and y > old_s:
-                centroids.append(j)
-                break
+        #    D = sorted(D, reverse=True)
+        #    y = sum(D[:int(n/k)])
+        #    print "y =",y
 
-   # for i in range(1,k):
-   #     D = [0 for j in range(n)]
-   #     for j in range(0,n):
-   #         D[j] = sum([dis[j][c] for c in centroids])
+        #    DD = sorted([D[j]**2 for j in range(len(D))])
 
-   #     candidates = [D.index(m) for m in sorted(D, reverse=True)[:k]]
-   #     min_sum = [sum(sorted(dis[c])[:int(n/k)]) for c in candidates]
-   #     c = candidates[min_sum.index(min(min_sum))]
+        #    for j in range(0,n):
+        #        if sum(DD[:j]) >= y and y > sum(DD[:j-1]) and j not in centroids:
+        #            centroids.append(j)
+        #            break
+        
+        #first = list(s_dis).index(min(s_dis))
+        #print first
+        #centroids.append(first)
+        #minv = sorted(dis[first])
+        #s = 0
+        #for j in range(n/k):
+        #    s += minv[j]
+        #y = s
+        #print "y =",y
+        
+        print centroids
+        for i in range(1,k):
+            D = [0 for j in range(n)]
+            for j in range(0,n):
+                D[j] = min([dis[j][c] for c in centroids])
 
-   #     centroids.append(c)
-    
+            y = sum(sorted([d for d in D if d > 0])[:int(n/k)])
 
-    print "Centroids:",centroids
-    return centroids
+            s = 0
+            for j in range(n):
+                old_s = s
+                s += (D[j]**2)
+                if s >= y and y > old_s:
+                    centroids.append(j)
+                    break
 
-class CentroidCalculater:
+        #for i in range(1,k):
+        #    D = [0 for j in range(n)]
+        #    for j in range(0,n):
+        #        D[j] = sum([dis[j][c] for c in centroids])
+         
+        #    candidates = [D.index(m) for m in sorted(D, reverse=True)[:k]]
+        #    min_sum = [sum(sorted(dis[c])[:int(n/k)]) for c in candidates]
+        #    c = candidates[min_sum.index(min(min_sum))]
+         
+        #    centroids.append(c)
+        
 
-    def __init__(self, X, k):
-        self.X = X
-        self.N = len(X)
-        self.k = k
+        print "Centroids:",centroids
+        return centroids
+
+class CentroidDensity(object):
+
+    def __init__(self):
+        pass
 
     def calculate_rho(self, dis, dc):
         assert self.N == len(dis)
@@ -175,10 +196,15 @@ class CentroidCalculater:
         assert len(rho_arr) == len(delta_arr)
         return [(rho_arr[i]*1000/delta_arr[i])for i in range(len(rho_arr))]
         
-    def calculate_centroid(self):
+    def calculate(self, X, k):
         """
         Algorithm From Paper: Clustering by fast search and find of density peaks
         """
+
+        self.X = X
+        self.k = k
+        self.N = len(X)
+
         print "Calculating centroids..."
         centroids = []
         
@@ -187,10 +213,10 @@ class CentroidCalculater:
         dc = self.estimate_dc(dis)
         rho_arr = self.calculate_rho(dis, dc)
         rho_arr = normalize(rho_arr)
-        print "rho:",rho_arr
+        #print "rho:",rho_arr
         delta_arr = self.calculate_delta(dis, rho_arr)
         delta_arr = normalize(delta_arr)
-        print "delta_arr:",delta_arr
+        #print "delta_arr:",delta_arr
         area_arr = self.get_area(rho_arr, delta_arr)
         slope_arr = self.get_slope(rho_arr, delta_arr)
 
@@ -220,6 +246,241 @@ class CentroidCalculater:
         print "Centroids:",centroids
         return centroids
 
+class point:
+    
+    def __init__(self, id_):
+        self.id_ = id_
+
+class CentroidNBC(object):
+
+    """
+    Referrence:
+    1. A Neighborhood-Based Clustering Algorithm
+    2. Neighborhood Density Method for Selecting Initial Cluster Centers in K-Means Clustering
+    """
+
+    def kNB(self, X, k_nbc, p_list):
+    
+        dis = euclidean_distances(X, X)
+    
+        for p in p_list:
+            i = p.id_
+            id_x = zip([j for j in range(len(dis[i]))], dis[i])
+            id_x.pop(i)
+            l = sorted(id_x, key=lambda x: x[1])
+            r = l[k_nbc-1][1]
+            knbs = [id_x[j][0] for j in range(len(id_x)) if id_x[j][1] <= r]
+            p.kNB = knbs
+    
+        return p_list
+    
+    def R_kNB(self, p_list):
+    
+        RkNBs = [[] for i in range(len(p_list))]
+    
+        for p in p_list:
+            for j in p.kNB:
+                RkNBs[j] = RkNBs[j] + [p.id_]
+    
+        for p in p_list:
+            p.RkNB = RkNBs[p.id_]
+    
+        return p_list
+    
+    def NDF(self, p_list):
+    
+        for p in p_list:
+            p.NDF = len(p.RkNB) * 1.0 / len(p.kNB)
+    
+        return p_list 
+    
+    def NBC(self, X, k_nbc, p_list):
+    
+        p_list = self.kNB(X, k_nbc, p_list)
+        p_list = self.R_kNB(p_list)
+        p_list = self.NDF(p_list)
+    
+        for p in p_list:
+            p.cluster = -1
+    
+        count = 0
+    
+        for p in p_list:
+    
+            #pca = PCA(n_components=2, whiten=True).fit(X)
+            #X_pca = pca.transform(X)
+    
+            #if p.cluster >= 0 or p.NDF < 1: 
+            if p.cluster >= 0: #不要离群点
+                continue
+            p.cluster = count # A new cluster
+    
+            dp_set = []
+            for j in p.kNB:
+                q = p_list[j]
+                if q.cluster > -1:
+                    continue
+                q.cluster = count
+    
+                if q.NDF >= 1:
+                    dp_set.append(q)
+    
+            while len(dp_set) > 0:
+                m = dp_set.pop()
+                for j in m.kNB:
+                    q = p_list[j]
+                    if q.cluster > -1:
+                        continue
+                    q.cluster = count
+                    if q.NDF >= 1:
+                        dp_set.append(q)
+    
+            #plot_2D(X_pca, [p.cluster for p in p_list], [i for i in range(count)], p_list)
+            #plt.show()
+    
+            count += 1
+    
+        return p_list
+            
+
+    def merge_cluster(self, X, k, cluster_p):
+        """
+        Merge NBC result to k clusters according to distance between current clusters.
+    
+        Args
+        X : ndarray
+            feature array
+        k : int
+            the number of cluster wanted finally
+        cluster_p : list of list
+            collection of cluster points, index means cluster id, item means list of points of this cluster
+    
+        Returns
+            
+        """
+    
+        def get_center_and_radius(ps):
+            x = [X[p] for p in ps]
+            z = np.mean(x, axis=0)
+            dis = euclidean_distances(x, z)
+            r = np.max(dis) 
+    
+            return z, r
+    
+        c_num = len(cluster_p)
+        print "c_num",c_num
+    
+        r = [0 for i in range(c_num)]
+        z = [0 for i in range(c_num)]
+    
+        for c in range(c_num): 
+            print c,len(cluster_p[c])
+    
+        for c in range(c_num):
+            ps = cluster_p[c]
+            z[c], r[c] = get_center_and_radius(ps)
+    
+        d_c = [[sys.maxint for i in range(c_num)] for i in range(c_num)]
+        for i in range(c_num):
+            for j in range(i):
+                if i == j:
+                    d_c[i].insert(j, np.inf)
+                else: #calculate triangle matrix
+                    d = euclidean_distances(z[i], z[j])/(r[i] + r[j] + 1)
+                    d_c[i][j] = d
+                    d_c[j][i] = d
+    
+        while len(cluster_p) > k:
+        #while len(cluster_p) < k:
+    
+            c_num = len(cluster_p)
+            print "c_num",c_num
+    
+            min_d = np.min(np.min(d_c, 1))
+            c_i = list(np.min(d_c,1)).index(min_d)
+            c_j = list(d_c[c_i]).index(min_d)
+            
+    
+            # merge i and j to i
+            cluster_p[c_i] = cluster_p[c_i] + cluster_p[c_j]
+            #print "merge:",c_i,c_j
+            cluster_p.pop(c_j)
+    
+            z.pop(c_j)
+            r.pop(c_j) 
+            # recalculate the new center and radius
+            #print "r len",len(r)
+            #print "z len",len(z)
+            #print "c len",len(cluster_p)
+            #print "c_i",c_i
+            #print "c_j",c_j
+            z[c_i], r[c_i] = get_center_and_radius(cluster_p[c_i])
+            for j in range(len(d_c)):
+                d_c[j].pop(c_j)
+    
+            d_c.pop(c_j)
+    
+            #recalculate distance between cluster i and others
+            c_num = len(cluster_p)
+            for j in range(c_num):
+                d = euclidean_distances(z[c_i], z[j])/(r[c_i] + r[j] + 1)
+                if str(d[0][0]) == "nan":
+                    d = np.inf
+                d_c[c_i][j] =  d
+                d_c[j][c_i] =  d
+    
+        print cluster_p
+        return cluster_p
+        
+    def calculate(self, X, k):
+        print "k",k
+        n = len(X)
+        p_list = [point(i) for i in range(n)]
+    
+        #pca = PCA(n_components=2, whiten=True).fit(X)
+        #X_pca = pca.transform(X)
+    
+        p_list = self.NBC(X, 15, p_list)
+        c_num = len(set(p.cluster for p in p_list))
+    
+        #for p in p_list:
+        #    print "point",p.id_
+        #    print "kNB",p.kNB
+        #    print "RkNB",p.RkNB
+        #    print "NDF",p.NDF
+        #    print "cluster", p.cluster
+        #    print ""
+    
+    
+        #plot_2D(X_pca, [p.cluster for p in p_list], [i for i in range(c_num)], p_list)
+        #plt.show()
+    
+        cluster_p = [[] for i in range(c_num)]
+        for p in p_list:
+            cluster_p[p.cluster] = cluster_p[p.cluster] + [p.id_]
+            #cluster_p[p.cluster] = cluster_p.get(p.cluster, []) + [p.id_] # -1 turn to 0
+    
+        cluster_p = self.merge_cluster(X, k, cluster_p)
+    
+        centroids = []
+        for c in range(len(cluster_p)):
+            ps = cluster_p[c]
+            x = [X[p] for p in ps]
+            z = np.mean(x, axis=0)
+            dis = euclidean_distances(x, z)
+            dis = np.transpose(dis)[0]
+            ctd = list(dis).index(min(dis))
+            centroids.append(ps[ctd])
+        print centroids
+    
+        for c in range(len(cluster_p)):
+            ps = cluster_p[c]
+            for p in ps:
+                p_list[p].cluster = c
+    
+        return centroids
+
+
 if __name__=="__main__":
     from sklearn import datasets
     from sklearn.cluster import KMeans
@@ -227,17 +488,45 @@ if __name__=="__main__":
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
 
+    k = 3
     # import some data to play with
     iris = datasets.load_iris()
     X = iris.data  # we only take the first two features.
     y = iris.target
-    centroids = CentroidCalculater(X, 3).calculate_centroid()
+
+    centroids_set = []
+
+    centroids = CentroidCalculater(strategy=CentroidNBC).calculate(X, k)
+    print centroids
     init_c = [X[c] for c in centroids]
     init_c = np.array(init_c)
+    centroids_set.append(init_c)
 
-    estimators = {'k_means_iris_3': KMeans(n_clusters=3),
+    centroids = CentroidCalculater(strategy=CentroidEven).calculate(X, k)
+    print centroids
+    init_c = [X[c] for c in centroids]
+    init_c = np.array(init_c)
+    centroids_set.append(init_c)
+
+    centroids = CentroidCalculater(strategy=CentroidSPSS).calculate(X, k)
+    print centroids
+    init_c = [X[c] for c in centroids]
+    init_c = np.array(init_c)
+    centroids_set.append(init_c)
+
+    centroids = CentroidCalculater(strategy=CentroidDensity).calculate(X, k)
+    print centroids
+    init_c = [X[c] for c in centroids]
+    init_c = np.array(init_c)
+    centroids_set.append(init_c)
+
+    estimators = {'k_means_iris_3': KMeans(n_clusters=k),
                   #'k_means_iris_8': KMeans(n_clusters=8),
-                  'k_means_iris_bad_init': KMeans(n_clusters=3, n_init = 1,init=init_c)}
+                  #'k_means_iris_init_NBC': KMeans(n_clusters=k, n_init = 1,init=init_c)}
+                  'k_means_iris_init_NBC': KMeans(n_clusters=k, n_init = 1,init=centroids_set[0]),
+                  'k_means_iris_init_even': KMeans(n_clusters=k, n_init = 1,init=centroids_set[1]),
+                  'k_means_iris_init_spss': KMeans(n_clusters=k, n_init = 1,init=centroids_set[2]),
+                  'k_means_iris_init_density': KMeans(n_clusters=k, n_init = 1,init=centroids_set[3])}
 
     fignum = 1
     for name, est in estimators.items():
@@ -246,7 +535,6 @@ if __name__=="__main__":
         ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
 
         plt.cla()
-        print name
         est.fit(X)
         labels = est.labels_
 

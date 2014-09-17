@@ -15,7 +15,7 @@ from centroids import *
 
 class KMEANS:
 
-    def __init__(self, data_file, k=-1):
+    def __init__(self, data_file, k=-1, init='k-means++'):
         props = read_properties(PROP_FILE)
         props.update(read_properties(COL_FILE))
 
@@ -26,6 +26,7 @@ class KMEANS:
         self.max_cluster = int(props["max_cluster_num"])
 
         self.data_file = data_file
+        self.init = init
 
     def run(self, result_file, iter_n):
         self.result_file = result_file
@@ -36,9 +37,9 @@ class KMEANS:
         write_lines(props["neg_file"], self.names)
         
         if self.k < 0:
-            self.k = self.calculate_k(self.X)
+            self.k = self.calculate_k(self.X, self.init)
 
-        sample_label, coef = self.cluster(self.X, self.k)
+        sample_label, coef = self.cluster(self.X, self.k, self.init)
         csv = CSVIO(self.data_file)
         s2sl = s2bl = None
         if "section label" in csv.fields:
@@ -98,10 +99,12 @@ class KMEANS:
         csv.column("cluster", s2l)
         csv.write(fn, ",", True, True, csv.fields.index("cluster"))
 
-    def calculate_k(self, X):
+    def calculate_k(self, X, init):
         coef_dict = {}
         for k in range(self.min_cluster,self.max_cluster):
-            r,coef = self.cluster(X, k)
+            if init == 'nbc':
+                init = 'k-means++'
+            r,coef = self.cluster(X, k, init)
             coef_dict[k] = coef
         for k,v in coef_dict.items():
             print k,v
@@ -109,20 +112,28 @@ class KMEANS:
         print "best_k",best_k
         return best_k
 
-    def calculate_centroid(self, X, k):
-        return CentroidCalculater(X, k).calculate_centroid()
+    def init_centroids(self, X, k, init="k-means++"):
+        if init == 'k-means++':
+            return 'k-means++'
+        else:
+            centroids = []
+            if init == 'even':
+                centroids = CentroidCalculater(strategy=CentroidEven).calculate(X, k)
+            elif init == 'spss':
+                centroids = CentroidCalculater(strategy=CentroidSPSS).calculate(X, k)
+            elif init == 'density':
+                centroids = CentroidCalculater(strategy=CentroidDensity).calculate(X, k)
+            elif init == 'nbc':
+                centroids = CentroidCalculater(strategy=CentroidNBC).calculate(X, k)
+            else:
+                raise ValueError("the init parameter for the k-means should be 'k-means++' or 'even' or 'spss' or 'density' or 'nbc' ,'%s' (type '%s') was passed." % (init, type(init)))
 
-        import nk_means
-#        p_list = nk_means.calculate_centroid(X,k)
-#        name_ndf = []
-#        for i in range(len(p_list)):
-#            name_ndf.append((self.names[i], p_list[i].cluster))
-#        for item in sorted(name_ndf, key=lambda x:x[1], reverse=True):
-#            print item[0], item[1]
+            init_c = [X[c] for c in centroids]
+            init_c = np.array(init_c)
 
-        #return nk_means.calculate_centroid(X, k)
+            return np.array(init_c) 
 
-    def cluster(self, X, k, coef_dict = {}):
+    def cluster(self, X, k, init = 'k-means++', coef_dict = {}):
 
         print "k",k
 
@@ -130,13 +141,8 @@ class KMEANS:
         print "n",n,"\n"
 
         # Get centroids ndarray
-        #centroids, p_list = self.calculate_centroid(X, k)
-        centroids = self.calculate_centroid(X, k)
-        init_c = [X[c] for c in centroids]
-        init_c = np.array(init_c)
-        km = KMeans(init=init_c, n_clusters=k, n_init=1 )
+        km = KMeans(init=self.init_centroids(X, k, init), n_clusters=k, n_init=1 )
 
-        #km = KMeans(init='k-means++', n_clusters=k, max_iter = 1000)
         km.fit(X)
         labels = km.labels_
         
@@ -160,10 +166,19 @@ if __name__=="__main__":
         print "Need Iteration Num for Argument"
          
     iter_n = sys.argv[1]
+    init_c = 'k-means++'
     if len(sys.argv) == 3:
-        k = sys.argv[2]
-    else:
-        k = -1
+        if sys.argv[2].isdigit():
+            k = int(sys.argv[2])
+        else:
+            k = -1
+            init_c = sys.argv[2]
+
+    if len(sys.argv) == 4:
+        k = int(sys.argv[2])
+        init_c = sys.argv[3]
+
+
     import time
     start = time.time()
 
@@ -173,7 +188,7 @@ if __name__=="__main__":
 
     data_file = props["file_path"]+props["result"].replace('Y',props["featureid"])
     cluster_result = props["file_path"]+props["cluster_result"].replace('Y',props["featureid"]).replace('X',iter_n)
-    km = KMEANS(data_file, k)
+    km = KMEANS(data_file, k, init_c)
     km.run(cluster_result,iter_n)
 
     print "Time Consuming:",(time.time()-start)
