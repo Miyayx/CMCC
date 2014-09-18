@@ -16,6 +16,15 @@ from centroids import *
 class KMEANS:
 
     def __init__(self, data_file, k=-1, init='k-means++'):
+        """
+        Args
+        ------------------------------
+        data_file:
+            feature file
+        k
+        init:
+            method for centroids
+        """
         props = read_properties(PROP_FILE)
         props.update(read_properties(COL_FILE))
 
@@ -29,24 +38,37 @@ class KMEANS:
         self.init = init
 
     def run(self, result_file, iter_n):
+        """
+        Args
+        --------------------------------
+        result_file:
+            record cluster result in clusterX_fY_result.csv, only include sample and cluster number
+        iter_n:
+            iteration number
+            
+        """
         self.result_file = result_file
         self.iter_n = iter_n 
 
         self.names,self.X = self.get_data(self.data_file)
 
+        # record others sample
         write_lines(props["neg_file"], self.names)
         
         if self.k < 0:
             self.k = self.calculate_k(self.X, self.init)
 
         sample_label, coef = self.cluster(self.X, self.k, self.init)
+
         csv = CSVIO(self.data_file)
         s2sl = s2bl = None
-        if "section label" in csv.fields:
+        if "section label" in csv.fields: #write section label in big table
             s2sl = csv.read_one_to_one(0, csv.fields.index("section label"))
-        if "block label" in csv.fields:
+        if "block label" in csv.fields: #write block label in big table
             s2bl = csv.read_one_to_one(0, csv.fields.index("block label"))
+        # write to cluster result file
         self.record_result(self.result_file, sample_label, s2sl, s2bl )
+        # write to big table file
         self.append_result(self.data_file, sample_label)
 
     def get_data(self, data_file):
@@ -79,6 +101,9 @@ class KMEANS:
         return names,X
 
     def append_result(self, fn, s2l):
+        """
+        Write to big table file
+        """
         print "Add to "+fn
         colname = "cluster"+self.iter_n
         csv = CSVIO(fn)
@@ -88,6 +113,9 @@ class KMEANS:
         #csv.write(fn, ",", True, True, 0)
 
     def record_result(self, fn, s2l, s2sl = None, s2bl = None ):
+        """
+        Write to cluster result file
+        """
         print "Write to "+fn
 
         csv = CSVIO(fn,append = False)
@@ -100,6 +128,13 @@ class KMEANS:
         csv.write(fn, ",", True, True, csv.fields.index("cluster"))
 
     def calculate_k(self, X, init):
+        """
+        计算合适的k, 从min_cluster 到max_cluster进行测试,选取Silhouette Coefficient最大的
+        X:
+            feature 
+        init:
+            计算centroids的算法
+        """
         coef_dict = {}
         for k in range(self.min_cluster,self.max_cluster):
             if init == 'nbc':
@@ -113,6 +148,9 @@ class KMEANS:
         return best_k
 
     def init_centroids(self, X, k, init="k-means++"):
+        """
+        计算初始centroid
+        """
         if init == 'k-means++':
             return 'k-means++'
         else:
@@ -134,13 +172,14 @@ class KMEANS:
             return np.array(init_c) 
 
     def cluster(self, X, k, init = 'k-means++', coef_dict = {}):
+        """
+        """
 
         print "k",k
 
         n = len(X)
         print "n",n,"\n"
 
-        # Get centroids ndarray
         km = KMeans(init=self.init_centroids(X, k, init), n_clusters=k, n_init=1 )
 
         km.fit(X)

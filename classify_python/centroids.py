@@ -12,8 +12,15 @@ from mpl_toolkits.mplot3d import Axes3D
 from itertools import cycle
 import pylab as pl
 
+"""
+4 methods for centroid calculating
+even, spss, density, nbc
+"""
 
 def plot_2D(data, target, target_names, p_list=None):
+    """
+    把feature降维成2维做出聚类结果图
+    """
     target = np.array(target)
     colors = cycle('rgbcmykw')
     target_ids = range(len(target_names))
@@ -37,17 +44,20 @@ def normalize(X):
     return stded
 
 class CentroidCalculater(object):
+    """
+    运用策略模式，每次添加新的策略时请覆写calculate方法，并将新策略作为CentroidCalculater的参数传递进来
+    """
 
     def __init__(self, strategy=None):
 
         if strategy:
            #get a handle to the object
-           self.action = strategy()
+           self.action = strategy() #创建新的策略实例
            
     def calculate(self, X, k):
         if(self.action):
             print type(self.action)
-            return self.action.calculate(X, k)
+            return self.action.calculate(X, k) #使用策略算法
         else:
             raise UnboundLocalError('Exception raised, no strategyClass supplied to CentroidCalculater!')
 
@@ -56,7 +66,7 @@ class CentroidEven(object):
 
     def calculate(self, X, k):
         """
-        Takes N, the number of points in the dataset, and uses the points at the indexes of the integer values of N/K, 2N/K, 3N/K a        nd so on, as the initial center points, until reaching the points at (K-1)*N/K and finally N, the last point in the sorted         data set. 
+        Takes N, the number of points in the dataset, and uses the points at the indexes of the integer values of N/K, 2N/K, 3N/K and so on, as the initial center points, until reaching the points at (K-1)*N/K and finally N, the last point in the sorted data set. 
         """
 
         n = len(X)
@@ -145,11 +155,19 @@ class CentroidSPSS(object):
         return centroids
 
 class CentroidDensity(object):
+    """
+    Reference:
+    Algorithm From Paper: Clustering by fast search and find of density peaks
+    The algorithm has its basis in the assumptions that cluster centers are surrounded by neighbors with lower local density and that they are at a relatively large distance from any points with a higher local density. For each data point i, we compute two quantities: its local density RHO and its distance DELTA from points of higher density. 
+    """
 
     def __init__(self):
         pass
 
     def calculate_rho(self, dis, dc):
+        """
+        Basically, rho(i) is equal to the number of points that are closer than dc to point i. The algorithm is sensitive only to the relative magnitude of rho(i) in different points, implying that, for large data sets, the results of the analysis are robust with respect to the choice of dc .
+        """
         assert self.N == len(dis)
         rho_arr = []
         for i in range(self.N):
@@ -158,6 +176,9 @@ class CentroidDensity(object):
         return rho_arr
 
     def calculate_delta(self, dis, rho_arr):
+        """
+        delta(i) is measured by computing the minimum distance between the point i and any other point with higher density
+        """
         delta_arr = []
         for i in range(self.N):
             rho_j = []
@@ -197,9 +218,6 @@ class CentroidDensity(object):
         return [(rho_arr[i]*1000/delta_arr[i])for i in range(len(rho_arr))]
         
     def calculate(self, X, k):
-        """
-        Algorithm From Paper: Clustering by fast search and find of density peaks
-        """
 
         self.X = X
         self.k = k
@@ -231,6 +249,7 @@ class CentroidDensity(object):
         # sorted by area
         instances = sorted(instances, key=lambda x:x[1], reverse = True)
 
+        #选取rho和delta尽可能大的点，即area大的点。但slope要在一定范围内，否则可能会出现某一值很大，另一值很小的情况
         tmp = 0
         for ins in instances:
             s = ins[2] # get slope
@@ -246,7 +265,11 @@ class CentroidDensity(object):
         print "Centroids:",centroids
         return centroids
 
+
 class point:
+    """
+    记录每个点的中间值
+    """
     
     def __init__(self, id_):
         self.id_ = id_
@@ -260,6 +283,9 @@ class CentroidNBC(object):
     """
 
     def kNB(self, X, k_nbc, p_list):
+        """
+        kNB(p) is the set of p’s k-nearest neighbor points
+        """
     
         dis = euclidean_distances(X, X)
     
@@ -275,6 +301,9 @@ class CentroidNBC(object):
         return p_list
     
     def R_kNB(self, p_list):
+        """
+        R−kNB(p) is the set of the reverse k-nearest neighbor points of p. R−kNB(p) is defined as the set of points whose k-nearest neighborhoods contain p
+        """
     
         RkNBs = [[] for i in range(len(p_list))]
     
@@ -288,6 +317,12 @@ class CentroidNBC(object):
         return p_list
     
     def NDF(self, p_list):
+        """
+        Neighborhood Density Factor
+        defined as |R-kNB(p)| / |kNB(p)|
+        The value of NDF (p) measures the local density of the object p
+        Generally speaking, NDF (p) > 1 indicates that p is located in a dense area. NDF (p) < 1 indicates that p is in a sparse area. If NDF (p) = 1, then p is located in an area where points are evenly distributed in space.
+        """
     
         for p in p_list:
             p.NDF = len(p.RkNB) * 1.0 / len(p.kNB)
@@ -295,6 +330,11 @@ class CentroidNBC(object):
         return p_list 
     
     def NBC(self, X, k_nbc, p_list):
+        """
+        NBC Cluster result 
+        Reference:
+            A Neighborhood-Based Clustering Algorithm
+        """
     
         p_list = self.kNB(X, k_nbc, p_list)
         p_list = self.R_kNB(p_list)
@@ -345,7 +385,7 @@ class CentroidNBC(object):
 
     def merge_cluster(self, X, k, cluster_p):
         """
-        Merge NBC result to k clusters according to distance between current clusters.
+        Merge NBC result to k clusters according to distance between current clusters. Merge the nearest pair each time
     
         Args
         X : ndarray
@@ -356,6 +396,8 @@ class CentroidNBC(object):
             collection of cluster points, index means cluster id, item means list of points of this cluster
     
         Returns
+        cluster_p:
+            Merge result, key: cluster_id, value: point list
             
         """
     
@@ -440,7 +482,8 @@ class CentroidNBC(object):
         #pca = PCA(n_components=2, whiten=True).fit(X)
         #X_pca = pca.transform(X)
     
-        p_list = self.NBC(X, 15, p_list)
+        #使用NBC算法先聚出多个类
+        p_list = self.NBC(X, 10, p_list)
         c_num = len(set(p.cluster for p in p_list))
     
         #for p in p_list:
@@ -460,8 +503,10 @@ class CentroidNBC(object):
             cluster_p[p.cluster] = cluster_p[p.cluster] + [p.id_]
             #cluster_p[p.cluster] = cluster_p.get(p.cluster, []) + [p.id_] # -1 turn to 0
     
+        #如果簇数大于k，合并相近的簇直到簇数等于k
         cluster_p = self.merge_cluster(X, k, cluster_p)
     
+        # 将簇的中心点作为聚类中心，计算距离聚类中心最近的点作为centroid
         centroids = []
         for c in range(len(cluster_p)):
             ps = cluster_p[c]

@@ -153,6 +153,11 @@ class CSVIO:
         f.close()
 
     def read_one_to_one(self, k_i, v_i):
+        """
+        读取某一列到dict
+        k_i: key column index
+        v_i: value column index
+        """
 
         result = {}
         

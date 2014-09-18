@@ -1,6 +1,5 @@
-
 #!/usr/bin/python2.7
-#encoding=utf-8
+#-*-coding:utf-8-*-
 
 import numpy as np
 from sklearn import svm
@@ -35,6 +34,22 @@ class SVM:
         self.log = {}
 
     def run(self, train_file, test_file, predict_file, test_result_file, test_statistic,log_file, iter_n):
+        """
+        Args
+        -----------------------------------
+        train_file:
+            记录训练数据
+        test_file:
+            记录测试数据
+        predict_file:
+            记录预测数据与预测结果
+        test_result_file
+            测试结果与标柱对比
+        test_statistic
+            测试结果数据统计与准确率记录
+        log_file
+            每次迭代的样本数量记录结果
+        """
 
         self.iter_n = iter_n 
 
@@ -46,12 +61,15 @@ class SVM:
 
         X_flag, Y_flag, predict = self.get_data(self.data_file)
 
+        #训练与测试
         self.train_test(X_flag, Y_flag)
 
         name_predict, X_predict = self.name_feature_split(predict)
         name_flag, X_flag = self.name_feature_split(X_flag)
 
+        # 预测
         Y_predict = self.predict(X_predict)
+
         self.log["predict_all"] = len(Y_predict)
         self.log["predict_pos"] = len(Y_predict) - list(Y_predict).count("others")
         self.log["predict_neg"] = list(Y_predict).count("others")
@@ -77,6 +95,9 @@ class SVM:
         csv.write(log_file, ",", True, True )
 
     def name_feature_split(self, data):
+        """
+        把name和feature分开
+        """
         name = []
         feature = []
         for d in data:
@@ -112,6 +133,9 @@ class SVM:
         return X_flag, Y_flag, predict
 
     def append_result(self, fn, s2l):
+        """
+        Write to big table file
+        """
         print "Add to "+fn
         colname = "class"+self.iter_n
         csv = CSVIO(fn)
@@ -119,6 +143,9 @@ class SVM:
         csv.write(fn, ",", True, True, csv.fields.index(colname))
 
     def record_result(self, fn, columns = [] ):
+        """
+        Write to cluster result file
+        """
         print "Write to "+fn
 
         csv = CSVIO(fn,append = False)
@@ -128,6 +155,9 @@ class SVM:
         csv.write(fn, ",", True, True)
 
     def write_statistic(self, fn, Y_test, Y_predict, score):
+        """
+        Write precision and statistic to file
+        """
         print "Precision:%0.3f\n"%score
         import annotation
         c = annotation.read_config(ANNOTATION_FILE)
@@ -155,6 +185,12 @@ class SVM:
             f.write("Precision:%0.3f"%score)
 
     def train_test(self, X_flag, Y_flag):
+        """
+        X_flag:
+            feature
+        Y_flag:
+            标注结果
+        """
 
         X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(np.array(X_flag), np.array(Y_flag), test_size=1.0/(self.train_test_ratio+1), random_state=0)
         print "Train all:",len(Y_train)
@@ -188,6 +224,8 @@ class SVM:
         self.write_statistic(self.test_statistic, Y_test, Y_predict, s)
 
     def predict(self, X_predict):
+        """
+        """
 
         return self.classifer.predict(X_predict)
 

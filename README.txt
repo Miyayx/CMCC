@@ -97,7 +97,20 @@ stop_limitation=30         //迭代停止时剩余样本数量（比例与数量
 程序的每次迭代分为三步:
 
 第一步:聚类
-	需要运行的是cluster.py，在linux中可以直接"python cluster.py Y"（第Y次迭代）运行程序。也可运行"python cluster.py Y k" 来指定参数k
+	需要运行的是cluster.py，
+    在linux中运行命令：
+    python cluster.py Y 
+    python cluster.py Y k 
+    python cluster.py Y init 
+    python cluster.py Y k init
+    Y:    第Y次迭代
+    k:    指定聚类簇数
+    init: 指定计算初始聚类中心的方法，默认k-means++,另外还有:
+        even: 每隔N/k选取一个点
+        spss: 算法来自Single Pass Seed Selection Algorithm for k-Means, 号称kmeans++改进版，可获得确定的中心点
+        density: 算法来自Clustering by fast search and find of density peaks,根据点周围的密度来确定，运行较快
+        nbc :    算法来自Neighborhood Density Method for Selecting Initial Cluster Centers in K-Means Clustering, 根据点的邻居个数确定，运行较慢
+
 	这步的输出文件为clusterX_fY_result.csv,(X是迭代次数，Y是feature文件id)，此结果文件第一列是文档名称，第二列是簇号。
 
 第二步：人工标注
