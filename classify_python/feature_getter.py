@@ -91,7 +91,7 @@ def tfidf_gensim(doc_segs):
     dictionary = corpora.Dictionary()
 
     corpus = [dictionary.doc2bow(seg,allow_update=True) for seg in segs]
-    kws = [dictionary[i] for i in range(len(dictionary))]
+    kws = [dictionary[i].decode("utf-8") for i in range(len(dictionary))]
     
     tfidf = models.TfidfModel(corpus, normalize=True)
     corpus_tfidf = tfidf[corpus]

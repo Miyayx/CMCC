@@ -26,6 +26,9 @@ def filter_label(s2l):
             if is_bad_label(i):
                 new_v.remove(i)
                 continue
+            if i.isdigit():
+                new_v.remove(i)
+                continue
             for p in del_pattens:
                 if re.match(p, i):
                     print "Delete label:",i

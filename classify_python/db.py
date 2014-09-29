@@ -150,7 +150,7 @@ class DB():
         sample_words = {}
         coll = self.collection.find({"level":"section"})
         for c in coll:
-            sample = c["_id"]["path"]+c["_id"]["name"]
+            sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
             kws = ""
             kwlist = []
             if c.has_key("splitwords"):
