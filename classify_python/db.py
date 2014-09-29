@@ -141,6 +141,38 @@ class DB():
 
         return sample_words
 
+    def section_segmentation(self):
+        """
+        从mongodb中获取的section层次获取分词结果，返回每个样本的分词列表
+        Returns:
+            dict k:文档id, v:词的列表
+        """
+        sample_words = {}
+        coll = self.collection.find({"level":"section"})
+        for c in coll:
+            sample = c["_id"]["path"]+c["_id"]["name"]
+            kws = ""
+            kwlist = []
+            if c.has_key("splitwords"):
+                kws = c["splitwords"]
+            for kw in kws.split():
+                kw = kw.strip()
+                kwlist.append(kw.split("/")[0])
+            sample_words[sample] = kwlist
+
+        return sample_words
+
+    def get_sec2doc(self):
+        """
+        """
+        sec_doc = {}
+        coll = self.collection.find({"level":"section"})
+        for c in coll:
+            sample = c["_id"]["path"]+c["_id"]["name"]
+            doc = c["_id"]["path"]
+            sec_doc[sample] = doc
+        return sec_doc
+
     def get_common_keywords(self):
         """
         统计出现次数大于1的keyword
@@ -269,6 +301,37 @@ class DB():
         for sample in diff_items(self.all_samples,s2sub.keys()):
             s2sub[sample] = []
         return s2sub 
+
+    def get_section2block(self):
+        """
+        从数据库获取block label
+        Return:
+            s2b: dict k:section, v:block label
+        """
+        coll = self.collection.find({"level":"block"})
+        s2b = {}
+        for c in coll:
+            sample = c["_id"]["path"]
+            if not s2b.has_key(sample):
+                s2b[sample] = set() 
+            label = c["label"].strip()
+            if label and len(label) > 1:
+                s2b[sample].add(label)
+        for s, b in s2b.items():
+            s2b[sample] = list(b)
+        for sample in diff_items(self.all_samples,s2b.keys()):
+            s2b[sample] = []
+        return s2b 
+
+    def get_section2sectionlabel(self):
+        coll = self.collection.find({"level":"section"})
+        s2l = {}
+        for c in coll:
+            sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
+            label = c["label"].strip()
+            if label and len(label) > 1:
+                s2l[sample] = label
+        return s2l 
 
     def is_bad_label(self, label):
         """
@@ -496,6 +559,15 @@ class DB():
                 if len(s["label"].strip()) > 0:
                     return True
         return False
+
+    def insert_flag(self, s_f):
+
+        for k,v in s_f.items():
+            k = k.strip("/")
+            path,name = k.rsplit("/",1)
+            path = '/'+path+'/'
+            doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
+            self.collection.update({"level":"document","_id.path":path,"_id.name":name}, {"$set":{"flag":v}})
 
     def section_validation(self):
         s2s = self.get_sample2section()

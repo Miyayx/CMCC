@@ -7,7 +7,7 @@ from attribute import *
 from db import *
 from synonym import *
 from filter import *
-from feature_calculate import *
+from feature_getter import *
 
 import re
 import codecs
