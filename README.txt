@@ -173,3 +173,76 @@ stop_limitation=30         //迭代停止时剩余样本数量（比例与数量
     最终分类结果的csv文件，作为参数传入(传入参数：-file ../data/Classify/result_features1.csv)
 ant命令：
 ant db -Dfile=../data/Classify/result_features1.csv
+
+
+
+############################  Section 聚类分类  ####################
+
+**************  特征提取 *************
+代码在classify_python里
+需要安装第三方类库:
+	pymongo（数据库）
+	gensim（自然语言处理相关，计算tfidf时用）
+	
+输入:  
+	mongodb
+	部分文件中读取，文件在../data/*中
+输出:
+	result_featureY.csv(Y为feature id),此为迭代器的最终输出文件。目前在../data/SectionClassify/中
+配置文件:
+	../conf/conf.properties //公共文件，数据库相关
+	filename.properties     //各种输入输出文件名的命名规范
+	sec_feature.cfg         //feature选择相关
+	file.cfg                //输入输出文件相关
+	
+命令: python section_preprocess.py(需要在classify_python路径下运行)
+
+sec_feature.cfg说明：
+feature的选择在feature.cfg里设定
+no_feature            #是否输出没有label的文档名称
+block_label           #特征是否包含block label
+label_common          #是否删除只出现一次的section label，1 删除
+synonym_merge         #有同义词出现时，合并同义词，用一个词代替其他所有词
+synonym_expand        #对有同义词的词，所有同义词都标1
+title_tfidf           #特征是否包含 title tfidf特征
+content_tfidf         #特征是否包含文本tfidf值
+sample_filter_str     #名称具有此子字符串的文档保留
+sample_filter_file    #只对此文件中列出的文档列表进行操作
+
+输入输出文件说明：
+输入文件：
+    ../etc/synonym_dict.csv               相似属性合并结果
+    ../etc/title_word_segmentation.txt    title分词结果
+    ../etc/document_segmentation.txt      section级别下分词结果（暂没有）
+    
+输出文件：
+     output_path               输出文档存放路径
+     no_feature_output         没有label的，未进入迭代的文档列表
+     result_output_name        最终结果文档命名
+     left_section_file         删除的只出现的一次的section label与其对应文档的记录
+     left_block_file           删除的只出现的一次的block label与其对应文档的记录
+  
+
+*************  聚类分类迭代 ************
+
+聚类分类部分使用的python的机器学习库scikit-learn
+
+程序的一部分外部参数在classify.properties里
+参数说明：
+file_path=../data/SectionClassify             //文件输出路径  !!!注意，主要改这里
+inner_file_path=../data/SectionClassify             //内部文件路径
+featureid=1                //特征文件id
+instance_ratio = 0.3       //标注比例
+cluster_num=4              //聚类个数，如果设成-1的话程序内部会自动计算
+min_cluster_num=3          //自动计算时的最小簇数
+max_cluster_num=15         //自动计算时的最大簇数
+process_output=true        //是否输出中间文件
+lowest_accuracy=0.85       //测试低于此准确率自动停止
+other_class=others         //负类标注类名
+stop_ratio = 0.1           //迭代停止时剩余样本与总样本的比例
+stop_limitation=30         //迭代停止时剩余样本数量（比例与数量二选一）
+
+***************  迭代部分 *********************
+与文档分类相同
+
+注：主要是改sec_feature.cfg,classify.properties里的路径

@@ -2,9 +2,11 @@
 #encoding=utf-8
 
 from csvio import *
+from db import *
 
 from random import Random
 import ConfigParser
+
 
 def read_config(cfg_file):
     configs = {}
