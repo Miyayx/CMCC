@@ -158,7 +158,10 @@ def generate_dataset(samples, features, classes={}, classify = False):
 
             elif type(f.values()[0]) == list:
                 for v in f[sample]:
-                    s += str(v)
+                    try:
+                        s += str(v)
+                    except:
+                        s += v
                     s += ","
             else:
                 s += f[sample] if type(f[sample] == str) else str(f[sample])

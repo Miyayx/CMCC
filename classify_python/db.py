@@ -339,6 +339,7 @@ class DB():
         for c in coll:
             sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
             labels = c["rowtableLabel"]
+            print len(labels)
             if labels:
                 t2h[sample] = labels
         return t2h 
@@ -353,9 +354,8 @@ class DB():
         t2s = {}
         for c in coll:
             sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
-            s_id, b_id, p_id = sample.split("/",3)
-            if len(s_label[s_id].strip()) > 0:
-                t2s[sample] = [s_label[s_id]]
+            s_id, b_id, p_id, _ = sample.rsplit("/", 3)
+            t2s[sample] = [s_label[s_id]] if len(s_label[s_id].strip()) > 0 else []
         return t2s 
 
     def get_table2block(self):
@@ -368,9 +368,8 @@ class DB():
         t2b = {}
         for c in coll:
             sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
-            s_id, b_id, p_id = sample.split("/",3)
-            if len(b_label[b_id].strip()) > 0:
-                t2b[sample] = [b_label[b_id]]
+            b_id, p_id, _ = sample.rsplit("/",2)
+            t2b[sample] = [b_label[b_id]] if len(b_label[b_id].strip()) > 0 else []
         return t2b 
 
 

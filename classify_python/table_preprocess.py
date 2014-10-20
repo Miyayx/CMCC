@@ -77,9 +77,9 @@ def run(file_cfg, feature_cfg, db_cfg):
 
             sample_sl = filter_label(o_sample_sl)
 
-            slabels, slabel_feature = section_label_feature(sample_block, sample_sl, fconfigs["label_common"])
-            fields.append(blabels)
-            features.append(blabel_feature)
+            slabels, slabel_feature = subsection_label_feature(sample_block, sample_sl, fconfigs["label_common"])
+            fields.append(slabels)
+            features.append(slabel_feature)
 
         ###################  block label  ####################
         if fconfigs["block_label"]:
@@ -105,7 +105,7 @@ def run(file_cfg, feature_cfg, db_cfg):
         if fconfigs["table_header"]:
             table_header = db.get_table2header()
 
-            headers, h_feature = table_header_feature(table_header)
+            headers, h_feature = table_header_feature(sample_block, table_header)
             fields.append(headers)
             features.append(h_feature)
 
@@ -116,18 +116,23 @@ def run(file_cfg, feature_cfg, db_cfg):
         #先写个原始的feature文件
         #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
 
+        # 添加sample id在feature列之后
         fields.append(["sample2"])
         features.append(dict((k,k) for k in sample_block))
 
-        s_sl = db.get_section2sectionlabel()
-        fields.append(["section label"])
-        features.append(dict((k,s_sl[k]) for k in sample_block ))
+        # 添加表格对应的section label
+        if fconfigs["section_label"]:
+            t_sl = db.get_table2section()
+            fields.append(["section label"])
+            features.append(dict((k, "#".join(t_sl[k])) for k in sample_block ))
 
+        # 添加表格对应的block label
         if fconfigs["block_label"]:
-            s_b = db.get_section2block()
+            s_b = db.get_table2block()
             fields.append(["block label"])
             features.append(dict((k,"#".join(s_b[k])) for k in sample_block ))
 
+        # 添加表头
         if fconfigs["table_header"]:
             t_h = db.get_table2header()
             fields.append(["table header"])

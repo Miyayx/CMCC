@@ -61,13 +61,15 @@ class KMEANS:
         sample_label, coef = self.cluster(self.X, self.k, self.init)
 
         csv = CSVIO(self.data_file)
-        s2sl = s2bl = None
+        s2sl = s2bl = s2th = None
         if "section label" in csv.fields: #write section label in big table
             s2sl = csv.read_one_to_one(0, csv.fields.index("section label"))
         if "block label" in csv.fields: #write block label in big table
             s2bl = csv.read_one_to_one(0, csv.fields.index("block label"))
+        if "table header" in csv.fields: #write table header in big table
+            s2th = csv.read_one_to_one(0, csv.fields.index("table header"))
         # write to cluster result file
-        self.record_result(self.result_file, sample_label, s2sl, s2bl )
+        self.record_result(self.result_file, sample_label, s2sl, s2bl, s2th )
         # write to big table file
         self.append_result(self.data_file, sample_label)
 
@@ -112,7 +114,7 @@ class KMEANS:
         csv.write(fn, ",", True, True, csv.fields.index(colname))
         #csv.write(fn, ",", True, True, 0)
 
-    def record_result(self, fn, s2l, s2sl = None, s2bl = None ):
+    def record_result(self, fn, s2l, s2sl = None, s2bl = None, s2th = None ):
         """
         Write to cluster result file
         """
@@ -124,6 +126,8 @@ class KMEANS:
             csv.column("section label", s2sl)
         if s2bl:
             csv.column("block label", s2bl)
+        if s2th:
+            csv.column("table header", s2th)
         csv.column("cluster", s2l)
         csv.write(fn, ",", True, True, csv.fields.index("cluster"))
 
