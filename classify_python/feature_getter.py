@@ -315,3 +315,16 @@ def get_link(fn):
     for k,v in sample_links.items():
         sample_linknum[k] = sample_linknum.get(k,0)+len(v)
     return sample_links, sample_linknum
+
+def table_header_feature(sample_block, sample_h):
+    headers = get_common_labels([sample_h])
+    header_feature = {}
+    for s in sample_block:
+        labels = sample_h[s] if sample_h.has_key(s) else []
+        header_feature[s] = []
+        for l in headers:
+            if l in labels:
+                header_feature[s].append(1)
+            else:
+                header_feature[s].append(0)
+    return headers, header_feature

@@ -333,6 +333,47 @@ class DB():
                 s2l[sample] = label
         return s2l 
 
+    def get_table2header(self):
+        coll = self.collection.find({"level":"paragraph","type":"Tab"})
+        t2h = {}
+        for c in coll:
+            sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
+            labels = c["rowtableLabel"]
+            if labels:
+                t2h[sample] = labels
+        return t2h 
+
+    def get_table2section(self):
+        """
+        Table 和它所在的section的section label(如果有)
+        """
+        coll = self.collection.find({"level":"paragraph","type":"Tab"})
+        coll2 = self.collection.find({"level":"section"})
+        s_label = dict((c["_id"]["path"]+c["_id"]["name"], c['label']) for c in coll2)
+        t2s = {}
+        for c in coll:
+            sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
+            s_id, b_id, p_id = sample.split("/",3)
+            if len(s_label[s_id].strip()) > 0:
+                t2s[sample] = [s_label[s_id]]
+        return t2s 
+
+    def get_table2block(self):
+        """
+        Table 和它所在的block的block label(如果有)
+        """
+        coll = self.collection.find({"level":"paragraph","type":"Tab"})
+        coll2 = self.collection.find({"level":"block"})
+        b_label = dict((c["_id"]["path"]+c["_id"]["name"], c['label']) for c in coll2)
+        t2b = {}
+        for c in coll:
+            sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
+            s_id, b_id, p_id = sample.split("/",3)
+            if len(b_label[b_id].strip()) > 0:
+                t2b[sample] = [b_label[b_id]]
+        return t2b 
+
+
     def is_bad_label(self, label):
         """
         The label which has character that makes weka disable
