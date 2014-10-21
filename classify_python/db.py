@@ -34,12 +34,12 @@ class DB():
         new_samples = []
 
         if type == "string":
-            if type(regex) == str or type(regex) == unicode:
+            if isinstance(regex,str) or isinstance(regex,unicode):
                 for s in self.all_samples:
                     if regex in s:
                         new_samples.append(s)
                         
-            if type(regex) == list:
+            if isinstance(regex, list):
                 for s in self.all_samples:
                     for r in regex:
                         if r.decode('utf-8') in s:
@@ -164,6 +164,9 @@ class DB():
 
     def get_sec2doc(self):
         """
+        从mongodb中获取section对应的文档id
+        Returns:
+            dict k:section id, v:文档id
         """
         sec_doc = {}
         coll = self.collection.find({"level":"section"})
@@ -324,6 +327,11 @@ class DB():
         return s2b 
 
     def get_section2sectionlabel(self):
+        """
+        从数据库获取 section 与其对应的section label
+        Return:
+            s2l: dict k:section, v:section label
+        """
         coll = self.collection.find({"level":"section"})
         s2l = {}
         for c in coll:
@@ -334,11 +342,17 @@ class DB():
         return s2l 
 
     def get_table2header(self):
+        """
+        从数据库获取 table 与其对应的table header
+        table 在paragraph级别中, 通过type:"Tab"识别出来
+        Return:
+            s2l: dict k:paragraph id, v:table header
+        """
         coll = self.collection.find({"level":"paragraph","type":"Tab"})
         t2h = {}
         for c in coll:
             sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
-            labels = c["rowtableLabel"]
+            labels = c["rowtableLabel"] #提取header
             if labels:
                 t2h[sample] = labels
         return t2h 
@@ -346,6 +360,8 @@ class DB():
     def get_table2section(self):
         """
         Table 和它所在的section的section label(如果有)
+        Return:
+            s2l: dict k:paragraph id, v:section label
         """
         coll = self.collection.find({"level":"paragraph","type":"Tab"})
         coll2 = self.collection.find({"level":"section"})
@@ -360,6 +376,8 @@ class DB():
     def get_table2block(self):
         """
         Table 和它所在的block的block label(如果有)
+        Return:
+            s2l: dict k:paragraph id, v:block label
         """
         coll = self.collection.find({"level":"paragraph","type":"Tab"})
         coll2 = self.collection.find({"level":"block"})
