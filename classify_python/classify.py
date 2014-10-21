@@ -70,6 +70,7 @@ class SVM:
         # 预测
         Y_predict = self.predict(X_predict)
 
+        # 记录结果统计数据
         self.log["predict_all"] = len(Y_predict)
         self.log["predict_pos"] = len(Y_predict) - list(Y_predict).count("others")
         self.log["predict_neg"] = list(Y_predict).count("others")
@@ -195,6 +196,7 @@ class SVM:
         X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(np.array(X_flag), np.array(Y_flag), test_size=1.0/(self.train_test_ratio+1), random_state=0)
         print "Train all:",len(Y_train)
         print "Test all:",len(Y_test)
+        # 记录结果统计数据
         self.log["train_all"] = len(Y_train)
         self.log["train_pos"] = len(Y_train) - list(Y_train).count("others")
         self.log["train_neg"] = list(Y_train).count("others")

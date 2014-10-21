@@ -31,7 +31,7 @@ synonym_expand        #对有同义词的词，所有同义词都标1
 title_keyword         #特征是否包含自定义title关键字
 title_tfidf           #特征是否包含 title tfidf特征
 document_tfidf        #特征是否包含文本tfidf值
-sample_filter_str     #名称具有此子字符串的文档保留
+sample_filter_str     #名称具有此子字符串的文档保留,多个字符串以逗号分隔
 sample_filter_file    #只对此文件中列出的文档列表进行操作
 
 输入输出文件说明：
@@ -51,6 +51,7 @@ sample_filter_file    #只对此文件中列出的文档列表进行操作
      result_output_name        最终结果文档命名
      left_section_file         删除的只出现的一次的section label与其对应文档的记录
      left_block_file           删除的只出现的一次的block label与其对应文档的记录
+     file_statistics           程序总体的统计记录,如进入迭代的文档数量，属性文档数量等
   
 **************  数据库读取验证 *************
 代码在classify_python里
@@ -165,6 +166,11 @@ stop_limitation=30         //迭代停止时剩余样本数量（比例与数量
     classifyX_fY_test_result.csv          记录测试结果，第一列是文档名称，第二列是标注类别，第三列是分类器计算出的类别
     classifyX_fY_test_statistic.txt       记录测试结果，包括准确率，分类结果统计
     classify_fY_log.csv                   记录所有迭代的文档数量统计
+
+*********** 结果汇总 *************
+所有迭代跑完以及人工标注后，将所有分类结果汇总到第二列
+python gather.py [result file name]
+参数为分类大表文件（路径+名称），可为空，默认为data/Classify/result_features1.csv
 	
 ***********  写入数据库 ************
 配置文件:
@@ -207,7 +213,7 @@ synonym_merge         #有同义词出现时，合并同义词，用一个词代
 synonym_expand        #对有同义词的词，所有同义词都标1
 title_tfidf           #特征是否包含 title tfidf特征
 content_tfidf         #特征是否包含文本tfidf值
-sample_filter_str     #名称具有此子字符串的文档保留
+sample_filter_str     #名称具有此子字符串的文档保留,多个字符串以逗号分隔
 sample_filter_file    #只对此文件中列出的文档列表进行操作
 
 输入输出文件说明：

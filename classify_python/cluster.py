@@ -1,5 +1,5 @@
 #!/usr/bin/python2.7
-#encoding=utf-8
+#-*-coding:utf-8-*-
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -55,7 +55,7 @@ class KMEANS:
         # record others sample
         write_lines(props["neg_file"], self.names)
         
-        if self.k < 0:
+        if self.k < 0: #如果k为-1，即没有指定k值，则计算k出来
             self.k = self.calculate_k(self.X, self.init)
 
         sample_label, coef = self.cluster(self.X, self.k, self.init)
@@ -74,6 +74,14 @@ class KMEANS:
         self.append_result(self.data_file, sample_label)
 
     def get_data(self, data_file):
+        """
+        读取大表，获得特征向量与对应sample id
+        Returns:
+        -----------------------------------
+        names: sampleid list
+        X    : 特征数组
+        """
+
         data = {}
         names = []
         X = [] 
@@ -83,7 +91,7 @@ class KMEANS:
         for line in codecs.open(data_file,'r','utf-8'):
             line = line.strip("\n").split(",")
             if not line[3].isdigit():
-                end = line.index("sample2")
+                end = line.index("sample2") #以sample2列为截止列
                 if int(self.iter_n) > 1:
                     classify_i = line.index("class"+str(int(self.iter_n)-1))
                 continue
@@ -168,7 +176,7 @@ class KMEANS:
             elif init == 'nbc':
                 centroids = CentroidCalculater(strategy=CentroidNBC).calculate(X, k)
             else:
-                raise ValueError("the init parameter for the k-means should be 'k-means++' or 'even' or 'spss' or 'density' or 'nbc' ,'%s' (type '%s') was passed." % (init, type(init)))
+                raise ValueError("the init parameter for the k-means should be 'k-means++' or 'even' or 'spss' or 'density' or 'nbc' ,'%s' ('%s') was passed." % (init, type(init)))
 
             init_c = [X[c] for c in centroids]
             init_c = np.array(init_c)

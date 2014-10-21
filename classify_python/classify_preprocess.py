@@ -338,16 +338,13 @@ def run(file_cfg, feature_cfg, db_cfg):
             db.filter(fconfigs["sample_filter_file"],type="file")
 
         class_block = {}
-        sample_block = db.all_samples
+        sample_block = db.all_samples #sample_block里是本次预处理涉及到的文档id列表
         all_sample = sample_block
 
         #Delete samples whose name has ','
         sample_block = delete_sample(sample_block, u',')
         write_lines(delete_output, diff_items(all_sample, sample_block))
         log["delete_sample"] = len(diff_items(all_sample, sample_block))
-
-        #Leave samples with str
-        #sample_block = filter_sample(sample_block, u'04-资费')
 
         ##################### HUB ATTRIBUTE  ##################
 
@@ -366,7 +363,6 @@ def run(file_cfg, feature_cfg, db_cfg):
         features = []
         fields = []
 
-
         import os
         if os.path.exists(result_output):
             os.remove(result_output)
@@ -375,7 +371,7 @@ def run(file_cfg, feature_cfg, db_cfg):
         features.append(dict((k,"") for k in sample_block))
 
         ##################  section label  ####################
-        if fconfigs["section_label"] and not fconfigs["merge_label"]:
+        if fconfigs["section_label"] and not fconfigs["merge_label"]: #如果配置里有section_label
             o_label_block = db.get_sample2section()
 
             label_block = filter_label(o_label_block)
@@ -388,7 +384,7 @@ def run(file_cfg, feature_cfg, db_cfg):
             record_left_label(o_label_block, labels, left_section_file)
 
         ###################  block label  ####################
-        if fconfigs["block_label"] and not fconfigs["merge_label"]:
+        if fconfigs["block_label"] and not fconfigs["merge_label"]: #如果配置里有block_label
             o_sample_bl = db.get_sample2subsection()
 
             sample_bl = filter_label(o_sample_bl)
@@ -400,7 +396,7 @@ def run(file_cfg, feature_cfg, db_cfg):
             record_left_label(o_sample_bl, sublabels, left_block_file)
 
         ################### merge section and block label ############
-        if fconfigs["merge_label"]:
+        if fconfigs["merge_label"]: #如果配置里有merge_label, 即同样文本的section和block label被看作是同一label
             sample_sl = db.get_sample2section()
             sample_bl = db.get_sample2subsection()
 
@@ -451,7 +447,7 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         #set_weight([1,1000], label_features,title_tfidf)
 
-    #####################################################  feature file output  ########################################
+        ########################  feature file output  #########################
 
         outfile = file_configs["feature_output_path"]+section+".csv"
 
@@ -501,6 +497,7 @@ def run(file_cfg, feature_cfg, db_cfg):
             if values.count(1) == 0:
                 feature0_samples.append(s)
         log["feature0_sample"] = len(feature0_samples)
+        log["iteration_sample"] = len(sample_block)
         
         sorted(sample_block)
 

@@ -31,6 +31,11 @@ class DB():
         self.all_samples = self.get_allid()
 
     def filter(self, regex, type="string"):
+        """
+        过滤接下来要进行操作的样本，分别有string和file两种类型
+        string：配置文件中以逗号分割，id中包含有此regex的sample被留下来
+        file:配置文件中给一个文件路径，此文件中没一行为一个sample id，此文件中的所有sample为之后要操作的sample
+        """
         new_samples = []
 
         if type == "string":
