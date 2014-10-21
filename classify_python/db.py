@@ -339,7 +339,6 @@ class DB():
         for c in coll:
             sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
             labels = c["rowtableLabel"]
-            print len(labels)
             if labels:
                 t2h[sample] = labels
         return t2h 

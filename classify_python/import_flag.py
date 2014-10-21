@@ -30,6 +30,7 @@ def gather_flag(fn, s_f):
     csv.write(fn)
 
 def write_to_mongo(s_f):
+    print "Writing to mongo..."
     db = DB('../../conf/conf.properties')
     db.insert_flag(s_f)
 
