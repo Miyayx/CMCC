@@ -170,9 +170,10 @@ stop_limitation=30         //迭代停止时剩余样本数量（比例与数量
 配置文件:
 	../conf/conf.properties    //公共文件，数据库相关
 读入文件：
-    最终分类结果的csv文件，作为参数传入(传入参数：-file ../data/Classify/result_features1.csv)
-ant命令：
-ant db -Dfile=../data/Classify/result_features1.csv
+    最终分类结果的csv文件，作为参数传入(传入参数：路径：../../data/Classify/ 文件名：result_features1.csv)
+命令：
+python import_flag.py ../../data/Classify result_features1.csv
+同时输出结果汇总文件 flag_record.csv 在指定路径下
 
 
 

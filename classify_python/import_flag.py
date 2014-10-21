@@ -35,7 +35,15 @@ def write_to_mongo(s_f):
     db.insert_flag(s_f)
 
 if __name__ == "__main__":
-    s_f = extract_flag("../../data/Classify/result_features1.csv")
-    gather_flag("../../data/Classify/flag_record.csv", s_f)
+    import sys
+    import os
+    if len(sys.argv) < 3:
+        print "Need path and result file as arguments"
+
+    path = sys.argv[1]
+    fn   = sys.argv[2]
+
+    s_f = extract_flag(os.path.join(path, fn))
+    gather_flag(os.path.join(path, "flag_record.csv"), s_f)
     write_to_mongo(s_f)
 
