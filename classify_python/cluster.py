@@ -7,6 +7,7 @@ from sklearn import metrics
 from sklearn.metrics.pairwise import euclidean_distances
 import time
 import codecs
+import os
 
 from utils import *
 from csvio import CSVIO

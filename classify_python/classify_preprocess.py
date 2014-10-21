@@ -341,6 +341,8 @@ def run(file_cfg, feature_cfg, db_cfg):
         sample_block = db.all_samples #sample_block里是本次预处理涉及到的文档id列表
         all_sample = sample_block
 
+        log["total"] = len(sample_block)
+
         #Delete samples whose name has ','
         sample_block = delete_sample(sample_block, u',')
         write_lines(delete_output, diff_items(all_sample, sample_block))
