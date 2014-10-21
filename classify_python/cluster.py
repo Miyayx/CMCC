@@ -37,16 +37,22 @@ class KMEANS:
         self.data_file = data_file
         self.init = init
 
-    def run(self, result_file, iter_n):
+        self.log = {}
+
+    def run(self, result_file, log_file,  iter_n):
         """
         Args
         --------------------------------
         result_file:
             record cluster result in clusterX_fY_result.csv, only include sample and cluster number
+        log_file:
+            统计数据记录文件
         iter_n:
             iteration number
             
         """
+        start = time.time()
+
         self.result_file = result_file
         self.iter_n = iter_n 
 
@@ -72,6 +78,26 @@ class KMEANS:
         self.record_result(self.result_file, sample_label, s2sl, s2bl, s2th )
         # write to big table file
         self.append_result(self.data_file, sample_label)
+
+        t = time.time()-start
+        self.log["sample_number"] = len(self.names)
+        self.log["k"] = k
+        self.log["centroid_method"] = self.init
+        self.log["time_consuming"] = t
+
+        self.record_log(log_file)
+
+        print "Time Consuming:",t
+
+    def record_log(self, log_file):
+        """
+        
+        """
+        csv = CSVIO(log_file)
+        if not os.path.isfile(log_file):
+            csv.column("type", dict((s,s) for s in self.log.keys()))
+        csv.column("Iter"+str(self.iter_n), self.log)
+        csv.write(log_file, ",", True, True )
 
     def get_data(self, data_file):
         """
@@ -234,17 +260,16 @@ if __name__=="__main__":
         init_c = sys.argv[3]
 
 
-    import time
-    start = time.time()
 
     props = read_properties(PROP_FILE)
     props.update(read_properties(NAME_FILE))
     props["file_path"] = "../"+props["file_path"].strip("/")+"/"
 
     data_file = props["file_path"]+props["result"].replace('Y',props["featureid"])
+    log = props["file_path"]+props["cluster_log"]
+
     cluster_result = props["file_path"]+props["cluster_result"].replace('Y',props["featureid"]).replace('X',iter_n)
     km = KMEANS(data_file, k, init_c)
-    km.run(cluster_result,iter_n)
+    km.run(cluster_result, log,iter_n)
 
-    print "Time Consuming:",(time.time()-start)
 

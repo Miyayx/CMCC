@@ -89,11 +89,8 @@ class SVM:
         result.update(flag)
         self.append_result(self.data_file, result)
 
-        csv = CSVIO(log_file)
-        if not os.path.isfile(log_file):
-            csv.column("type", dict((s,s) for s in self.log.keys()))
-        csv.column("Iter"+str(self.iter_n), self.log)
-        csv.write(log_file, ",", True, True )
+        self.record_log(log_file)
+
 
     def name_feature_split(self, data):
         """
@@ -105,6 +102,16 @@ class SVM:
             name.append(d[0])
             feature.append(d[2:])
         return name, np.array(feature)
+
+    def record_log(self, log_file):
+        """
+        
+        """
+        csv = CSVIO(log_file)
+        if not os.path.isfile(log_file):
+            csv.column("type", dict((s,s) for s in self.log.keys()))
+        csv.column("Iter"+str(self.iter_n), self.log)
+        csv.write(log_file, ",", True, True )
 
     def get_data(self, data_file):
         X_flag = []
@@ -252,7 +259,7 @@ if __name__=="__main__":
     classify_predict= props["file_path"]+props["classify_predict"].replace('Y',props["featureid"]).replace('X',iter_n)
     classify_test_result= props["file_path"]+props["classify_test_result"].replace('Y',props["featureid"]).replace('X',iter_n)
     classify_test_statistics= props["file_path"]+props["classify_test_statistics"].replace('Y',props["featureid"]).replace('X',iter_n)
-    log = props["file_path"]+props["log"]
+    log = props["file_path"]+props["classify_log"]
 
     svm = SVM(data_file)
     svm.run(classify_train, classify_test, classify_predict, classify_test_result, classify_test_statistics,log,iter_n)
