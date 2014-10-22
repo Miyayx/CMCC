@@ -10,6 +10,7 @@ from filter import *
 from feature_getter import *
 
 import re
+import os
 import codecs
 import ConfigParser
 
@@ -240,12 +241,14 @@ def filter_doc(sample_block, section_label, block_label, hubfile=True, hub_outpu
 
     if attrfile:
         attrfiles = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links)
-        print "attrfiles:",len(attrfiles)
+        attrfiles = list(set(attrfiles) & set(sample_block))
         class_sample["attribute"] = attrfiles
         if attribute_output:
             write_lines(attribute_output, sorted(attrfiles))
         print "sample count:",len(sample_block)
+        print "attrfiles:",len(attrfiles)
         sample_block = [s for s in sample_block if s not in attrfiles] 
+        sample_block = delete_items(sample_block, attrfiles)
     print "sample count:",len(sample_block)
 
     return sample_block, class_sample 
@@ -305,7 +308,7 @@ def read_file_config(fn):
     configs = dict((o, con.get("file",o)) for o in con.options("file"))
     return configs
 
-def run(file_cfg, feature_cfg, db_cfg):
+def run(path_cfg, file_cfg, feature_cfg, db_cfg):
     import time
     print "Begin to time!"
     time_start = time.time()
@@ -313,18 +316,32 @@ def run(file_cfg, feature_cfg, db_cfg):
     global file_configs
     feature_configs = read_feature_config(feature_cfg)
     file_configs = read_file_config(file_cfg)
+    path_configs = read_properties(path_cfg)
+    RESULT_PATH = path_configs['result_path']
+    OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])
+    FEATURE_PATH = os.path.join(RESULT_PATH, file_configs["feature_output_path"])
 
     for section, fconfigs in feature_configs:
 
         ############### file name ################
-        result_output = file_configs["output_path"] + file_configs["result_output"] + "_" + section + ".csv"
-        delete_output = file_configs["others_output_path"] + file_configs["delete_output"] + "_" + section + ".dat"
-        hub_output = file_configs["others_output_path"] + file_configs["hub_output"] + "_" + section + ".dat"
-        attribute_output = file_configs["others_output_path"] + file_configs["attribute_output"] + "_" + section + ".dat"
-        no_feature_output = file_configs["others_output_path"] + file_configs["no_feature_output"] + "_" + section + ".dat"
-        file_statistics = file_configs["others_output_path"] + file_configs["file_statistics"] + "_" + section + ".dat"
-        left_section_file = file_configs["others_output_path"] + file_configs["left_section_file"] + "_" + section + ".dat"
-        left_block_file = file_configs["others_output_path"] + file_configs["left_block_file"] + "_" + section + ".dat"
+        result_output = os.path.join(RESULT_PATH,file_configs["result_output"] + "_" + section + ".csv")
+        print result_output
+        delete_output = os.path.join(OTHERS_PATH,file_configs["delete_output"] + "_" + section + ".dat")
+        print delete_output
+        hub_output = os.path.join(OTHERS_PATH,file_configs["hub_output"] + "_" + section + ".dat")
+        print hub_output
+        attribute_output = os.path.join(OTHERS_PATH, file_configs["attribute_output"] + "_" + section + ".dat")
+        print attribute_output
+        no_feature_output = os.path.join(OTHERS_PATH, file_configs["no_feature_output"] + "_" + section + ".dat")
+        print no_feature_output
+        file_statistics = os.path.join(OTHERS_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
+        print file_statistics
+        left_section_file = os.path.join(OTHERS_PATH, file_configs["left_section_file"] + "_" + section + ".dat")
+        print left_section_file
+        left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
+        print left_block_file
+        file_col = os.path.join(RESULT_PATH, file_configs["feature_col"])
+        print file_col
 
         if not fconfigs["run"]:
             continue
@@ -365,8 +382,7 @@ def run(file_cfg, feature_cfg, db_cfg):
         features = []
         fields = []
 
-        import os
-        if os.path.exists(result_output):
+        if os.path.exists(result_output): #原来的result文件删除，重新创建一个
             os.remove(result_output)
 
         fields.append(["Class"])
@@ -451,14 +467,14 @@ def run(file_cfg, feature_cfg, db_cfg):
 
         ########################  feature file output  #########################
 
-        outfile = file_configs["feature_output_path"]+section+".csv"
+        #outfile = os.path.join(FEATURE_PATH, section+".csv")
 
         #先写个原始的feature文件
         #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
 
         ############## record feature count ##############
         if fconfigs["section_label"] or fconfigs["block_label"] or fconfigs["merge_label"]:
-            with codecs.open("../conf/file_col.properties","w") as f:
+            with codecs.open(file_col,"w") as f:
                 if fconfigs["section_label"] and not fconfigs["merge_label"]:
                     f.write("section_count="+str(len(fields[1]))+"\n")
                 if fconfigs["block_label"] and not fconfigs["merge_label"]:
@@ -514,11 +530,10 @@ def run(file_cfg, feature_cfg, db_cfg):
 if __name__=="__main__":
     import sys
     if len(sys.argv) > 1:
-        if not len(sys.argv) == 4:
-            print "Wrong Argus. Need three config files"
-            print "Format: python classify_preprocess.py file_config_file feature_config_file db_config_file"
+        if not len(sys.argv) == 5:
+            print "Wrong Argus. Need four config files"
+            print "Format: python classify_preprocess.py path_config_file file_config_file feature_config_file db_config_file"
         else:
             run(sys.argv[1], sys.argv[2], sys.argv[3])
     else:
-        run("../conf/file.cfg","../conf/feature.cfg","../../conf/conf.properties")
-        #run("../conf/file.cfg","../conf/feature_test.cfg","../../conf/conf.properties")
+        run("../conf/path.properties","../conf/file.cfg","../conf/feature.cfg","../../conf/conf.properties")

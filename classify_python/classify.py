@@ -251,15 +251,16 @@ if __name__=="__main__":
 
     props = read_properties(PROP_FILE)
     props.update(read_properties(NAME_FILE))
-    props["file_path"] = "../"+props["file_path"].strip("/")+"/"
+    props.update(read_properties(PATH_FILE))
+    RESULT_PATH = props['result_path']
 
-    data_file = props["file_path"]+props["result"].replace('Y',props["featureid"])
-    classify_train= props["file_path"]+props["classify_train"].replace('Y',props["featureid"]).replace('X',iter_n)
-    classify_test= props["file_path"]+props["classify_test"].replace('Y',props["featureid"]).replace('X',iter_n)
-    classify_predict= props["file_path"]+props["classify_predict"].replace('Y',props["featureid"]).replace('X',iter_n)
-    classify_test_result= props["file_path"]+props["classify_test_result"].replace('Y',props["featureid"]).replace('X',iter_n)
-    classify_test_statistics= props["file_path"]+props["classify_test_statistics"].replace('Y',props["featureid"]).replace('X',iter_n)
-    log = props["file_path"]+props["classify_log"]
+    data_file = os.path.join(RESULT_PATH,props["result"].replace('Y',props["featureid"]))
+    classify_train= os.path.join(RESULT_PATH, props["classify_train"].replace('Y',props["featureid"]).replace('X',iter_n))
+    classify_test= os.path.join(RESULT_PATH, props["classify_test"].replace('Y',props["featureid"]).replace('X',iter_n))
+    classify_predict= os.path.join(RESULT_PATH, props["classify_predict"].replace('Y',props["featureid"]).replace('X',iter_n))
+    classify_test_result= os.path.join(RESULT_PATH, props["classify_test_result"].replace('Y',props["featureid"]).replace('X',iter_n))
+    classify_test_statistics= os.path.join(RESULT_PATH, props["classify_test_statistics"].replace('Y',props["featureid"]).replace('X',iter_n))
+    log = os.path.join(RESULT_PATH, props["classify_log"].replace('Y', props['featureid']))
 
     svm = SVM(data_file)
     svm.run(classify_train, classify_test, classify_predict, classify_test_result, classify_test_statistics,log,iter_n)
