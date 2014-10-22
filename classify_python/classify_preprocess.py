@@ -340,7 +340,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         print left_section_file
         left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
         print left_block_file
-        file_col = os.path.join(RESULT_PATH, file_configs["feature_col"])
+        file_col = os.path.join(RESULT_PATH, file_configs["file_col"])
         print file_col
 
         if not fconfigs["run"]:

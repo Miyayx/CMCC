@@ -4,6 +4,7 @@
 from classify_preprocess import *
 from utils import *
 from synonym import *
+from config_global import *
 
 def exist_val(data, origin, fn = None):
     """
@@ -130,5 +131,7 @@ def run(prop_file, feature_file):
     validation(feature_file,options)
 
 if __name__=="__main__":
-    run("../conf/file_col.properties", "../../data/Classify/result_features1.csv")
+    props = read_properties(PATH_FILE)
+    props.update(read_properties(FILE_FILE))
+    run(os.path.join(props['result_path'],props['file_col']), os.path.join(props['result_path'], props['result_output']+'_'+'feature1.csv'))
 

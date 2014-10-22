@@ -82,7 +82,7 @@ class KMEANS:
 
         t = time.time()-start
         self.log["sample_number"] = len(self.names)
-        self.log["k"] = k
+        self.log["k"] = self.k
         self.log["centroid_method"] = self.init
         self.log["time_consuming"] = t
 
