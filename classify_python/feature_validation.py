@@ -78,11 +78,13 @@ def validation(featurefile, options):
     options = {
         "section":{
             "begin":1,
-            "end"  :56
+            "end"  :56,
+            "left_file":file path
         },
         "block":{
-            "begin":238
-            "end"  :268
+            "begin":238,
+            "end"  :268,
+            "left_file":file path
         }
     }
 
@@ -90,7 +92,7 @@ def validation(featurefile, options):
     section label:    exist_val
     block label: exist_val
     """
-    db = DB("../../conf/conf.properties")
+    db = DB(DB_FILE)
     with open(featurefile) as f:
         data = [l.strip("\n").decode("utf-8").split(",") for l in f.readlines()]
         fields = data[0]
@@ -101,7 +103,7 @@ def validation(featurefile, options):
             print "section feature length:",len(f_d[0])-1
             section_i = fields.index("section label")
             sample_sl = dict((d[0], d[section_i].split("#") if len(d[section_i].strip()) > 0 else []) for d in data[1:])
-            exist_val(f_d, sample_sl, "../../data/Classify/others/left_section_features1.dat")
+            exist_val(f_d, sample_sl, options['left_file'])
 
         if options.has_key("block"):
             print "=============== block label validation ================="
@@ -111,21 +113,27 @@ def validation(featurefile, options):
             block_i = fields.index("block label")
             sample_bl = dict((d[0], d[block_i].split("#") if len(d[block_i].strip()) > 0 else []) for d in data[1:])
             
-            exist_val(f_d, sample_bl, "../../data/Classify/others/left_block_features1.dat" )
+            exist_val(f_d, sample_bl, options['left_file'] )
 
 
-def run(prop_file, feature_file):
+def run(props, Y):
+
+    file_col = os.path.join(props['output_path'], props['file_col'])
+    feature_file = os.path.join(props['output_path'], props['result_output']+'_'+'feature'+str(Y)+'.csv')
+    OTHERS_PATH = os.path.join(props['output_path'], props['others_output_path'])
 
     prop = read_properties(prop_file)
 
     options = {
         "section":{
             "begin":2,
-            "end":2+int(prop["section_count"])
+            "end":2+int(prop["section_count"]),
+            "left_file":os.path.join(OTHERS_PATH, props['left_section_file']+'_features'+str(Y)+'.dat')
         },
         "block":{
             "begin":2+int(prop["section_count"]),
             "end":  2+int(prop["section_count"])+int(prop["block_count"])
+            "left_file":os.path.join(OTHERS_PATH, props['left_block_file']+'_features'+str(Y)+'.dat')
             }
     }
     validation(feature_file,options)
@@ -133,5 +141,5 @@ def run(prop_file, feature_file):
 if __name__=="__main__":
     props = read_properties(PATH_FILE)
     props.update(read_properties(FILE_FILE))
-    run(os.path.join(props['output_path'],props['file_col']), os.path.join(props['output_path'], props['output_output']+'_'+'feature1.csv'))
+    run(props, 1)
 

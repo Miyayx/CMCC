@@ -14,11 +14,6 @@ class DB():
         import ConfigParser
 
         #读取配置文件
-        #config = ConfigParser.RawConfigParser()
-        #config.read(configfile)
-        #ip = config.get('mongo','ip')
-        #dbname = config.get('mongo','dbname')
-        #cname = config.get('mongo','collection')
         config = read_properties(configfile)
         ip = config["mongo.host"]
         dbname = config["mongo.dbname"]
@@ -44,7 +39,7 @@ class DB():
                     if regex in s:
                         new_samples.append(s)
                         
-            if isinstance(regex, list):
+            if isinstance(regex, list):#如果
                 for s in self.all_samples:
                     for r in regex:
                         if r.decode('utf-8') in s:
@@ -58,14 +53,6 @@ class DB():
 
     def set_allsample(self, samples):
         self.all_samples = samples
-
-    def find_sample(self, s):
-        path = s.rsplit("/",2)[:-1][0]+"/"
-        name = s.rsplit("/",2)[:-1][-1]
-        coll = self.collection.find({"level":"document","_id.path":path,"_id.name":name})
-        for k,v in coll[0].items():
-            print k+":"
-            print v
 
     def get_inlink_count(self):
         """
@@ -257,7 +244,7 @@ class DB():
         """
         从数据库获取section label
         Return:
-            s2s: dict k:sampleid, v:section label
+            s2s: dict k: document id, v:section label
         """
         s2s = {}
         coll = self.collection.find({"level":"section"})
@@ -408,7 +395,7 @@ class DB():
 
     def is_word(self, f):
         """
-        If the document is word
+        If the document is word doc
         """
         coll = self.collection.find({"level":"document"})
         f = f.strip("/")
@@ -602,6 +589,7 @@ class DB():
 
     def has_block_label(self,f):
         """
+        
         """
         sections = self.collection.find({"level":"section","_id.path":f })
         for s in sections:
@@ -614,6 +602,7 @@ class DB():
 
     def has_section_label(self, f):
         """
+        If the section has a label
         """
         sections = self.collection.find({"level":"section","_id.path":f })
         for s in sections:
@@ -623,6 +612,10 @@ class DB():
         return False
 
     def insert_flag(self, s_f):
+        """
+        Insert annotation result into mongodb
+        Field 'flag' in level document
+        """
 
         for k,v in s_f.items():
             k = k.strip("/")
@@ -631,12 +624,17 @@ class DB():
             doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
             self.collection.update({"level":"document","_id.path":path,"_id.name":name}, {"$set":{"flag":v}})
 
+    #################  For validation  ##############################
+
     def section_validation(self):
+        """
+        从数据库读取的label是否正确，通过验证循环读取的label集合的数量与用api 中的count函数的统计结果进行对比
+        """
         s2s = self.get_sample2section()
         e_count = 0
         for k, v in s2s.items():
-            c1 = self.collection.find({"level":"section", "_id.path":k, "label":{"$ne":""}}).count()
-            c2 = len(v)
+            c1 = self.collection.find({"level":"section", "_id.path":k, "label":{"$ne":""}}).count() #通过api获得的section label数量
+            c2 = len(v) #通过函数计算出的section label数量
             print k.encode("utf-8"),c1,c2
             try:
                 assert c1 == c2
@@ -650,13 +648,16 @@ class DB():
                     print l.encode("utf-8")
 
     def block_validation(self):
+        """
+        从数据库读取的label是否正确，通过验证循环读取的label集合的数量与用api 中的count函数的统计结果进行对比
+        """
         e_count = 0
         s2b = self.get_sample2subsection()
         for k, v in s2b.items():
             c1 = 0
             for c in self.collection.find({"level":"section", "_id.path":k},{"_id":1}):
                 s = c["_id"]["path"]+c["_id"]["name"]+"/"
-                c1 += self.collection.find({"level":"block", "_id.path":s, "label":{"$ne":""}}).count()
+                c1 += self.collection.find({"level":"block", "_id.path":s, "label":{"$ne":""}}).count()#通过api获得的section label数量
             print k.encode("utf-8"),c1,len(v)
             try:
                 assert c1 == len(v)
