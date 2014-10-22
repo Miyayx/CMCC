@@ -103,7 +103,7 @@ def validation(featurefile, options):
             print "section feature length:",len(f_d[0])-1
             section_i = fields.index("section label")
             sample_sl = dict((d[0], d[section_i].split("#") if len(d[section_i].strip()) > 0 else []) for d in data[1:])
-            exist_val(f_d, sample_sl, options['left_file'])
+            exist_val(f_d, sample_sl, options['section']['left_file'])
 
         if options.has_key("block"):
             print "=============== block label validation ================="
@@ -113,16 +113,16 @@ def validation(featurefile, options):
             block_i = fields.index("block label")
             sample_bl = dict((d[0], d[block_i].split("#") if len(d[block_i].strip()) > 0 else []) for d in data[1:])
             
-            exist_val(f_d, sample_bl, options['left_file'] )
+            exist_val(f_d, sample_bl, options['block']['left_file'] )
 
 
 def run(props, Y):
 
     file_col = os.path.join(props['output_path'], props['file_col'])
-    feature_file = os.path.join(props['output_path'], props['result_output']+'_'+'feature'+str(Y)+'.csv')
+    feature_file = os.path.join(props['output_path'], props['result_output']+'_'+'features'+str(Y)+'.csv')
     OTHERS_PATH = os.path.join(props['output_path'], props['others_output_path'])
 
-    prop = read_properties(prop_file)
+    prop = read_properties(file_col) #get feature count from file_col file
 
     options = {
         "section":{
@@ -132,7 +132,7 @@ def run(props, Y):
         },
         "block":{
             "begin":2+int(prop["section_count"]),
-            "end":  2+int(prop["section_count"])+int(prop["block_count"])
+            "end":  2+int(prop["section_count"])+int(prop["block_count"]),
             "left_file":os.path.join(OTHERS_PATH, props['left_block_file']+'_features'+str(Y)+'.dat')
             }
     }
@@ -141,5 +141,9 @@ def run(props, Y):
 if __name__=="__main__":
     props = read_properties(PATH_FILE)
     props.update(read_properties(FILE_FILE))
-    run(props, 1)
+    import sys
+    Y = 1
+    if len(sys.argv) == 2:
+        Y = sys.argv[1]
+    run(props, Y)
 
