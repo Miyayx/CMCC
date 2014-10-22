@@ -1,8 +1,12 @@
 #!/bin/sh
 
-DIR="../../data/Classify/"
-val=${DIR}"val/"
-others=${DIR}"others/"
+path=`cat ../conf/path.properties`
+path=${path:12}
+val="${path}val/"
+echo $val
+others="${path}others/"
+echo $others
+
 mkdir $val
 mkdir $others
 
