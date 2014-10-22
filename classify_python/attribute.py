@@ -2,6 +2,8 @@
 #-*-coding:utf-8-*-
 
 from classify_preprocess import *
+from config_global import *
+from utils import *
 
 ATTR_MAX_LINK = 3
 ATTR_MIN_INLINK = 0
@@ -104,7 +106,7 @@ def attribute_val(attrfiles, section_label, block_label, inlinks):
             print i.encode("utf-8")
 
 def run(attr_file):
-    db = DB("../../conf/conf.properties")
+    db = DB(DB_FILE)
     sample_block = db.get_allid()
     section_label = db.get_sample2section()
     slabel_count = label_count(sample_block,section_label)
@@ -131,5 +133,7 @@ def run(attr_file):
     attribute_val(attrfiles, section_label, block_label, inlinks)
 
 if __name__=="__main__":
-    config = read_file_config("../conf/file.cfg")
-    run(config["others_output_path"]+config["attribute_output"]+"_"+"features1.dat")
+    config = read_file_config(FILE_FILE)
+    config.update(read_properties(PATH_FILE))
+
+    run(os.path.join(config["result_path"],config["others_output_path"])+config["attribute_output"]+"_"+"features1.dat")

@@ -92,11 +92,11 @@ if __name__=="__main__":
 
     props = read_properties(PROP_FILE)
     props.update(read_properties(NAME_FILE))
-    props["file_path"] = "../"+props["file_path"].strip("/")+"/"
+    props.update(read_properties(PATH_FILE))
 
-    data_file = props["file_path"]+props["result"].replace('Y',props["featureid"])
+    data_file = os.path.join(props["result_path"], props["result"].replace('Y',props["featureid"]))
 
-    auto_annotaion("../conf/annotation.cfg", data_file, iter_n)
+    auto_annotaion(ANNOTATION_FILE, data_file, iter_n)
 
     print "Time Consuming:",(time.time()-start)
 
