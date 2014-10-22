@@ -15,7 +15,7 @@ import codecs
 import ConfigParser
 
 
-def run(file_cfg, feature_cfg, db_cfg):
+def run(path_cfg, file_cfg, feature_cfg, db_cfg):
     import time
     print "Begin to time!"
     time_start = time.time()
@@ -192,9 +192,9 @@ if __name__=="__main__":
     if len(sys.argv) > 1:
         if not len(sys.argv) == 4:
             print "Wrong Argus. Need three config files"
-            print "Format: python classify_preprocess.py file_config_file feature_config_file db_config_file"
+            print "Format: python classify_preprocess.py path_config_file file_config_file feature_config_file db_config_file"
         else:
             run(sys.argv[1], sys.argv[2], sys.argv[3])
     else:
-        run("../conf/table_file.cfg","../conf/table_feature.cfg","../../conf/conf.properties")
+        run("../conf/path.properties", "../conf/file.cfg","../conf/table_feature.cfg","../../conf/conf.properties")
 

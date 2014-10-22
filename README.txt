@@ -11,7 +11,7 @@
 	result_featureY.csv(Y为feature id),此为迭代器的最终输出文件。目前在../data/Classify/中
 配置文件:
 	../conf/conf.properties //公共文件，数据库相关
-	file_col.properties     //最终结果大表列的信息（比如有多少feature列，哪一列是分类结果集合）
+    path.properties         //所有结果文件输出路径，默认../../data/Classify/,各种输入输出操作都与此路径有关
 	filename.properties     //各种输入输出文件名的命名规范
 	feature.cfg             //feature选择相关
 	file.cfg                //输入输出文件相关
@@ -52,6 +52,7 @@ sample_filter_file    #只对此文件中列出的文档列表进行操作
      left_section_file         删除的只出现的一次的section label与其对应文档的记录
      left_block_file           删除的只出现的一次的block label与其对应文档的记录
      file_statistics           程序总体的统计记录,如进入迭代的文档数量，属性文档数量等
+	 file_col.properties       最终结果大表列的信息（比如有多少feature列，哪一列是分类结果集合）
   
 **************  数据库读取验证 *************
 代码在classify_python里
@@ -66,7 +67,7 @@ python attribute.py > outputfile
 
 ************** 特征提取+相关验证 **********
 sh start.sh
-默认验证输出 ../../data/Classify/val
+默认验证输出 指定结果文件夹下的val子文件夹
 
 *************  聚类分类迭代 ************
 
@@ -79,9 +80,10 @@ sudo yum install gcc gcc-gfortran gcc-c++ make automake kernel-devel
 sudo yum install lapack lapack-devel blas blas-devel
 sudo pip install numpy scipy scikit-learn
 
+path.properties:
+output_path                //结果输出文件夹
 程序的一部分外部参数在classify.properties里
 参数说明：
-file_path=../data/Classify             //文件输出路径
 inner_file_path=../data/Classify             //内部文件路径
 featureid=1                //特征文件id
 instance_ratio = 0.3       //标注比例
@@ -145,7 +147,7 @@ stop_limitation=30         //迭代停止时剩余样本数量（比例与数量
 
 迭代停止后，需要人工对迭代停止后剩余的文件进行标注，最后将所有标注数据（包括最后一次）和分类结果进行整合
 
-以上输出文档都在../data/Classify中
+以上输出文档都在指定的conf/path.properties/output_path中
 
 ***********************  输出文件命名 ***********************
 输入文件：
@@ -182,7 +184,6 @@ python import_flag.py ../../data/Classify result_features1.csv
 同时输出结果汇总文件 flag_record.csv 在指定路径下
 
 
-
 ############################  Section 聚类分类  ####################
 
 **************  特征提取 *************
@@ -198,6 +199,7 @@ python import_flag.py ../../data/Classify result_features1.csv
 	result_featureY.csv(Y为feature id),此为迭代器的最终输出文件。目前在../data/SectionClassify/中
 配置文件:
 	../conf/conf.properties //公共文件，数据库相关
+    path.properties         //所有结果文件输出路径，默认../../data/SectionClassify/,各种输入输出操作都与此路径有关
 	filename.properties     //各种输入输出文件名的命名规范
 	sec_feature.cfg         //feature选择相关
 	file.cfg                //输入输出文件相关
@@ -234,10 +236,11 @@ sample_filter_file    #只对此文件中列出的文档列表进行操作
 
 聚类分类部分使用的python的机器学习库scikit-learn
 
+path.properties
+output_path = ../../data/SectionClassify
+
 程序的一部分外部参数在classify.properties里
 参数说明：
-file_path=../data/SectionClassify             //文件输出路径  !!!注意，主要改这里
-inner_file_path=../data/SectionClassify             //内部文件路径
 featureid=1                //特征文件id
 instance_ratio = 0.3       //标注比例
 cluster_num=4              //聚类个数，如果设成-1的话程序内部会自动计算
@@ -252,4 +255,4 @@ stop_limitation=30         //迭代停止时剩余样本数量（比例与数量
 ***************  迭代部分 *********************
 与文档分类相同
 
-注：主要是改sec_feature.cfg,classify.properties里的路径
+注：主要是改sec_feature.cfg,classify.properties,path.properties里的路径
