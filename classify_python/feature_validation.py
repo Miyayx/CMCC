@@ -133,5 +133,5 @@ def run(prop_file, feature_file):
 if __name__=="__main__":
     props = read_properties(PATH_FILE)
     props.update(read_properties(FILE_FILE))
-    run(os.path.join(props['result_path'],props['file_col']), os.path.join(props['result_path'], props['result_output']+'_'+'feature1.csv'))
+    run(os.path.join(props['output_path'],props['file_col']), os.path.join(props['output_path'], props['output_output']+'_'+'feature1.csv'))
 

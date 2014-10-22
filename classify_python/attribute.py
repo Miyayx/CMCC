@@ -136,4 +136,4 @@ if __name__=="__main__":
     config = read_file_config(FILE_FILE)
     config.update(read_properties(PATH_FILE))
 
-    run(os.path.join(config["result_path"],config["others_output_path"])+config["attribute_output"]+"_"+"features1.dat")
+    run(os.path.join(config["output_path"],config["others_output_path"])+config["attribute_output"]+"_"+"features1.dat")

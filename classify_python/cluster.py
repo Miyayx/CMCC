@@ -266,9 +266,9 @@ if __name__=="__main__":
     props.update(read_properties(NAME_FILE))
     props.update(read_properties(PATH_FILE))
 
-    data_file = os.path.join(props["result_path"], props["result"].replace('Y',props["featureid"])) #大表
-    log = os.path.join(props["result_path"], props["cluster_log"].replace('Y', props['featureid']))
-    cluster_result = os.path.join(props["result_path"], props["cluster_result"].replace('Y',props["featureid"]).replace('X',iter_n))
+    data_file = os.path.join(props["output_path"], props["result"].replace('Y',props["featureid"])) #大表
+    log = os.path.join(props["output_path"], props["cluster_log"].replace('Y', props['featureid']))
+    cluster_result = os.path.join(props["output_path"], props["cluster_result"].replace('Y',props["featureid"]).replace('X',iter_n))
 
     km = KMEANS(data_file, k, init_c)
     km.run(cluster_result, log,iter_n)

@@ -94,7 +94,7 @@ if __name__=="__main__":
     props.update(read_properties(NAME_FILE))
     props.update(read_properties(PATH_FILE))
 
-    data_file = os.path.join(props["result_path"], props["result"].replace('Y',props["featureid"]))
+    data_file = os.path.join(props["output_path"], props["result"].replace('Y',props["featureid"]))
 
     auto_annotaion(ANNOTATION_FILE, data_file, iter_n)
 

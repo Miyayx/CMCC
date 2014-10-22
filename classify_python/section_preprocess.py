@@ -22,21 +22,27 @@ def run(file_cfg, feature_cfg, db_cfg):
 
     feature_configs = read_feature_config(feature_cfg)
     file_configs = read_file_config(file_cfg)
+    path_configs = read_properties(path_cfg)
+    RESULT_PATH = path_configs['output_path']
+    OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])
+    FEATURE_PATH = os.path.join(RESULT_PATH, file_configs["feature_output_path"])
 
-    import os
-    if not os.path.isdir(file_configs["output_path"]):
-        os.mkdir(file_configs["output_path"])
-    if not os.path.isdir(file_configs["others_output_path"]):
-        os.mkdir(file_configs["others_output_path"])
+    if not os.path.isdir(RESULT_PATH):
+        os.mkdir(RESULT_PATH)
+    if not os.path.isdir(OTHERS_PATH):
+        os.mkdir(OTHERS_PATH)
+    if not os.path.isdir(FEATURE_PATH):
+        os.mkdir(FEATURE_PATH)
 
     for section, fconfigs in feature_configs:
 
         ############### file name ################
-        result_output = file_configs["output_path"] + file_configs["result_output"] + "_" + section + ".csv"
-        delete_output = file_configs["others_output_path"] + file_configs["delete_output"] + "_" + section + ".dat"
-        no_feature_output = file_configs["others_output_path"] + file_configs["no_feature_output"] + "_" + section + ".dat"
-        file_statistics = file_configs["others_output_path"] + file_configs["file_statistics"] + "_" + section + ".dat"
-        left_block_file = file_configs["others_output_path"] + file_configs["left_block_file"] + "_" + section + ".dat"
+        result_output = os.path.join(RESULT_PATH,file_configs["result_output"] + "_" + section + ".csv")
+        delete_output = os.path.join(OTHERS_PATH,file_configs["delete_output"] + "_" + section + ".dat")
+        no_feature_output = os.path.join(OTHERS_PATH, file_configs["no_feature_output"] + "_" + section + ".dat")
+        file_statistics = os.path.join(OTHERS_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
+        left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
+        file_col = os.path.join(RESULT_PATH, file_configs["file_col"])
 
         log = {}
 
@@ -107,10 +113,19 @@ def run(file_cfg, feature_cfg, db_cfg):
 
     #####################################################  feature file output  ########################################
 
-        outfile = file_configs["feature_output_path"]+section+".csv"
+        #outfile = os.path.join(FEATURE_PATH, section+".csv")
 
         #先写个原始的feature文件
         #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
+
+        ############## record feature count ##############
+        if fconfigs["section_label"] or fconfigs["block_label"]:
+            with codecs.open(file_col,"w") as f:
+                if fconfigs["section_label"]:
+                    f.write("section_count="+str(len(fields[1]))+"\n")
+                if fconfigs["block_label"]:
+                    f.write("block_count="+str(len(fields[2]))+"\n")
+                f.write("feature_count="+str(len(feature_fields(fields))))
 
         fields.append(["sample2"])
         features.append(dict((k,k) for k in sample_block))

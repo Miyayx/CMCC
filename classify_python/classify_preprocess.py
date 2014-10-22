@@ -317,31 +317,29 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
     feature_configs = read_feature_config(feature_cfg)
     file_configs = read_file_config(file_cfg)
     path_configs = read_properties(path_cfg)
-    RESULT_PATH = path_configs['result_path']
+    RESULT_PATH = path_configs['output_path']
     OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])
     FEATURE_PATH = os.path.join(RESULT_PATH, file_configs["feature_output_path"])
+
+    if not os.path.isdir(RESULT_PATH):
+        os.mkdir(RESULT_PATH)
+    if not os.path.isdir(OTHERS_PATH):
+        os.mkdir(OTHERS_PATH)
+    if not os.path.isdir(FEATURE_PATH):
+        os.mkdir(FEATURE_PATH)
 
     for section, fconfigs in feature_configs:
 
         ############### file name ################
         result_output = os.path.join(RESULT_PATH,file_configs["result_output"] + "_" + section + ".csv")
-        print result_output
         delete_output = os.path.join(OTHERS_PATH,file_configs["delete_output"] + "_" + section + ".dat")
-        print delete_output
         hub_output = os.path.join(OTHERS_PATH,file_configs["hub_output"] + "_" + section + ".dat")
-        print hub_output
         attribute_output = os.path.join(OTHERS_PATH, file_configs["attribute_output"] + "_" + section + ".dat")
-        print attribute_output
         no_feature_output = os.path.join(OTHERS_PATH, file_configs["no_feature_output"] + "_" + section + ".dat")
-        print no_feature_output
         file_statistics = os.path.join(OTHERS_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
-        print file_statistics
         left_section_file = os.path.join(OTHERS_PATH, file_configs["left_section_file"] + "_" + section + ".dat")
-        print left_section_file
         left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
-        print left_block_file
         file_col = os.path.join(RESULT_PATH, file_configs["file_col"])
-        print file_col
 
         if not fconfigs["run"]:
             continue

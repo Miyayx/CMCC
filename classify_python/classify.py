@@ -252,7 +252,7 @@ if __name__=="__main__":
     props = read_properties(PROP_FILE)
     props.update(read_properties(NAME_FILE))
     props.update(read_properties(PATH_FILE))
-    RESULT_PATH = props['result_path']
+    RESULT_PATH = props['output_path']
 
     data_file = os.path.join(RESULT_PATH,props["result"].replace('Y',props["featureid"]))
     classify_train= os.path.join(RESULT_PATH, props["classify_train"].replace('Y',props["featureid"]).replace('X',iter_n))
