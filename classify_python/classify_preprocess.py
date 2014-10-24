@@ -205,6 +205,14 @@ def write_features(colname,classify, fn, dataset):
             f.write(l)
 
 def record_left_label(s2l, labels, fn):
+    """
+    记录没有进入大表的label
+    Args:
+    -----------------------------------
+      s2l: dict: key:sample id , value:对应的所有label的list
+      labels：作为feature的label的列表
+      fn：记录文件
+    """
     f = codecs.open(fn,"w","utf-8")
     for s,l in s2l.items():
         line = s+"\t"
@@ -240,8 +248,8 @@ def filter_doc(sample_block, section_label, block_label, hubfile=True, hub_outpu
         sample_block = [s for s in sample_block if s not in hubs] 
 
     if attrfile:
-        attrfiles = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links)
-        attrfiles = list(set(attrfiles) & set(sample_block))
+        attrfiles = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links) #判断属性文档
+        attrfiles = list(set(attrfiles) & set(sample_block)) #只要属性list和文档list的重叠部分
         class_sample["attribute"] = attrfiles
         if attribute_output:
             write_lines(attribute_output, sorted(attrfiles))
@@ -255,16 +263,15 @@ def filter_doc(sample_block, section_label, block_label, hubfile=True, hub_outpu
 
 def feature_fields(fields):
     """
-    feature_fields(section_label_feature_fields, title_feature_fields, ...) -> list
+    feature_fields(fields, ...) -> list
 
     feature列名的合并与冲突处理
     1. 将所有feature的列放入一个list中
     2. 对重复出现的feature名，视为不一样的feature，在原feature名上加上“\c”
     3. 最坏的情况，每个种类的feature都有冲突的词语，比如关键字特征中有A这个特征，section label中也有A，subsection label中也有。。。，只要冲突就认为是新的feature，在后面加上\c
-    输入：*fields：可变长参数，任意个特征的列名列表,如
-    feature_fields(fields1, fields2, fields3)
-    feature_fields(fields1, fields2)
-    feature_fields(fields1)
+    输入：
+    fields：feature名称的列表，是一个list，每一个元素是一类feature（如section label）的label list
+
     但每一个fields都要是一个list,fields的顺序要与feature的顺序相同
     输出：所有fields的合并列表
     """
@@ -317,8 +324,8 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
     feature_configs = read_feature_config(feature_cfg)
     file_configs = read_file_config(file_cfg)
     path_configs = read_properties(path_cfg)
-    RESULT_PATH = path_configs['output_path']
-    OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])
+    RESULT_PATH = path_configs['output_path'] #总的输出文件夹
+    OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"]) #其他文件的存放目录
     FEATURE_PATH = os.path.join(RESULT_PATH, file_configs["feature_output_path"])
 
     if not os.path.isdir(RESULT_PATH):
@@ -377,8 +384,8 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         #After delete all specific samples, reset allsample in db
         db.set_allsample(sample_block)
 
-        features = []
-        fields = []
+        features = [] #存储feature值，一个元素是一类feautre的值的列表
+        fields = []   #存储feature 名称值，一个元素是一类feature的名称的列表
 
         if os.path.exists(result_output): #原来的result文件删除，重新创建一个
             os.remove(result_output)
@@ -505,6 +512,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
             sample_block = delete_items(sample_block,no_feature_samples)
             print "sample count:",len(sample_block)
 
+        # 所有feature值都为0的样本列表，这类样本也进入迭代
         feature0_samples = []
         for s in sample_block:
             values = []
@@ -515,7 +523,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         log["feature0_sample"] = len(feature0_samples)
         log["iteration_sample"] = len(sample_block)
         
-        sorted(sample_block)
+        sorted(sample_block) #按id名称顺序输出
 
         print "Writing to",result_output
         write_dataset(sample_block, feature_fields(fields), features, class_block, result_output)

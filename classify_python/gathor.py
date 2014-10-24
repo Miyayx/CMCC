@@ -4,6 +4,10 @@
 from csvio import *
 import sys
 
+"""
+本文件主要负责集合所有迭代的分类结果，写入到大表中
+"""
+
 def gather_one_file(fn):
     all_s_c = get_sample2class(fn)
     csv = CSVIO(fn)

@@ -7,8 +7,10 @@ from db import *
 from random import Random
 import ConfigParser
 
-
 def read_config(cfg_file):
+    """
+    读取annotation配置文件
+    """
     configs = {}
     con = ConfigParser.RawConfigParser()
     con.read(cfg_file)
@@ -20,6 +22,11 @@ def auto_annotaion(cfg_file, a_file, iter_n):
     根据指定的正簇号和它的类别，认为指定簇都是正例，选取其中的30%标注成指定类别
     选取其他簇的样本总数的30%为负例。应保证每个簇都有样本标注，标注数量与次簇数量成正比
     如果指定标注样本有标注记录，则从标注记录中读取原标注记录
+    Args:
+    ---------------------------------
+      cfg_file:annotation 配置文件
+      a_file  :标注结果要写入的文件
+      iter_n  :第几次迭代
     """
 
     def choose_annotation(c_sl):
@@ -53,11 +60,10 @@ def auto_annotaion(cfg_file, a_file, iter_n):
     pos_c = configs["cluster"].split(",")
 
     csv = CSVIO(a_file)
-    #csv.load(a_file)
 
     cluster_i = csv.fields.index("cluster"+str(iter_n))
 
-    s_c = csv.read_one_to_one(0,cluster_i)
+    s_c = csv.read_one_to_one(0,cluster_i)#读取聚类结果
     s_c = dict((s,c) for s,c in s_c.items() if len(c.strip()) > 0)
 
     pos = dict((c,[s for s in s_c.keys() if s_c[s] == c ]) for c in pos_c) #正例簇

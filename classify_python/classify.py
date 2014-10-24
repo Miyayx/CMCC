@@ -13,6 +13,9 @@ from csvio import CSVIO
 from config_global import *
 
 class LowAccuracy(Exception):
+    """
+    测试准确率很低时抛出
+    """
     def __init__(self, value):
         self.value = value
     def __str__(self):
@@ -31,7 +34,7 @@ class SVM:
 
         self.data_file = data_file
 
-        self.log = {}
+        self.log = {}#记录本次迭代的各种类样本统计数量
 
     def run(self, train_file, test_file, predict_file, test_result_file, test_statistic,log_file, iter_n):
         """
@@ -83,6 +86,7 @@ class SVM:
         csv = CSVIO(self.data_file)
         s2c = csv.read_one_to_one(0,csv.fields.index("cluster"+str(self.iter_n)))
         self.log["cluter_num"] = len(set(s2c.values()))
+        #读取大表中的section label和block label,写入聚类结果文件
         s2sl = csv.read_one_to_one(0, csv.fields.index("section label"))
         s2bl = csv.read_one_to_one(0, csv.fields.index("block label"))
         self.record_result(self.predict_file, [("class",result), ("section label",s2sl),("block label", s2bl)])
@@ -90,7 +94,6 @@ class SVM:
         self.append_result(self.data_file, result)
 
         self.record_log(log_file)
-
 
     def name_feature_split(self, data):
         """
@@ -105,7 +108,7 @@ class SVM:
 
     def record_log(self, log_file):
         """
-        
+        统计数据写入文件 
         """
         csv = CSVIO(log_file)
         if not os.path.isfile(log_file):
@@ -114,21 +117,23 @@ class SVM:
         csv.write(log_file, ",", True, True )
 
     def get_data(self, data_file):
-        X_flag = []
-        Y_flag = []
+        X_flag = [] #标注数据的feature数据
+        Y_flag = [] #标注数据的标注结果
         
-        predict = []
+        predict = [] #待预测数据的feature数据
         
         flag_i = 0
         begin = 0
         end = 0
         
+        isheader = True
         for line in codecs.open(data_file,'r','utf-8'):
             items = line.strip("\n").split(",")
-            if not items[2].isdigit():
+            if isheader:#如果是第一行
                 end = items.index("sample2")
                 flag_i = items.index("flag"+str(self.iter_n))
                 cluster_i = items.index("cluster"+str(self.iter_n))
+                isheader = not isheader
                 continue
             if len(items[flag_i]) > 1:
                 X_flag.append([i for i in items[begin:end]])
@@ -165,6 +170,11 @@ class SVM:
     def write_statistic(self, fn, Y_test, Y_predict, score):
         """
         Write precision and statistic to file
+        Args
+        ---------------------------------
+          Y_test: 测试标注结果
+          Y_predict: 预测出的结果
+          score：测试准确率
         """
         print "Precision:%0.3f\n"%score
         import annotation
@@ -234,6 +244,10 @@ class SVM:
 
     def predict(self, X_predict):
         """
+        预测分类结果
+        Args:
+        -------------------
+          X_predict: 预测数据的feature
         """
 
         return self.classifer.predict(X_predict)
