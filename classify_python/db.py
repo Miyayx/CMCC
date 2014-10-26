@@ -3,6 +3,7 @@
 
 from utils import *
 from pymongo import *
+import os
 from classify_preprocess import *
 from bs4 import BeautifulSoup
 from bs4 import BeautifulStoneSoup
@@ -623,6 +624,26 @@ class DB():
             path = '/'+path+'/'
             doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
             self.collection.update({"level":"document","_id.path":path,"_id.name":name}, {"$set":{"flag":v}})
+
+    def get_flag(self, s):
+        """
+        Get annotation flag according to sample id
+        """
+        path, name = s.strip("/").rsplit("/",1)
+        sample = self.collection.find({"_id.path":"/"+path+"/", "_id.name":name })
+        for a in sample:
+            if a.has_key('flag') and a['flag'] and len(a['flag']) > 0:
+                return a['flag']
+            else:
+                return ""
+
+    def get_samples_from_flag(self, flag):
+        """
+        Get sample id list according to given flag
+        """
+        samples = self.collection.find({"flag": flag})
+        return ['/'+os.path.join(s['_id']['path'], s['_id']['name']).strip('/')+'/' for s in samples]
+        
 
     #################  For validation  ##############################
 
