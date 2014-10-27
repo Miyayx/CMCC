@@ -1,6 +1,10 @@
 #/usr/bin/env/python2.7
 # -*- coding: utf-8 -*-
 
+import re
+import codecs
+import ConfigParser
+
 from utils import *
 from fileio import *
 from db import *
@@ -8,12 +12,6 @@ from filter import *
 from feature_getter import *
 from classify_preprocess import read_feature_config
 from classify_preprocess import read_file_config
-
-import re
-import os
-import codecs
-import ConfigParser
-
 
 def run(path_cfg, file_cfg, feature_cfg, db_cfg):
     import time
@@ -24,6 +22,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
     file_configs = read_file_config(file_cfg)
     path_configs = read_properties(path_cfg)
     RESULT_PATH = path_configs['output_path']
+    import os
     OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])
     FEATURE_PATH = os.path.join(RESULT_PATH, file_configs["feature_output_path"])
 
@@ -119,12 +118,18 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
 
         ############## record feature count ##############
-        if fconfigs["section_label"] or fconfigs["block_label"]:
+        if fconfigs["block_label"] or fconfigs['title_tfidf'] or fconfigs['content_tfidf']:
+            count = 1
             with codecs.open(file_col,"w") as f:
-                if fconfigs["section_label"]:
-                    f.write("section_count="+str(len(fields[1]))+"\n")
                 if fconfigs["block_label"]:
-                    f.write("block_count="+str(len(fields[2]))+"\n")
+                    f.write("block_count="+str(len(fields[count]))+"\n")
+                    count += 1
+                if fconfigs["title_tfidf"]:
+                    f.write("title_tfidf_count="+str(len(fields[count]))+"\n")
+                    count += 1
+                if fconfigs["content_tfidf"]:
+                    f.write("content_tfidf_count="+str(len(fields[count]))+"\n")
+                    count += 1
                 f.write("feature_count="+str(len(feature_fields(fields))))
 
         fields.append(["sample2"])
