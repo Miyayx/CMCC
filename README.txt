@@ -125,7 +125,9 @@ stop_limitation=30         //迭代停止时剩余样本数量（比例与数量
     pos_class 正例类别名称
     neg_class 负例类别名称
     程序将所有正簇中的所有样本作为正例，自动统计数量，选择30%标注成正例，其他簇选择总数的30%随机标记成负例。每个簇的标记数量与簇内样本数量成正比，并保证每个簇至少有一个样本被标记
-    运行python annotation.py X X是迭代次数
+    运行python annotation.py X method    X是迭代次数,method是标注方法
+    method: auto,按照上述思想自动标注
+            db  ,正例从数据库中已记录的人工标注信息中获取（flag字段）
 
 
 第三步：根据人工标注结果训练分类器分类
