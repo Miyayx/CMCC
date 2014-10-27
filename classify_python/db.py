@@ -345,7 +345,12 @@ class DB():
         t2h = {}
         for c in coll:
             sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
-            labels = c["rowtableLabel"] #提取header
+            o_labels = c["rowtableLabel"] #提取header
+            labels = []
+            for l in o_labels:
+                for ll in l.split(":"):
+                    labels += ll.split("#")
+
             if labels:
                 t2h[sample] = labels
         return t2h 
