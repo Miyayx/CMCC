@@ -410,7 +410,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         if fconfigs["block_label"] and not fconfigs["merge_label"]: #如果配置里有block_label
             o_sample_bl = db.get_sample2subsection()
 
-            sample_bl = filter_label(o_sample_bl)
+            sample_bl = filter_label(o_sample_bl)#过滤掉格式不符合要求的label
 
             sublabels, sublabel_feature = subsection_label_feature(sample_block, sample_bl, fconfigs["label_common"])
             fields.append(sublabels)

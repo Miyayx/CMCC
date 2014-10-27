@@ -1,5 +1,5 @@
-#/usr/bin/env/python2.7
-#encoding=utf-8
+#!/usr/bin/env python
+#-*-coding:UTF-8-*-
 
 from classify_preprocess import *
 from utils import *
@@ -20,7 +20,6 @@ def exist_val(data, origin, fn = None):
     print "origin len:",len(origin)
     fields = [d.strip("\c") for d in data[0]]
     index_list = []
-    syns = get_synonym_words("../etc/synonym_dict.csv")
 
     left_dict = {}
     if fn:
@@ -55,13 +54,9 @@ def exist_val(data, origin, fn = None):
         print "+++++++  feature  +++++++++++++"
         for i in mine_index:
             print "    "+fields[i].encode("utf-8")
-            if (not fields[i] in ls) and (fields[i] in syns):
-                print "同义词：",fields[i].encode("utf-8")
         print "++++++++  origin  +++++++++++++"
         for l in ls:
             print "    "+l.encode("utf-8")
-            if (l not in fields) and (l in syns):
-                print "同义词：",l.encode("utf-8")
         index_list.append(mine_index)
     return index_list
 
@@ -79,12 +74,17 @@ def validation(featurefile, options):
     options = {
         "section":{
             "begin":1,
-            "end"  :56,
+            "end"  :2,
             "left_file":file path
         },
         "block":{
-            "begin":238,
-            "end"  :268,
+            "begin":3,
+            "end"  :4,
+            "left_file":file path
+        }
+        "table_header":{
+            "begin":5,
+            "end"  :26,
             "left_file":file path
         }
     }
@@ -92,6 +92,7 @@ def validation(featurefile, options):
     特征验证
     section label:    exist_val
     block label: exist_val
+    table header: exist_val
     """
     db = DB(DB_FILE)
     with open(featurefile) as f:
@@ -116,6 +117,15 @@ def validation(featurefile, options):
             
             exist_val(f_d, sample_bl, options['block']['left_file'] )
 
+        if options.has_key("table_header"):
+            print "=============== block label validation ================="
+            f_d = split_feature(data,options["table_header"]["begin"], options["table_header"]["end"])
+            print "table header feature length:",len(f_d[0])-1
+
+            block_i = fields.index("table header")
+            sample_bl = dict((d[0], d[block_i].split("#") if len(d[block_i].strip()) > 0 else []) for d in data[1:])
+            
+            exist_val(f_d, sample_bl, options['table_header']['left_file'] )
 
 def run(props, Y):
 
@@ -135,6 +145,11 @@ def run(props, Y):
             "begin":2+int(prop["section_count"]),
             "end":  2+int(prop["section_count"])+int(prop["block_count"]),
             "left_file":os.path.join(OTHERS_PATH, props['left_block_file']+'_features'+str(Y)+'.dat')
+            },
+        "table_header":{
+            "begin":2+int(prop["section_count"])+int(prop["block_count"]),
+            "end":  2+int(prop["section_count"])+int(prop["block_count"])+int(prop["table_header"]),
+            "left_file":os.path.join(OTHERS_PATH, props['left_tableheader_file']+'_features'+str(Y)+'.dat')
             }
     }
     validation(feature_file,options)

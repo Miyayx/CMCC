@@ -10,13 +10,11 @@ from classify_preprocess import read_feature_config
 from classify_preprocess import read_file_config
 
 import re
-import os
 import codecs
+import time
 import ConfigParser
 
-
 def run(path_cfg, file_cfg, feature_cfg, db_cfg):
-    import time
     print "Begin to time!"
     time_start = time.time()
 
@@ -24,6 +22,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
     file_configs = read_file_config(file_cfg)
     path_configs = read_properties(path_cfg)
     RESULT_PATH = path_configs['output_path']
+    import os
     OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])
     FEATURE_PATH = os.path.join(RESULT_PATH, file_configs["feature_output_path"])
 
@@ -43,6 +42,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         file_statistics = os.path.join(OTHERS_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
         left_section_file = os.path.join(OTHERS_PATH, file_configs["left_section_file"] + "_" + section + ".dat")
         left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
+        left_tableheader_file = os.path.join(OTHERS_PATH, file_configs["left_tableheader_file"] + "_" + section + ".dat")
         file_col = os.path.join(RESULT_PATH, file_configs["file_col"])
 
         log = {}
@@ -87,6 +87,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
             slabels, slabel_feature = subsection_label_feature(sample_block, sample_sl, fconfigs["label_common"])
             fields.append(slabels)
             features.append(slabel_feature)
+            record_left_label(o_sample_sl, slabels, left_section_file)
 
         ###################  block label  ####################
         if fconfigs["block_label"]:
@@ -97,6 +98,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
             blabels, blabel_feature = subsection_label_feature(sample_block, sample_bl, fconfigs["label_common"])
             fields.append(blabels)
             features.append(blabel_feature)
+            record_left_label(o_sample_bl, blabels, left_block_file)
 
         ################## title keyword tfidf  #####################
         if fconfigs["title_tfidf"]:
@@ -110,11 +112,14 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
 
         ###################  table header  ###################
         if fconfigs["table_header"]:
-            table_header = db.get_table2header()
+            o_table_header = db.get_table2header()
+            table_header = filter_label(o_table_header)
 
             headers, h_feature = table_header_feature(sample_block, table_header)
             fields.append(headers)
             features.append(h_feature)
+
+            record_left_label(o_table_header, headers, left_tableheader_file)
 
     #####################################################  feature file output  ########################################
 
