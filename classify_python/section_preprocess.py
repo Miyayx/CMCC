@@ -41,6 +41,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         no_feature_output = os.path.join(OTHERS_PATH, file_configs["no_feature_output"] + "_" + section + ".dat")
         file_statistics = os.path.join(OTHERS_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
         left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
+        left_tableheader_file = os.path.join(OTHERS_PATH, file_configs["left_tableheader_file"] + "_" + section + ".dat")
         file_col = os.path.join(RESULT_PATH, file_configs["file_col"])
 
         log = {}
@@ -79,8 +80,6 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         ###################  block label  ####################
         if fconfigs["block_label"]:
             o_sample_bl = db.get_section2block()
-            #for k, v in o_sample_bl.items():
-            #    print k,v
 
             sample_bl = filter_label(o_sample_bl)
 
@@ -89,6 +88,17 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
             features.append(blabel_feature)
 
             record_left_label(o_sample_bl, blabels, left_block_file)
+
+        ###################  table header  ###################
+        if fconfigs["table_header"]:
+            o_table_header = db.get_section2header()
+            table_header = filter_label(o_table_header)
+
+            headers, h_feature = table_header_feature(sample_block, table_header)
+            fields.append(headers)
+            features.append(h_feature)
+
+            record_left_label(o_table_header, headers, left_tableheader_file)
 
         ################## title keyword tfidf  #####################
         if fconfigs["title_tfidf"]:
@@ -130,19 +140,29 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
                 if fconfigs["content_tfidf"]:
                     f.write("content_tfidf_count="+str(len(fields[count]))+"\n")
                     count += 1
+                if fconfigs["table_header"]:
+                    f.write("table_header="+str(len(fields[3]))+"\n")
                 f.write("feature_count="+str(len(feature_fields(fields))))
 
         fields.append(["sample2"])
         features.append(dict((k,k) for k in sample_block))
 
+        # 添加对应的section label
         s_sl = db.get_section2sectionlabel()
         fields.append(["section label"])
         features.append(dict((k,s_sl[k]) for k in sample_block ))
 
+        # 添加对应的block label
         if fconfigs["block_label"]:
             s_b = db.get_section2block()
             fields.append(["block label"])
             features.append(dict((k,"#".join(s_b[k])) for k in sample_block ))
+
+        # 添加表头列
+        if fconfigs["table_header"]:
+            t_h = db.get_section2header()
+            fields.append(["table header"])
+            features.append(dict((k,"#".join(t_h[k])) for k in sample_block ))
 
         if fconfigs["no_feature"]:
             print "Delete no feature samples"

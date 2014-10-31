@@ -130,13 +130,17 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
 
         ############## record feature count ##############
         if fconfigs["section_label"] or fconfigs["block_label"] or fconfigs["table_header"]:
+            coutn = 1
             with codecs.open(file_col,"w") as f:
                 if fconfigs["section_label"]:
-                    f.write("section_count="+str(len(fields[1]))+"\n")
+                    f.write("section_count="+str(len(fields[coutn]))+"\n")
+                    count += 1
                 if fconfigs["block_label"]:
-                    f.write("block_count="+str(len(fields[2]))+"\n")
+                    f.write("block_count="+str(len(fields[count]))+"\n")
+                    count += 1
                 if fconfigs["table_header"]:
-                    f.write("table_header="+str(len(fields[3]))+"\n")
+                    f.write("table_header="+str(len(fields[count3]))+"\n")
+                    count += 1
                 f.write("feature_count="+str(len(feature_fields(fields))))
 
         # 添加sample id在feature列之后

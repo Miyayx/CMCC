@@ -334,12 +334,36 @@ class DB():
                 s2l[sample] = label
         return s2l 
 
+    def get_section2header(self):
+        """
+        从数据库获取 section 与其对应的table header(如果有table)
+        table 在paragraph级别中, 通过type:"Tab"识别出来
+        Return:
+            s2l: dict k:section id, v:table header
+        """
+        coll = self.collection.find({"level":"paragraph","type":"Tab"})
+        s2h = {}
+        for c in coll:
+            sample = c["_id"]["path"].rsplit('/',2)[0]+'/'
+            o_labels = c["rowtableLabel"] #提取header
+            labels = []
+            for l in o_labels:
+                for ll in l.split(":"):
+                    labels += ll.split("#")
+
+            if labels:
+                s2h[sample] = labels
+
+        for sample in diff_items(self.all_samples,s2h.keys()):
+            s2h[sample] = []
+        return s2h 
+
     def get_table2header(self):
         """
         从数据库获取 table 与其对应的table header
         table 在paragraph级别中, 通过type:"Tab"识别出来
         Return:
-            s2l: dict k:paragraph id, v:table header
+            t2h: dict k:paragraph id, v:table header
         """
         coll = self.collection.find({"level":"paragraph","type":"Tab"})
         t2h = {}
@@ -503,13 +527,6 @@ class DB():
         """
         If the attribute file has table element
         """
-        #f = f.strip("/").rstrip("/")
-        #path,name = f.rsplit("/",1)
-        #doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
-        #section = d["children"][1].rsplit("/")[-1]
-        #if section:
-        #    html = self.collection.find({"level":"section","_id.name":section})[0]["html"]
-        #    return True if "table" in html else False
         sections = self.collection.find({"level":"section","_id.path":f })
         for s in sections:
             html = s["html"]
@@ -535,7 +552,7 @@ class DB():
 
         for s in sections:
             html = s["html"]
-            soup = BeautifulSoup(html, features="xml")
+            soup = BeautifulSoup(html)
             if soup.find("table"):
                 if soup.tr.td.find("p", recursive = False):
                     return False

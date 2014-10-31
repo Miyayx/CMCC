@@ -192,7 +192,7 @@ def write_features(colname,classify, fn, dataset):
         i = 0
         s = "sample,"
         for l in colname:
-            print colname.index(l),l
+            #print colname.index(l),l
             s += (l+",")
         if classify:
             s += "class"
