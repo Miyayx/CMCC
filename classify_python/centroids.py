@@ -7,10 +7,6 @@ from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.decomposition import PCA
 from sklearn import datasets
 from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from itertools import cycle
-import pylab as pl
 
 """
 4 methods for centroid calculating
@@ -21,6 +17,11 @@ def plot_2D(data, target, target_names, p_list=None):
     """
     把feature降维成2维做出聚类结果图
     """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    from itertools import cycle
+    import pylab as pl
+
     target = np.array(target)
     colors = cycle('rgbcmykw')
     target_ids = range(len(target_names))
@@ -532,6 +533,8 @@ if __name__=="__main__":
     import numpy as np
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
+    from itertools import cycle
+    import pylab as pl
 
     k = 3
     # import some data to play with
