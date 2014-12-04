@@ -60,10 +60,10 @@ def exist_val(data, origin, fn = None, props={}):
             if (not fields[i] in ls) and (fields[i] in syns):
                 print "同义词：",fields[i].encode("utf-8")
         print "++++++++  origin  +++++++++++++"
-        for l in ls:
+        for l in sorted(ls):
             print "    "+l.encode("utf-8")
-            if (l not in fields) and (l in syns):
-                print "同义词：",l.encode("utf-8")
+            #if (l not in fields) and (l in syns):
+            #    print "同义词：",l.encode("utf-8")
         index_list.append(mine_index)
     return index_list
 

@@ -29,10 +29,9 @@ python classify_preprocess.py -hub 0 -attribute 1 no_feature 1 ...
     block_label           #特征是否包含block label
     label_common          #是否删除只出现一次的section label，1 删除
     synonym_merge         #有同义词出现时，合并同义词，用一个词代替其他所有词
-    synonym_expand        #对有同义词的词，所有同义词都标1
     title_tfidf           #特征是否包含 title tfidf特征
     document_tfidf        #特征是否包含文本tfidf值
-    sample_filter_str     #名称具有此子字符串的文档保留,多个字符串以逗号分隔
+    sample_filter_dir     #名称具有此子字符串的文档保留,多个字符串以逗号分隔
     sample_filter_file    #只对此文件中列出的文档列表进行操作
 
 conf/classify/file.cfg 输入输出文件说明：
@@ -223,7 +222,7 @@ feature的选择在conf/classify/sec_feature.cfg里设定
     synonym_expand        #对有同义词的词，所有同义词都标1
     title_tfidf           #特征是否包含 title tfidf特征
     content_tfidf         #特征是否包含文本tfidf值
-    sample_filter_str     #名称具有此子字符串的文档保留,多个字符串以逗号分隔
+    sample_filter_dir     #名称具有此子字符串的文档保留,多个字符串以逗号分隔
     sample_filter_file    #只对此文件中列出的文档列表进行操作
 
 conf/classify/file.cfg 输入输出文件说明：

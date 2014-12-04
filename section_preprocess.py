@@ -60,8 +60,8 @@ def run(configs,file_cfg):
     log = {}
 
     db = DB()
-    if len(fconfigs["sample_filter_str"]) > 0:
-        db.filter(fconfigs["sample_filter_str"].split(","))
+    if len(fconfigs["sample_filter_dir"]) > 0:
+        db.filter(fconfigs["sample_filter_dir"].split(","))
     if len(fconfigs["sample_filter_file"]) > 0:
         db.filter(fconfigs["sample_filter_file"],type="file")
 
