@@ -1,0 +1,13 @@
+*.class
+/bin/
+*.arff
+*.pyc
+*/.svn/
+.svn/
+*.csv
+*~
+*.val
+classify_python/attr/
+classify_python/cluster_result
+conf/file_col.properties
+
