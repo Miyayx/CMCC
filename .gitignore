@@ -1,0 +1,10 @@
+*.class
+/bin/
+*.arff
+*.pyc
+*/.svn/
+.svn/
+*.csv
+*~
+*.val
+attr/
