@@ -1,0 +1,12 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Mobile Ontology
+echo 'Table extraction starts ...'
+cd $BASE/modules/table
+ant tab -Dcmd="$*"
+ant gentabsheet -Dcmd="$*"
+cd $PWD
+echo 'Table extraction completes.'

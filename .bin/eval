@@ -1,0 +1,7 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+echo "evaluation module needs GUI and some tools, please refer to the documents"
+echo "under modules/evaluation directory."

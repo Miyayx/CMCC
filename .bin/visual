@@ -1,0 +1,23 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+if [ -z "$TOMCAT_HOME" ] ; then
+  echo 'Please set TOMCAT_HOME environment variable value, for example:'
+  echo '   >export TOMCAT_HOME=/usr/share/tomcat7'
+  exit 1
+fi
+
+if [ -z "$TOMCAT_WEBAPPS" ] ; then
+  echo 'Please set TOMCAT_WEBAPPS environment variable value, for example:'
+  echo '   >export TOMCAT_WEBAPPS=/var/lib/tomcat7/webapps'
+  exit 1
+fi
+
+echo 'Compiling and deploying JsonVisual to tomcat ...'
+cd $BASE/modules/jsonvisual
+ant deploy
+cd $PWD
+echo 'Done. Please add symbol link visual which links to data/visual,'
+echo 'and restart tomcat server.'

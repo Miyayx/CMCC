@@ -1,0 +1,24 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Check freetext
+#if [ -z "$1" ] ; then
+#  echo 'Please input a file path for output file, for example:'
+#  echo '   >./run checktext data/freetext.csv'
+#  exit 1
+#fi
+
+echo 'Document parsed free text checking ...'
+START=$(date "+%s")
+native2ascii -encoding UTF-8 $BASE/conf/conf.src $BASE/conf/conf.properties
+cd $BASE/modules/checktext
+chmod +x ExtText.sh
+./ExtText.sh
+node regression $*
+END=$(date "+%s")
+TIME=$((END - START))
+cd $PWD
+echo "Time used: $TIME seconds."
+#echo 'Free text checking result has been strored in output file.'

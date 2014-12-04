@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Mobile Ontology
+echo 'Table data writing back ...'
+cd $BASE/modules/table
+ant mantab -Dcmd="$*"
+cd $PWD
+echo 'Writing back completes.'

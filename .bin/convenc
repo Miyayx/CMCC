@@ -1,0 +1,13 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# convert Chinese folder name from GBK to UTF-8
+# ONLY FOR Linux!!!
+echo 'Convert folder name encoding ...'
+convmv -f ISO-8859-1 -t UTF-8 -r --notest $1
+echo 'Converting complete.'
+echo 'Delete temperory files and directories, such as .files folder ...'
+#find $1 -name .files | xargs rm -fr -
+echo 'Done.'

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Field words
+if [ -z "$1" ] ; then
+  echo 'Please input a file path for output file, for example:'
+  echo '   >./run.sh field_word data/fieldwords.txt'
+  exit 1
+fi
+
+echo 'Field words constructing ...'
+cd $BASE/modules/fieldword
+ant run -Dcmd="$*"
+cd $PWD
+echo 'Field words constructed and strored in MongoDB & file.'

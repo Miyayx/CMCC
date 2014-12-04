@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# preparation for similar property merging
+echo 'Preparing annotation data file for similar property merging ...'
+cd $BASE/modules/spm
+ant data -Dcmd="$*"
+cd $PWD
+echo 'Annotation data file has been generated in data/spm directory.'

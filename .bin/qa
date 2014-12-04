@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# QA Extraction
+echo "QA pairs extracting ..."
+cd $BASE/modules/qa
+ant -Dcmd="$*"
+cd $PWD
+echo "QA pairs has been stored in files."

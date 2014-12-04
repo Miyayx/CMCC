@@ -1,0 +1,10 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+echo 'Fix file path for special characters ...'
+cd $BASE/modules/word2html
+ant run -Dcmd="$*"
+cd $PWD
+echo 'File path fixing done.'

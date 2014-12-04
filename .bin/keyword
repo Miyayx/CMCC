@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Keyword extraction
+echo 'Keywords extracting ...'
+cd $BASE/modules/keyword
+ant run -Dcmd="$*"
+cd $PWD
+echo 'Keywords has been updated into MongoDB.'

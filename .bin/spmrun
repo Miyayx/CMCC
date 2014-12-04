@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# preparation for similar property merging
+echo 'Running automatic similar property merging ...'
+cd $BASE/modules/spm
+ant run -Dcmd="$*"
+cd $PWD
+echo 'Similar property merging result has been generated in data/spm directory.'
