@@ -11,8 +11,8 @@ import sys
 def gather_one_file(fn):
     all_s_c = get_sample2class(fn)
     csv = CSVIO(fn)
-    #csv.column("Class",all_s_c)
-    csv.insert_column("Class", 1, all_s_c)
+    csv.column("Class",all_s_c)
+    #csv.insert_column("Class", 1, all_s_c)
     csv.write(fn)
 
 def gather_multi_file(infiles, outfile):
