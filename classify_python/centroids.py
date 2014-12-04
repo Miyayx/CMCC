@@ -13,6 +13,25 @@ from sklearn.cluster import KMeans
 even, spss, density, nbc
 """
 
+def custom_dis(X1, X2):
+    #l = len(X1)
+    #result = [[0 for i in range(l)] for i in range(l)]
+    #for i in range(l):
+    #    print "i",i
+    #    v1 = X1[i]
+    #    for j in range(i,l):
+    #        v2 = X2[j]
+    #        #v = [v1, v2]
+    #        #v3 = map(lambda x,y:int(x)&int(y),v1, v2)
+    #        #v3 = [int(v1[k]) & int(v2[k]) for k in range(len(v1))]
+    #        v3 = v1 * v2
+    #        v = 1.0/sum(v3) if sum(v3) else sys.maxint
+    #        result[i][j] = result[j][i] = v
+    x1 = np.mat(X1)
+    x2 = np.mat(X2)
+    result = x1 * x2.T
+    return np.array(1.0/result)
+
 def plot_2D(data, target, target_names, p_list=None):
     """
     把feature降维成2维做出聚类结果图
@@ -228,13 +247,14 @@ class CentroidDensity(object):
         centroids = []
         
         print "Sample:", len(self.X)
-        dis = euclidean_distances(self.X, self.X)
+        #dis = euclidean_distances(self.X, self.X)
+        dis = custom_dis(self.X, self.X)
         dc = self.estimate_dc(dis)
         rho_arr = self.calculate_rho(dis, dc)
-        rho_arr = normalize(rho_arr)
+        #rho_arr = normalize(rho_arr)
         #print "rho:",rho_arr
         delta_arr = self.calculate_delta(dis, rho_arr)
-        delta_arr = normalize(delta_arr)
+        #delta_arr = normalize(delta_arr)
         #print "delta_arr:",delta_arr
         area_arr = self.get_area(rho_arr, delta_arr)
         slope_arr = self.get_slope(rho_arr, delta_arr)

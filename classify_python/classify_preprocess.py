@@ -324,6 +324,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
     feature_configs = read_feature_config(feature_cfg)
     file_configs = read_file_config(file_cfg)
     path_configs = read_properties(path_cfg)
+    CONF_PATH = path_configs['conf_path']
     RESULT_PATH = path_configs['output_path'] #总的输出文件夹
     OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"]) #其他文件的存放目录
     FEATURE_PATH = os.path.join(RESULT_PATH, file_configs["feature_output_path"])
@@ -346,7 +347,7 @@ def run(path_cfg, file_cfg, feature_cfg, db_cfg):
         file_statistics = os.path.join(OTHERS_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
         left_section_file = os.path.join(OTHERS_PATH, file_configs["left_section_file"] + "_" + section + ".dat")
         left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
-        file_col = os.path.join(RESULT_PATH, file_configs["file_col"])
+        file_col = os.path.join(CONF_PATH, file_configs["file_col"])
 
         if not fconfigs["run"]:
             continue

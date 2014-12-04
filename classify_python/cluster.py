@@ -36,7 +36,9 @@ class KMEANS:
         self.max_cluster = int(props["max_cluster_num"])
 
         self.data_file = data_file
+
         self.init = init
+        self.centroids = []
 
         self.log = {}
 
@@ -192,20 +194,25 @@ class KMEANS:
         """
         if init == 'k-means++':
             return 'k-means++'
+        if init == "density" and self.centroids: #对density方法，只算一次
+            init_c = [X[c] for c in self.centroids[:k]]
+            init_c = np.array(init_c)
+            return np.array(init_c) 
         else:
-            centroids = []
+            self.centroids = []
             if init == 'even':
-                centroids = CentroidCalculater(strategy=CentroidEven).calculate(X, k)
+                self.centroids = CentroidCalculater(strategy=CentroidEven).calculate(X, k)
             elif init == 'spss':
-                centroids = CentroidCalculater(strategy=CentroidSPSS).calculate(X, k)
+                self.centroids = CentroidCalculater(strategy=CentroidSPSS).calculate(X, k)
             elif init == 'density':
-                centroids = CentroidCalculater(strategy=CentroidDensity).calculate(X, k)
+                num = max(self.max_cluster, k) if self.max_cluster else k
+                self.centroids = CentroidCalculater(strategy=CentroidDensity).calculate(X, num)
             elif init == 'nbc':
-                centroids = CentroidCalculater(strategy=CentroidNBC).calculate(X, k)
+                self.centroids = CentroidCalculater(strategy=CentroidNBC).calculate(X, k)
             else:
                 raise ValueError("the init parameter for the k-means should be 'k-means++' or 'even' or 'spss' or 'density' or 'nbc' ,'%s' ('%s') was passed." % (init, type(init)))
 
-            init_c = [X[c] for c in centroids]
+            init_c = [X[c] for c in self.centroids]
             init_c = np.array(init_c)
 
             return np.array(init_c) 
