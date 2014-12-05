@@ -251,23 +251,25 @@ if __name__=="__main__":
 
     props['k'] = -1
     props['init'] = 'k-means++'
+    props['iter'] = -1
 
-    if len(sys.argv) < 2:
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Cluster", default=props["iter"])
+    parser.add_option("-k", "--k", dest="k", type="int", help="K value of KMeans Cluster. If not specified, k will be automatically calculated", default=props["k"])
+    parser.add_option("-s", "--seed", dest="init", type="str", help="Method for Seed Selection. kmeans++, even, spss, density.Default:kmeans++", default=props["init"])
+    parser.add_option("-l", "--min_cluster_num", dest="min_cluster_num", type="int", help="minimum(lower limit) of k range when calculating k value", default=props["min_cluster_num"])
+    parser.add_option("-u", "--max_cluster_num", dest="max_cluster_num", type="int", help="maximum(upper limit) of k range when calculating k value", default=props["max_cluster_num"])
+
+    (options, args) = parser.parse_args()
+
+    if not options.iter or options.iter < 0:
         print "Need Iteration Num for Argument"
         exit()
-    else:
-        if sys.argv[1].isdigit() or sys.argv[1]=='-iter':
-            if sys.argv[1].isdigit():
-                sys.argv.insert(1, '-iter')
-            props.update(parse_argv(sys.argv))
-        else:
-            print "Need Iteration Num for Argument"
-            exit()
+
+    props.update(vars(options))
 
     iter_n = str(props['iter'])
-    if not props.has_key('k'):
-        print "Need Cluster Num k for argument: -k 3"
-        exit()
 
     data_file = os.path.join(RESULT_PATH, props["result"].replace('Y',str(props["featureid"]))) #大表
     log = os.path.join(LOG_PATH, props["cluster_log"].replace('Y', str(props['featureid'])))
@@ -275,5 +277,4 @@ if __name__=="__main__":
 
     km = KMEANS(data_file, props)
     km.run(cluster_result, log, iter_n)
-
 
