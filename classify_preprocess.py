@@ -27,14 +27,16 @@ def get_common_section_labels(label_block, synonym_merge = True):
     """
     labels_num = {}
 
-    synonym_dict, synonym_list = get_synonym_dict(os.path.join(BASEDIR, file_configs["synonym_dict"]))
+    synonym_dict = {}
+    synonym_list = []
+    if synonym_merge:
+        synonym_dict, synonym_list = get_synonym_dict(os.path.join(BASEDIR, file_configs["synonym_dict"]))
     for s, labels in label_block.items():
         if synonym_merge:
             labels = filter_use_synonym(labels, synonym_dict)
         for l in labels:
             labels_num[l] = labels_num.get(l,0) + 1
     return [k for k in labels_num.keys() if labels_num[k] > 1]    
-
 def section_label_feature(samples, label_block, common = False, synonym_merge = True):
     """
     section_label_feature(list of sample ids, label_block) -> (list of labels, dict of features) 
@@ -59,18 +61,21 @@ def section_label_feature(samples, label_block, common = False, synonym_merge = 
     print "Have",len(labels),"labels"
 
     #同义词
-    synonym_dict, synonym_list = get_synonym_dict(os.path.join(BASEDIR, file_configs["synonym_dict"]))
+    synonym_dict = {}
+    synonym_list = []
+    if synonym_merge:
+        synonym_dict, synonym_list = get_synonym_dict(os.path.join(BASEDIR, file_configs["synonym_dict"]))
     if synonym_merge:
         labels = filter_use_synonym(labels, synonym_dict)
-    else:
-        labels = expand_all_synonym(labels, synonym_list)
+    #else:
+    #    labels = expand_all_synonym(labels, synonym_list)
     print "Have",len(labels),"labels"
     
     for s in label_block.keys():
         if synonym_merge:
             label_block[s] = filter_use_synonym(label_block[s],synonym_dict)
-        else:
-            label_block[s] = expand_use_synonym(label_block[s],synonym_list)
+    #    else:
+    #        label_block[s] = expand_use_synonym(label_block[s],synonym_list)
 
     label_feature = {}
     for i in range(len(samples)):
@@ -302,7 +307,7 @@ def read_feature_config(fn):
         d = dict((o, con.get(s,o)) for o in con.options(s))
         for k, v in d.items():
             if v.isdigit():
-                d[k] = bool(int(v))
+                d[k] = int(v)
 
         configs[s] = d
 
@@ -366,9 +371,9 @@ def run(configs, file_cfg):
     log = {}
 
     db = DB()
-    if len(fconfigs["sample_filter_dir"]) > 0:
+    if fconfigs["sample_filter_dir"] and len(fconfigs["sample_filter_dir"]) > 0:
         db.filter(fconfigs["sample_filter_dir"].split(","))
-    if len(fconfigs["sample_filter_file"]) > 0:
+    if fconfigs["sample_filter_file"] and len(fconfigs["sample_filter_file"]) > 0:
         db.filter(fconfigs["sample_filter_file"],type="file")
 
     class_block = {}
@@ -406,7 +411,7 @@ def run(configs, file_cfg):
     features.append(dict((k,"") for k in sample_block))
 
     ##################  section label  ####################
-    if fconfigs["section_label"] and not fconfigs["merge_label"]: #如果配置里有section_label
+    if fconfigs.get("section_label",0): #如果配置里有section_label
         o_label_block = db.get_sample2section()
 
         label_block = filter_label(o_label_block)
@@ -419,7 +424,7 @@ def run(configs, file_cfg):
         record_left_label(o_label_block, labels, left_section_file)
 
     ###################  block label  ####################
-    if fconfigs["block_label"] and not fconfigs["merge_label"]: #如果配置里有block_label
+    if fconfigs.get("block_label",0): #如果配置里有block_label
         o_sample_bl = db.get_sample2subsection()
 
         sample_bl = filter_label(o_sample_bl)#过滤掉格式不符合要求的label
@@ -430,17 +435,8 @@ def run(configs, file_cfg):
 
         record_left_label(o_sample_bl, sublabels, left_block_file)
 
-    ################### merge section and block label ############
-    if fconfigs["merge_label"]: #如果配置里有merge_label, 即同样文本的section和block label被看作是同一label
-        sample_sl = db.get_sample2section()
-        sample_bl = db.get_sample2subsection()
-
-        labels, label_feature = merge_label_feature(sample_block, sample_sl, sample_bl, fconfigs["label_common"])
-        fields.append(labels)
-        features.append(label_feature)
-
     ################## title keyword tfidf  #####################
-    if fconfigs["title_tfidf"]:
+    if fconfigs.get("title_tfidf",0):
         sent_segs = read_segmentation(file_configs["title_word_segmentation"])
         #segmetation_result(sent_segs, "../etc/title_keywords.txt")
         title_keywords = get_title_keywords(sent_segs)
@@ -453,7 +449,7 @@ def run(configs, file_cfg):
         features.append(title_tfidf)
 
     ###################  content keyword  ###################
-    if fconfigs["document_tfidf"]:
+    if fconfigs.get("document_tfidf",0):
         #kws, kw_feature = db.keyword_feature()
         #kws = db.get_keywords()
         #doc_seg = db.read_segmentation()
@@ -482,13 +478,13 @@ def run(configs, file_cfg):
     #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
 
     ############## record feature count ##############
-    if fconfigs["section_label"] or fconfigs["block_label"] or fconfigs["merge_label"]:
+    if fconfigs.get("section_label",0) or fconfigs.get("block_label",0):
         count = 1
         with codecs.open(file_col,"w") as f:
-            if fconfigs["section_label"] and not fconfigs["merge_label"]:
+            if fconfigs.get("section_label",0):
                 f.write("section_count="+str(len(fields[count]))+"\n")
                 count = 1
-            if fconfigs["block_label"] and not fconfigs["merge_label"]:
+            if fconfigs.get("block_label",0):
                 f.write("block_count="+str(len(fields[count]))+"\n")
                 count = 1
             f.write("feature_count="+str(len(feature_fields(fields))))
@@ -497,16 +493,16 @@ def run(configs, file_cfg):
     features.append(dict((k,k) for k in sample_block))
 
     label_block = db.get_sample2section()
-    if fconfigs["section_label"]:
+    if fconfigs.get("section_label",0):
         fields.append(["section label"])
         features.append(dict((k,"#".join(label_block[k])) for k in sample_block ))
     
     sample_sl = db.get_sample2subsection()
-    if fconfigs["block_label"]:
+    if fconfigs.get("block_label",0):
         fields.append(["block label"])
         features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 
-    if fconfigs["no_feature"]:
+    if fconfigs.get("no_feature",0):
         print "Delete no feature samples"
         no_feature_samples = []
         for s in sample_block:
@@ -547,9 +543,33 @@ if __name__=="__main__":
     configs = read_feature_config(os.path.join(BASEDIR, DOC_FEATURE_FILE))[0][1]
     configs = dict(configs)
     configs.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
-    file_cfg = os.path.join(BASEDIR, FILE_FILE)
+    print "origin config:",configs,len(configs)
 
-    if len(sys.argv) > 1:
-        configs.update(parse_argv(sys.argv))
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-o", "--output_path", dest="output_path", help="Set output path", default=configs["output_path"])
+    parser.add_option("-l", "--log_path", dest="log_path", help="Set log path", default=configs["log_path"])
+    parser.add_option("-s", "--section_label", dest="section_label", type="int", help="If feature contains section label. 1(Yes), 0(No)", default=configs["section_label"])
+    parser.add_option("-b", "--block_label", dest="block_label", type="int", help="If feature contains block label. 1(Yes), 0(No)", default=configs["block_label"])
+    parser.add_option("-t", "--title_tfidf", dest="title_tfidf", type="int", help="If feature contains title tfidf, need title tfidf file. 1(Yes), 0(No)", default=configs["title_tfidf"])
+    parser.add_option("-d", "--document_tfidf", dest="document_tfidf", type="int", help="If feature contains document tfidf, need document tfidf file. 1(Yes), 0(No)", default=configs["document_tfidf"])
+    parser.add_option("-k", "--document_keyword", dest="document_keyword", type="int", help="If feature contains document keyword, need document keyword file. 1(Yes), 0(No)", default=configs["document_keyword"])
+    parser.add_option("-H", "--hub", dest="hub", type="int", help="If extract hub files and save. 1(Yes), 0(No)", default=configs["hub"])
+    parser.add_option("-a", "--attribute", dest="attribute", type="int", help="If extract attribute files and save. 1(Yes), 0(No)", default=configs["attribute"])
+    parser.add_option("-n", "--no_feature", dest="no_feature", type="int", help="If extract no feature files and save. 1(Yes), 0(No)", default=configs["no_feature"])
+    parser.add_option("-c", "--label_common", dest="label_common", type="int", help="If only retain labels which occur twice. 1(Yes), 0(No)", default=configs["label_common"])
+    parser.add_option("-S", "--synonym_merge", dest="synonym_merge", type="int", help="If use synonyms and merge synonyms as one word. 1(Yes), 0(No)", default=configs["synonym_merge"])
+    parser.add_option("-D", "--sample_filter_dir", dest="sample_filter_dir", help="Use samples in specific dir", default=configs["sample_filter_dir"])
+    parser.add_option("-f", "--sample_filter_file", dest="sample_filter_file",help="Use samples in specific list, the sample list is read from sample_filter_file", default=configs["sample_filter_file"])
+
+    (options, args) = parser.parse_args()
+    options = vars(options)
+    print "options",options
+
+    if len(options) > 1:
+        configs.update(options)
+    print "final configs:",configs
+
+    file_cfg = os.path.join(BASEDIR, FILE_FILE)
 
     run(configs, file_cfg)
