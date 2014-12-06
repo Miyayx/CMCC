@@ -23,9 +23,9 @@ class LowAccuracy(Exception):
 
 class SVM:
 
-    def __init__(self, data_file, props):
+    def __init__(self, data_file, configs):
 
-        self.lowest_accuracy = float(props["lowest_accuracy"])
+        self.lowest_accuracy = float(configs["lowest_accuracy"])
         self.train_test_ratio = 2.0/1
         self.classifer = svm.SVC(kernel='linear', C=1)
 
@@ -253,37 +253,39 @@ class SVM:
 if __name__=="__main__":
     import sys
 
-    props = read_properties(os.path.join(BASEDIR, PROP_FILE))
-    props.update(read_properties(os.path.join(BASEDIR, NAME_FILE)))
-    props.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
+    configs = read_properties(os.path.join(BASEDIR, PROP_FILE))
+    configs.update(read_properties(os.path.join(BASEDIR, NAME_FILE)))
+    configs.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
 
-    if len(sys.argv) < 2:
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Classify", default=-1)
+    parser.add_option("-f", "--featureid", dest="featureid", type="int", help="Feature id", default=configs["featureid"])
+    parser.add_option("-a", "--lowest_accuracy", dest="lowest_accuracy", type="float", help="Lowest test accuracy. If result is lower than it, stop", default=configs["lowest_accuracy"])
+
+    (options, args) = parser.parse_args()
+
+    if not options.iter or options.iter < 0:
         print "Need Iteration Num for Argument"
         exit()
-    else:
-        if sys.argv[1].isdigit() or sys.argv[1]=='-iter':
-            if sys.argv[1].isdigit():
-                sys.argv.insert(1, '-iter')
-            props.update(parse_argv(sys.argv))
-        else:
-            print "Need Iteration Num for Argument"
-            exit()
+
+    configs.update(vars(options))
          
-    iter_n = str(props['iter'])
+    iter_n = str(configs['iter'])
 
     import time
     start = time.time()
 
-    data_file = os.path.join(RESULT_PATH,props["result"].replace('Y',str(props["featureid"])))
-    classify_train= os.path.join(RESULT_PATH, props["classify_train"].replace('Y',str(props["featureid"])).replace('X',str(iter_n)))
-    classify_test= os.path.join(RESULT_PATH, props["classify_test"].replace('Y', str(props["featureid"])).replace('X',str(iter_n)))
-    classify_predict= os.path.join(RESULT_PATH, props["classify_predict"].replace('Y', str(props["featureid"])).replace('X',str(iter_n)))
-    classify_test_result= os.path.join(RESULT_PATH, props["classify_test_result"].replace('Y',str(props["featureid"])).replace('X',str(iter_n)))
-    classify_test_statistics= os.path.join(RESULT_PATH, props["classify_test_statistics"].replace('Y',str(props["featureid"])).replace('X', str(iter_n)))
-    log = os.path.join(LOG_PATH, props["classify_log"].replace('Y', str(props['featureid'])))
+    data_file = os.path.join(RESULT_PATH,configs["result"].replace('Y',str(configs["featureid"])))
+    classify_train= os.path.join(RESULT_PATH, configs["classify_train"].replace('Y',str(configs["featureid"])).replace('X',str(iter_n)))
+    classify_test= os.path.join(RESULT_PATH, configs["classify_test"].replace('Y', str(configs["featureid"])).replace('X',str(iter_n)))
+    classify_predict= os.path.join(RESULT_PATH, configs["classify_predict"].replace('Y', str(configs["featureid"])).replace('X',str(iter_n)))
+    classify_test_result= os.path.join(RESULT_PATH, configs["classify_test_result"].replace('Y',str(configs["featureid"])).replace('X',str(iter_n)))
+    classify_test_statistics= os.path.join(RESULT_PATH, configs["classify_test_statistics"].replace('Y',str(configs["featureid"])).replace('X', str(iter_n)))
+    log = os.path.join(LOG_PATH, configs["classify_log"].replace('Y', str(configs['featureid'])))
 
-    svm = SVM(data_file, props)
+    svm = SVM(data_file, configs)
     svm.run(classify_train, classify_test, classify_predict, classify_test_result, classify_test_statistics,log,iter_n)
 
-    print "Time Consuming:",(time.time()-start)
+    print "Time Consuming:%3f"%(time.time()-start)
         

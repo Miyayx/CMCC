@@ -10,62 +10,62 @@ from global_config import *
 
 """
 标注操作，目前有两种可选方法：
-1. 自动标注 auto_annotaion
+1. 自动标注 auto_flag
    通过配置文件选择的正例簇与负例簇，自动从每个簇中随机挑选指定比例的样本并进行标注
-2. 使用数据库存储的人工标注信息进行标注 db_annotaion
+2. 使用数据库存储的人工标注信息进行标注 db_flag
    通过配置文件指定的正例类别，从数据库中已标注为此类别的样本作为标注正例，从其他簇中随机挑选指定比例的样本并标注成负例
 """
 
+def choose_flag(c_sl, ratio):
+    """
+    随机抽取每个簇的30%的样本作为标注数据
+    Args
+    -----------------------------------
+    c_sl:dict
+        key: cluster id, value: sample list
+    Returns
+        被选定为标注数据的sample list
+    """
+    chosen = []
+
+    total = sum(len(v) for v in c_sl.values())
+    print "Total:",total
+    a_total = ratio * total #选总数的30%
+    print "Flag:",a_total
+
+    for c, sl in c_sl.items():
+        a_num = a_total * (len(sl)*1.0/total) #根据此簇所占总样本数的比例，计算此簇应该标记的样本数量
+        a_num = int(a_num)
+        if a_num == 0:
+            a_num = 1 #每个簇至少标记一个样本
+        print "Flag",str(a_num),"in cluster",str(c)
+        r = Random()
+        chosen += r.sample(sl, a_num)
+
+        return chosen
+
 def read_config(cfg_file):
     """
-    读取annotation配置文件
+    读取flag配置文件
     """
     configs = {}
     con = ConfigParser.RawConfigParser()
     con.read(cfg_file)
-    configs = dict((o, con.get("annotation",o)) for o in con.options("annotation"))
+    configs = dict((o, con.get("flag",o)) for o in con.options("flag"))
     return configs
 
-def auto_annotation(cfg_file, a_file, iter_n):
+def auto_flag(configs, a_file, iter_n):
     """
     根据指定的正簇号和它的类别，认为指定簇都是正例，选取其中的30%标注成指定类别
     选取其他簇的样本总数的30%为负例。应保证每个簇都有样本标注，标注数量与次簇数量成正比
     如果指定标注样本有标注记录，则从标注记录中读取原标注记录
     Args:
     ---------------------------------
-      cfg_file:annotation 配置文件
+      configs :配置
       a_file  :标注结果要写入的文件
       iter_n  :第几次迭代
     """
 
-    def choose_annotation(c_sl):
-        """
-        随机抽取每个簇的30%的样本作为标注数据
-        Args
-        c_sl:dict
-            key: cluster id, value: sample list
-        Returns
-            被选定为标注数据的sample list
-        """
-        chosen = []
-
-        total = sum(len(v) for v in c_sl.values())
-        print "Total:",total
-        a_total = 0.3 * total #选总数的30%
-        print "Annotation:",a_total
-
-        for c, sl in c_sl.items():
-            a_num = a_total * (len(sl)*1.0/total) #根据此簇所占总样本数的比例，计算此簇应该标记的样本数量
-            a_num = int(a_num)
-            if a_num == 0:
-                a_num = 1 #每个簇至少标记一个样本
-            print "Annotate",str(a_num),"in cluster",str(c)
-            r = Random()
-            chosen += r.sample(sl, a_num)
-
-        return chosen
-
-    configs = read_config(cfg_file)
     pos_c = configs["cluster"].split(",") #正例簇号
 
     csv = CSVIO(a_file)
@@ -82,60 +82,30 @@ def auto_annotation(cfg_file, a_file, iter_n):
     print "Negative Cluster:",neg.keys()
 
     a_result = {}
-    for c in choose_annotation(pos): 
+    for c in choose_flag(pos, float(configs["flag_ratio"])): 
         #标记正例（类别名称来源于配置文件）
         a_result[c] = configs["pos_class"].decode("utf-8")
-    for c in choose_annotation(neg): 
+    for c in choose_flag(neg, float(configs["flag_ratio"])): 
         #标记负例（类别名称来源于配置文件）
         a_result[c] = configs["neg_class"].decode("utf-8")
 
     csv.column("flag"+str(iter_n), a_result)
     csv.write(a_file, sort_index = cluster_i)
 
-def db_annotation(db_config, cfg_file, a_file, iter_n):
+def db_flag(configs, a_file, iter_n):
     """
     根据指定的正簇号和它的类别，认为指定簇都是正例，选取其中的30%标注成指定类别
     选取其他簇的样本总数的30%为负例。应保证每个簇都有样本标注，标注数量与次簇数量成正比
     如果指定标注样本有标注记录，则从标注记录中读取原标注记录
     Args:
     ---------------------------------
-      db_config: db配置文件
-      cfg_file:annotation 配置文件
+      configs :配置
       a_file  :标注结果要写入的文件
       iter_n  :第几次迭代
     """
 
-    def choose_annotation(c_sl):
-        """
-        随机抽取每个簇的30%的样本作为标注数据
-        Args
-        -----------------------------------
-        c_sl:dict
-            key: cluster id, value: sample list
-        Returns
-            被选定为标注数据的sample list
-        """
-        chosen = []
+    db = DB(c=configs["mongo.collection"])
 
-        total = sum(len(v) for v in c_sl.values())
-        print "Total:",total
-        a_total = 0.3 * total #选总数的30%
-        print "Annotation:",a_total
-
-        for c, sl in c_sl.items():
-            a_num = a_total * (len(sl)*1.0/total) #根据此簇所占总样本数的比例，计算此簇应该标记的样本数量
-            a_num = int(a_num)
-            if a_num == 0:
-                a_num = 1 #每个簇至少标记一个样本
-            print "Annotate",str(a_num),"in cluster",str(c)
-            r = Random()
-            chosen += r.sample(sl, a_num)
-
-        return chosen
-
-    db = DB(db_config)
-
-    configs = read_config(cfg_file)
     pos_flag = configs["pos_class"].decode("utf-8")
     print "Pos Flag:", pos_flag
 
@@ -159,7 +129,7 @@ def db_annotation(db_config, cfg_file, a_file, iter_n):
     for c in pos_samples: 
         #标记正例（类别名称来源于配置文件）
         a_result[c] = pos_flag
-    for c in choose_annotation(neg): 
+    for c in choose_flag(neg, float(configs["flag_ratio"])): 
         #标记负例（类别名称来源于配置文件）
         a_result[c] = configs["neg_class"].decode("utf-8")
 
@@ -170,41 +140,47 @@ def db_annotation(db_config, cfg_file, a_file, iter_n):
 if __name__=="__main__":
     import sys
 
-    props = read_properties(os.path.join(BASEDIR, PROP_FILE))
-    props.update(read_properties(os.path.join(BASEDIR, NAME_FILE)))
-    props.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
+    configs = read_properties(os.path.join(BASEDIR, PROP_FILE))
+    configs.update(read_properties(os.path.join(BASEDIR, NAME_FILE)))
+    configs.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
+    configs.update(read_config(os.path.join(BASEDIR, ANNOTATION_FILE)))
+    configs.update(read_properties(os.path.join(BASEDIR, DB_FILE)))
 
-    if len(sys.argv) < 2:
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Classify", default=-1)
+    parser.add_option("-f", "--featureid", dest="featureid", type="int", help="Feature id", default=configs["featureid"])
+    parser.add_option("-m", "--method", dest="method", type="string", help="Flag method: auto, db", default="auto")
+    parser.add_option("-r", "--flag_ratio", dest="flag_ratio", type="float", help="Flag ratio of all samples", default=configs["flag_ratio"])
+    parser.add_option("-c", "--cluster", dest="cluster", type="string", help="Positive sample cluster ids, split by . Example:0,2,3", default=configs["cluster"])
+    parser.add_option("-p", "--pos_class", dest="pos_class", type="string", help="Positive class name", default=configs["pos_class"])
+    parser.add_option("-n", "--neg_class", dest="neg_class", type="string", help="Negative class name", default=configs["neg_class"])
+    parser.add_option("-C", "--collection", dest="mongo.collection", type="string", help="DB collection which provides flag info", default=configs["mongo.collection"])
+
+    (options, args) = parser.parse_args()
+
+    if not options.iter or options.iter < 0:
         print "Need Iteration Num for Argument"
         exit()
-    else:
-        if sys.argv[1].isdigit() or sys.argv[1]=='-iter':
-            if sys.argv[1].isdigit():
-                sys.argv.insert(1, '-iter')
-            props.update(parse_argv(sys.argv))
-        else:
-            print "Need Iteration Num for Argument"
-            exit()
 
-    a_type = props.get('m','auto')# set annotation method, default is auto_annotation
-         
-    iter_n = str(props['iter'])
+    a_type = options.method# set flag method, default is auto_flag
+
+    configs.update(vars(options))
+
+    iter_n = str(configs['iter'])
 
     import time
     start = time.time()
 
-    from cluster import *
-
-    data_file = os.path.join(RESULT_PATH, props["result"].replace('Y', str(props["featureid"])))
+    data_file = os.path.join(RESULT_PATH, configs["result"].replace('Y', str(configs["featureid"])))
 
     if a_type == "auto":
-        auto_annotation(os.path.join(BASEDIR, ANNOTATION_FILE), data_file, iter_n)
+        auto_flag(configs, data_file, iter_n)
     elif a_type == "db":
-        db_annotation(os.path.join(BASEDIR, ANNOTATION_FILE), data_file, iter_n)
+        db_flag(configs, data_file, iter_n)
     else:
-        print "Wrong annotation method selected."
+        print "Wrong flag method selected."
         print "Input: auto, db"
 
-    print "Time Consuming:",(time.time()-start)
-
+    print "Time Consuming:%3f"%(time.time()-start)
 
