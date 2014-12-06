@@ -98,7 +98,7 @@ def run(configs,file_cfg):
 
         sample_bl = filter_label(o_sample_bl)
 
-        blabels, blabel_feature = subsection_label_feature(sample_block, sample_bl, fconfigs["label_common"])
+        blabels, blabel_feature = label_feature(sample_block, sample_bl, fconfigs["label_common"])
         fields.append(blabels)
         features.append(blabel_feature)
 

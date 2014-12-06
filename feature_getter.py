@@ -185,7 +185,7 @@ def title_keyword_feature(samples):
         title_kw_feature[sample] = fs
     return title_keywords2, title_kw_feature
 
-def subsection_label_feature(sample_block, sample_sl, common = False):
+def label_feature(sample_block, sample_sl, common = False):
     if common:
         sublabels = get_common_labels([sample_sl])
     else:
@@ -200,23 +200,6 @@ def subsection_label_feature(sample_block, sample_sl, common = False):
             else:
                 sublabel_feature[s].append(0)
     return sublabels, sublabel_feature
-
-def merge_label_feature(sample_block, sample_sl, sample_bl, common = False):
-    if common:
-        mlabels = get_common_labels([sample_sl, sample_bl])
-    else:
-        mlabels = get_labels([sample_sl])
-    mlabel_feature = {}
-    for s in sample_block:
-        labels = list(sample_sl.get(s,[]))
-        labels += list(sample_bl.get(s,[]))
-        mlabel_feature[s] = []
-        for l in mlabels:
-            if l in labels:
-                mlabel_feature[s].append(labels.count(l))
-            else:
-                mlabel_feature[s].append(0)
-    return mlabels, mlabel_feature
 
 def get_doc_keywords(sample_key):
     """

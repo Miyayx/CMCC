@@ -102,7 +102,7 @@ def run(configs, file_cfg):
 
         sample_sl = filter_label(o_sample_sl)
 
-        slabels, slabel_feature = subsection_label_feature(sample_block, sample_sl, fconfigs["label_common"])
+        slabels, slabel_feature = label_feature(sample_block, sample_sl, fconfigs["label_common"])
         fields.append(slabels)
         features.append(slabel_feature)
         record_left_label(o_sample_sl, slabels, left_section_file)
@@ -113,7 +113,7 @@ def run(configs, file_cfg):
 
         sample_bl = filter_label(o_sample_bl)
 
-        blabels, blabel_feature = subsection_label_feature(sample_block, sample_bl, fconfigs["label_common"])
+        blabels, blabel_feature = label_feature(sample_block, sample_bl, fconfigs["label_common"])
         fields.append(blabels)
         features.append(blabel_feature)
         record_left_label(o_sample_bl, blabels, left_block_file)
