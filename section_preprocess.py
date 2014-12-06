@@ -230,9 +230,28 @@ if __name__=="__main__":
     configs = read_feature_config(os.path.join(BASEDIR, SECTION_FEATURE_FILE))[0][1]
     configs = dict(configs)
     configs.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
-    file_cfg = os.path.join(BASEDIR, FILE_FILE)
 
-    if len(sys.argv) > 1:
-        configs.update(parse_argv(sys.argv))
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-o", "--output_path", dest="output_path", help="Set output path", default=configs["output_path"])
+    parser.add_option("-l", "--log_path", dest="log_path", help="Set log path", default=configs["log_path"])
+    parser.add_option("-b", "--block_label", dest="block_label", type="int", help="If feature contains block label. 1(Yes), 0(No)", default=configs["block_label"])
+    parser.add_option("-t", "--table_header", dest="table_header", type="int", help="If feature contains table header. 1(Yes), 0(No)", default=configs["table_header"])
+    parser.add_option("-T", "--title_tfidf", dest="title_tfidf", type="int", help="If feature contains title tfidf, need title tfidf file. 1(Yes), 0(No)", default=configs["title_tfidf"])
+    parser.add_option("-d", "--document_tfidf", dest="document_tfidf", type="int", help="If feature contains document tfidf, need document tfidf file. 1(Yes), 0(No)", default=configs["document_tfidf"])
+    parser.add_option("-k", "--document_keyword", dest="document_keyword", type="int", help="If feature contains document keyword, keyword is acquired from db. 1(Yes), 0(No)", default=configs["document_keyword"])
+    parser.add_option("-n", "--no_feature", dest="no_feature", type="int", help="If extract no feature files and save. 1(Yes), 0(No)", default=configs["no_feature"])
+    parser.add_option("-c", "--label_common", dest="label_common", type="int", help="If only retain labels which occur twice. 1(Yes), 0(No)", default=configs["label_common"])
+    parser.add_option("-D", "--sample_filter_dir", dest="sample_filter_dir", help="Use samples in specific dir", default=configs["sample_filter_dir"])
+    parser.add_option("-f", "--sample_filter_file", dest="sample_filter_file",help="Use samples in specific list, the sample list is read from sample_filter_file", default=configs["sample_filter_file"])
+    parser.add_option("-C", "--collection", dest="mongo.collection", type="string", help="DB collection", default=configs["mongo.collection"])
+
+    (options, args) = parser.parse_args()
+    options = vars(options)
+
+    if len(options) > 1:
+        configs.update(options)
+
+    file_cfg = os.path.join(BASEDIR, FILE_FILE)
 
     run(configs, file_cfg)

@@ -22,18 +22,18 @@ if __name__=="__main__":
     props.update(read_properties(os.path.join(BASEDIR, NAME_FILE)))#文件名配置
     props.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))#路径配置
 
-    #命令行参数第一个要求必须是本次迭代次数，通过是否是数字来判断参数是否输入正确
-    if len(sys.argv) < 2:
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Cluster", default=props["iter"])
+    parser.add_option("-f", "--featureid", dest="featureid", type="int", help="Feature id", default=configs["featureid"])
+
+    (options, args) = parser.parse_args()
+
+    if not options.iter or options.iter < 0:
         print "Need Iteration Num for Argument"
         exit()
-    else:
-        if sys.argv[1].isdigit() or sys.argv[1]=='-iter':
-            if sys.argv[1].isdigit():
-                sys.argv.insert(1, '-iter')
-            props.update(parse_argv(sys.argv))
-        else:
-            print "Need Iteration Num for Argument"
-            exit()
+
+    props.update(vars(options))
          
     iter_n = str(props['iter'])
 

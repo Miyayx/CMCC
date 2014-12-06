@@ -12,18 +12,17 @@ from bs4 import BeautifulStoneSoup
 class DB():
     all_samples= []
 
-    def __init__(self, configfile=None):
-        import ConfigParser
-        if not configfile:
-            configfile = os.path.join(BASEDIR, DB_FILE)
+    def __init__(self, c=None, h=None, p=None, d=None):
+        configfile = os.path.join(BASEDIR, DB_FILE)
 
         #读取配置文件
         config = read_properties(configfile)
-        ip = config["mongo.host"]
-        dbname = config["mongo.dbname"]
-        cname = config["mongo.collection"]
+        ip = config["mongo.host"] if not h else h
+        port = config["mongo.port"] if not p else p
+        dbname = config["mongo.dbname"] if not d else d
+        cname = config["mongo.collection"] if not c else c
 
-        client = MongoClient(ip)
+        client = MongoClient(host=ip,port=port)
         db = client[dbname]
         self.collection = db[cname]
 

@@ -560,7 +560,8 @@ if __name__=="__main__":
     parser.add_option("-c", "--label_common", dest="label_common", type="int", help="If only retain labels which occur twice. 1(Yes), 0(No)", default=configs["label_common"])
     parser.add_option("-S", "--synonym_merge", dest="synonym_merge", type="int", help="If use synonyms and merge synonyms as one word. 1(Yes), 0(No)", default=configs["synonym_merge"])
     parser.add_option("-D", "--sample_filter_dir", dest="sample_filter_dir", help="Use samples in specific dir", default=configs["sample_filter_dir"])
-    parser.add_option("-f", "--sample_filter_file", dest="sample_filter_file",help="Use samples in specific list, the sample list is read from sample_filter_file", default=configs["sample_filter_file"])
+    parser.add_option("-F", "--sample_filter_file", dest="sample_filter_file",help="Use samples in specific list, the sample list is read from sample_filter_file", default=configs["sample_filter_file"])
+    parser.add_option("-C", "--collection", dest="mongo.collection", type="string", help="DB collection", default=configs["mongo.collection"])
 
     (options, args) = parser.parse_args()
     options = vars(options)

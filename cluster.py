@@ -57,6 +57,9 @@ class KMEANS:
 
         self.names,self.X = self.get_data(self.data_file)
 
+        #record other samples
+        write_lines(props["neg_file"], self.names)
+
         if self.k < 0: #如果k为-1，即没有指定k值，则计算k出来
             self.k = self.calculate_k(self.X, self.init)
 
@@ -242,9 +245,9 @@ class KMEANS:
 if __name__=="__main__":
     import sys
 
-    props = read_properties(os.path.join(BASEDIR, PROP_FILE))
-    props.update(read_properties(os.path.join(BASEDIR, NAME_FILE)))
-    props.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
+    props = read_properties(os.path.join(BASEDIR, PROP_FILE))#总配置
+    props.update(read_properties(os.path.join(BASEDIR, NAME_FILE)))#文件名配置
+    props.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))#路径配置
 
     props['k'] = -1
     props['init'] = 'k-means++'
@@ -253,6 +256,7 @@ if __name__=="__main__":
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Cluster", default=props["iter"])
+    parser.add_option("-f", "--featureid", dest="featureid", type="int", help="Feature id", default=configs["featureid"])
     parser.add_option("-k", "--k", dest="k", type="int", help="K value of KMeans Cluster. If not specified, k will be automatically calculated", default=props["k"])
     parser.add_option("-s", "--seed", dest="init", type="string", help="Method for Seed Selection. kmeans++, even, spss, density.Default:kmeans++", default=props["init"])
     parser.add_option("-l", "--min_cluster_num", dest="min_cluster_num", type="int", help="minimum(lower limit) of k range when calculating k value", default=props["min_cluster_num"])
