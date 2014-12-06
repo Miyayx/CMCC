@@ -57,9 +57,6 @@ class KMEANS:
 
         self.names,self.X = self.get_data(self.data_file)
 
-        # record others sample
-        write_lines(props["neg_file"], self.names)
-        
         if self.k < 0: #如果k为-1，即没有指定k值，则计算k出来
             self.k = self.calculate_k(self.X, self.init)
 
@@ -257,9 +254,10 @@ if __name__=="__main__":
     parser = OptionParser()
     parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Cluster", default=props["iter"])
     parser.add_option("-k", "--k", dest="k", type="int", help="K value of KMeans Cluster. If not specified, k will be automatically calculated", default=props["k"])
-    parser.add_option("-s", "--seed", dest="init", type="str", help="Method for Seed Selection. kmeans++, even, spss, density.Default:kmeans++", default=props["init"])
+    parser.add_option("-s", "--seed", dest="init", type="string", help="Method for Seed Selection. kmeans++, even, spss, density.Default:kmeans++", default=props["init"])
     parser.add_option("-l", "--min_cluster_num", dest="min_cluster_num", type="int", help="minimum(lower limit) of k range when calculating k value", default=props["min_cluster_num"])
     parser.add_option("-u", "--max_cluster_num", dest="max_cluster_num", type="int", help="maximum(upper limit) of k range when calculating k value", default=props["max_cluster_num"])
+    parser.add_option("-r", "--stop_ratio", dest="stop_ratio", type="float", help="Iteration will stop when ratio% samples left", default=props["stop_ratio"])
 
     (options, args) = parser.parse_args()
 
