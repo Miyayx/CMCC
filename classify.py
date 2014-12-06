@@ -174,8 +174,8 @@ class SVM:
           score：测试准确率
         """
         print "Precision:%0.3f\n"%score
-        import annotation
-        c = annotation.read_config(os.path.join(BASEDIR, ANNOTATION_FILE))
+        import flag
+        c = flag.read_config(os.path.join(BASEDIR, ANNOTATION_FILE))
         neg = c["neg_class"]
         pos_pos = pos_neg = neg_pos = neg_neg = 0
         for i in range(len(Y_test)):
