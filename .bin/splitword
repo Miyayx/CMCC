@@ -1,0 +1,11 @@
+#!/bin/sh
+ 
+BASE=..
+PWD=`pwd`
+
+# split word by CMCC service
+echo 'Splitting word ...'
+cd $BASE/modules/splitword
+ant run -Dcmd="$*"
+cd $PWD
+echo 'Splitting word completes, results has been stored in MongoDB.'

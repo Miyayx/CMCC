@@ -1,0 +1,45 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+if [ $# -lt '1' ]
+  then
+    echo "Need classify type and output path name as argument"
+    echo "./clsdata -l type"
+    echo "Classify type: document, section, table"
+    exit 1
+fi
+
+# cluster-classify iteration preparation
+echo 'Preparing ducoment and feature data for iteration ...'
+cd $BASE/modules/classify
+if [[ "$1" == "document" ]]
+  then
+    # record path 
+    echo output_path=./data/DocClassify/ > $BASE/conf/classify/path.properties
+    echo log_path=./logs/DocClassify/ >> $BASE/conf/classify/path.properties
+    echo "The data output path will be 'data/DocClassify'"
+    echo "The log output path will be 'log/DocClassify'"
+    chmod +x start.sh
+    ./start.sh 
+fi
+if [[ "$1" == "section" ]]
+  then
+    echo output_path=./data/SectionClassify/ > $BASE/conf/classify/path.properties
+    echo log_path=./logs/SectionClassify/ >> $BASE/conf/classify/path.properties
+    echo "The data output path will be 'data/SectionClassify'"
+    echo "The log output path will be 'log/SectionClassify'"
+    chmod +x section_start.sh
+    ./section_start.sh 
+fi
+if [[ "$1" == "table" ]]
+  then
+    echo output_path=./data/TableClassify/ > $BASE/conf/classify/path.properties
+    echo log_path=./logs/TableClassify/ >> $BASE/conf/classify/path.properties
+    echo "The data output path will be 'data/TableClassify'"
+    echo "The log output path will be 'log/TableClassify'"
+    chmod +x table_start.sh
+    ./table_start.sh 
+fi
+cd $PWD
+echo 'Done.'

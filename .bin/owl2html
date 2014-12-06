@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Mobile Ontology to HTML
+echo 'Ontology to HTML ...'
+cd $BASE/modules/ontology
+ant owl2html -Dcmd="$*"
+cd $PWD
+13 echo 'Core ontology generated into HTML files.'

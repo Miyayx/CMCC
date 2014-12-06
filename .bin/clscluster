@@ -1,0 +1,12 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# cluster iteration
+echo 'Run clustering ...'
+cd $BASE/modules/classify/
+python cluster.py $1
+#  ant cluster -Diter=$1
+cd $PWD
+echo $1' clustering done.'

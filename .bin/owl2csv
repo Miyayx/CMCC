@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Mobile Ontology to CSV
+echo 'CMCC core ontology CSV generating ...'
+cd $BASE/modules/ontology
+ant csv -Dcmd="$*"
+cd $PWD
+echo 'Core ontology generated into CSV files.'

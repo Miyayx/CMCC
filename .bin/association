@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Association
+echo 'Association rule analyzing ...'
+cd $BASE/modules/association
+ant -Dcmd="$*"
+cd $PWD
+echo 'Association rule analyzing result has been stored in files.'

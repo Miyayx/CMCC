@@ -1,0 +1,12 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# classify iteration
+echo 'Run classifying ...'
+cd $BASE/modules/classify
+python classify.py $1
+#  ant classify -Diter=$1
+cd $PWD
+echo $1' classifying done.'

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Document Parsing
+echo 'Document parsing ...'
+cd $BASE/modules/docparse
+ant run -Dcmd="$*"
+cd $PWD
+echo 'Document parsing result has been stored in MongoDB.'

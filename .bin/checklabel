@@ -1,0 +1,11 @@
+#!/bin/sh
+
+BASE=..
+PWD=`pwd`
+
+# Check Mongo Section|block|table header
+echo 'Document parsed label checking ...'
+cd $BASE/modules/checklabel
+ant run -Dcmd="$*"
+cd $PWD
+echo 'Check result has been strored in file.'
