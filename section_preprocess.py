@@ -125,16 +125,6 @@ def run(configs,file_cfg):
         fields.append(title_keywords)
         features.append(title_tfidf)
 
-    ###################  content keyword  ###################
-    if fconfigs.has_key("content_tfidf") and fconfigs["content_tfidf"]:
-        sec_segs = db.section_segmentation()
-
-        kws, kw_feature = tfidf_gensim(sec_segs)
-        print "number of content keywords:",len(kws)
-
-        fields.append(kws)
-        features.append(kw_feature)
-
    ##################################################  feature file output  ########################################
 
     #outfile = os.path.join(FEATURE_PATH, section+".csv")
@@ -154,9 +144,6 @@ def run(configs,file_cfg):
                 count += 1
             if fconfigs["title_tfidf"]:
                 f.write("title_tfidf_count="+str(len(fields[count]))+"\n")
-                count += 1
-            if fconfigs["content_tfidf"]:
-                f.write("content_tfidf_count="+str(len(fields[count]))+"\n")
                 count += 1
             f.write("feature_count="+str(len(feature_fields(fields))))
 
@@ -230,6 +217,7 @@ if __name__=="__main__":
     configs = read_feature_config(os.path.join(BASEDIR, SECTION_FEATURE_FILE))[0][1]
     configs = dict(configs)
     configs.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
+    configs.update(read_properties(os.path.join(BASEDIR, DB_FILE)))
 
     from optparse import OptionParser
     parser = OptionParser()
@@ -238,8 +226,6 @@ if __name__=="__main__":
     parser.add_option("-b", "--block_label", dest="block_label", type="int", help="If feature contains block label. 1(Yes), 0(No)", default=configs["block_label"])
     parser.add_option("-t", "--table_header", dest="table_header", type="int", help="If feature contains table header. 1(Yes), 0(No)", default=configs["table_header"])
     parser.add_option("-T", "--title_tfidf", dest="title_tfidf", type="int", help="If feature contains title tfidf, need title tfidf file. 1(Yes), 0(No)", default=configs["title_tfidf"])
-    parser.add_option("-d", "--document_tfidf", dest="document_tfidf", type="int", help="If feature contains document tfidf, need document tfidf file. 1(Yes), 0(No)", default=configs["document_tfidf"])
-    parser.add_option("-k", "--document_keyword", dest="document_keyword", type="int", help="If feature contains document keyword, keyword is acquired from db. 1(Yes), 0(No)", default=configs["document_keyword"])
     parser.add_option("-n", "--no_feature", dest="no_feature", type="int", help="If extract no feature files and save. 1(Yes), 0(No)", default=configs["no_feature"])
     parser.add_option("-c", "--label_common", dest="label_common", type="int", help="If only retain labels which occur twice. 1(Yes), 0(No)", default=configs["label_common"])
     parser.add_option("-D", "--sample_filter_dir", dest="sample_filter_dir", help="Use samples in specific dir", default=configs["sample_filter_dir"])
