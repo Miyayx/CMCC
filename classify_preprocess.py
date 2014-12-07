@@ -543,7 +543,7 @@ if __name__=="__main__":
     configs = read_feature_config(os.path.join(BASEDIR, DOC_FEATURE_FILE))[0][1]
     configs = dict(configs)
     configs.update(read_properties(os.path.join(BASEDIR, PATH_FILE)))
-    print "origin config:",configs,len(configs)
+    configs.update(read_properties(os.path.join(BASEDIR, DB_FILE)))
 
     from optparse import OptionParser
     parser = OptionParser()
@@ -565,11 +565,9 @@ if __name__=="__main__":
 
     (options, args) = parser.parse_args()
     options = vars(options)
-    print "options",options
 
     if len(options) > 1:
         configs.update(options)
-    print "final configs:",configs
 
     file_cfg = os.path.join(BASEDIR, FILE_FILE)
 

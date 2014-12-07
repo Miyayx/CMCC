@@ -275,6 +275,9 @@ def read_link_file(fn):
     读取链接关系数据
     """
     d = {}
+    if not os.path.isfile(fn):
+        raise IOError
+
     with open(fn) as f:
         line = f.readline().decode("utf-8")
         while line:

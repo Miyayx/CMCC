@@ -2,44 +2,54 @@
 
 BASE=..
 PWD=`pwd`
-if [ $# -lt '1' ]
+
+usage()
+{
+  echo 'Usage: ./clsdata -l <type> [-o <output>][configs for run file]'
+  echo 'type: document, section, table'
+  echo 'output: data or log output path name. The data output path will be "data/youroutputname". The log output path will be "log/youroutputname"'
+  echo 'configs will be pass to run command'
+  exit 1
+}
+
+if [ $# -lt '2' ]
   then
-    echo "Need classify type and output path name as argument"
-    echo "./clsdata -l type"
-    echo "Classify type: document, section, table"
-    exit 1
+    usage
 fi
 
 # cluster-classify iteration preparation
 echo 'Preparing ducoment and feature data for iteration ...'
+
+TYPE=$2
+
+case $TYPE in
+    'document') 
+        OUTPUT='DocClassify'
+        EXEC=start.sh
+        ;;
+    'section')
+        OUTPUT='SectionClassify'
+        EXEC=section_start.sh
+        ;;
+    'table')
+        OUTPUT='TableClassify'
+        EXEC=table_start.sh
+        ;;
+    *)
+        usage
+esac
+
+if [[ "$3" == "-o" ]]
+  then 
+    OUTPUT=$4
+fi
+
+echo output_path=./data/$OUTPUT/ > $BASE/conf/classify/path.properties
+echo log_path=./logs/$OUTPUT/ >> $BASE/conf/classify/path.properties
+echo "The data output path will be 'data/$OUTPUT'"
+echo "The log output path will be 'log/$OUTPUT'"
+
+
 cd $BASE/modules/classify
-if [[ "$1" == "document" ]]
-  then
-    # record path 
-    echo output_path=./data/DocClassify/ > $BASE/conf/classify/path.properties
-    echo log_path=./logs/DocClassify/ >> $BASE/conf/classify/path.properties
-    echo "The data output path will be 'data/DocClassify'"
-    echo "The log output path will be 'log/DocClassify'"
-    chmod +x start.sh
-    ./start.sh 
-fi
-if [[ "$1" == "section" ]]
-  then
-    echo output_path=./data/SectionClassify/ > $BASE/conf/classify/path.properties
-    echo log_path=./logs/SectionClassify/ >> $BASE/conf/classify/path.properties
-    echo "The data output path will be 'data/SectionClassify'"
-    echo "The log output path will be 'log/SectionClassify'"
-    chmod +x section_start.sh
-    ./section_start.sh 
-fi
-if [[ "$1" == "table" ]]
-  then
-    echo output_path=./data/TableClassify/ > $BASE/conf/classify/path.properties
-    echo log_path=./logs/TableClassify/ >> $BASE/conf/classify/path.properties
-    echo "The data output path will be 'data/TableClassify'"
-    echo "The log output path will be 'log/TableClassify'"
-    chmod +x table_start.sh
-    ./table_start.sh 
-fi
-cd $PWD
-echo 'Done.'
+chmod +x $EXEC
+./$EXEC

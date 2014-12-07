@@ -19,6 +19,7 @@ class DB():
         config = read_properties(configfile)
         ip = config["mongo.host"] if not h else h
         port = config["mongo.port"] if not p else p
+        port = int(port)
         dbname = config["mongo.dbname"] if not d else d
         cname = config["mongo.collection"] if not c else c
 
