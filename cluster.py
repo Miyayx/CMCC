@@ -27,6 +27,7 @@ class KMEANS:
             method for centroids
         """
 
+        self.props = props
         self.k = int(props["k"]) 
         self.min_cluster = int(props["min_cluster_num"])
         self.max_cluster = int(props["max_cluster_num"])
@@ -55,10 +56,14 @@ class KMEANS:
         self.result_file = result_file
         self.iter_n = iter_n 
 
-        self.names,self.X = self.get_data(self.data_file)
+        self.names, self.X, total = self.get_data(self.data_file)
+
+        if len(self.names)*1.0/total < props["stop_ratio"]:
+            print "Sample number ratio is less than %s, Iteration Stop!"%self.props["stop_ratio"]
+            return
 
         #record other samples
-        write_lines(props["neg_file"], self.names)
+        write_lines(self.props["neg_file"], self.names)
 
         if self.k < 0: #如果k为-1，即没有指定k值，则计算k出来
             self.k = self.calculate_k(self.X, self.init)
@@ -113,6 +118,7 @@ class KMEANS:
         begin = 2
         end = 0
         classify_i = 0
+        total = 0
         for line in codecs.open(data_file,'r','utf-8'):
             line = line.strip("\n").split(",")
             if not line[3].isdigit():
@@ -121,9 +127,11 @@ class KMEANS:
                     classify_i = line.index("class"+str(int(self.iter_n)-1))
                 continue
             if classify_i > 0:
+                total += 1
                 if line[classify_i] == "others":
                     data[line[0]] = [float(i) for i in line[begin:end]]
             else:
+                total += 1
                 data[line[0]] = [float(i) for i in line[begin:end]]
                 #X.append([int(i) for i in line[begin:end]])
                 #names.append(line[0])
@@ -133,7 +141,7 @@ class KMEANS:
         X = [d[1] for d in data]
         X = np.array(X)
 
-        return names,X
+        return names,X,total
 
     def append_result(self, fn, s2l):
         """
@@ -256,7 +264,7 @@ if __name__=="__main__":
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Cluster", default=props["iter"])
-    parser.add_option("-f", "--featureid", dest="featureid", type="int", help="Feature id", default=configs["featureid"])
+    parser.add_option("-f", "--featureid", dest="featureid", type="int", help="Feature id", default=props["featureid"])
     parser.add_option("-k", "--k", dest="k", type="int", help="K value of KMeans Cluster. If not specified, k will be automatically calculated", default=props["k"])
     parser.add_option("-s", "--seed", dest="init", type="string", help="Method for Seed Selection. kmeans++, even, spss, density.Default:kmeans++", default=props["init"])
     parser.add_option("-l", "--min_cluster_num", dest="min_cluster_num", type="int", help="minimum(lower limit) of k range when calculating k value", default=props["min_cluster_num"])
