@@ -483,10 +483,10 @@ def run(configs, file_cfg):
         with codecs.open(file_col,"w") as f:
             if fconfigs.get("section_label",0):
                 f.write("section_count="+str(len(fields[count]))+"\n")
-                count = 1
+                count += 1
             if fconfigs.get("block_label",0):
                 f.write("block_count="+str(len(fields[count]))+"\n")
-                count = 1
+                count += 1
             f.write("feature_count="+str(len(feature_fields(fields))))
 
     fields.append(["sample2"])

@@ -53,17 +53,18 @@ def exist_val(data, origin, fn = None, props={}):
         print "label count:",label_count
         print "db count: ",len(ls)
         if not (label_count == len(ls)):
-            print "WARNING: Length not equal"
-        print "+++++++  feature  +++++++++++++"
+            print "WARNING: label count  and db count: length not equal"
+        print "++++++++  feature  +++++++++++++"
         for i in mine_index:
-            print "    "+fields[i].encode("utf-8")
             if (not fields[i] in ls) and (fields[i] in syns):
-                print "同义词：",fields[i].encode("utf-8")
+                print "    "+fields[i].encode("utf-8")+"(同)"
+            else:
+                print "    "+fields[i].encode("utf-8")
         print "++++++++  origin  +++++++++++++"
         for l in sorted(ls):
-            print "    "+l.encode("utf-8")
             #if (l not in fields) and (l in syns):
-            #    print "同义词：",l.encode("utf-8")
+            #    print "    "+l.encode("utf-8")+"(同)"
+            print "    "+l.encode("utf-8")
         index_list.append(mine_index)
     return index_list
 
