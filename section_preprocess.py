@@ -32,14 +32,11 @@ def run(configs,file_cfg):
     configs.pop('output_path')
 
     OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])
-    FEATURE_PATH = os.path.join(RESULT_PATH, file_configs["feature_output_path"])
 
     if not os.path.isdir(RESULT_PATH):
         os.mkdir(RESULT_PATH)
     if not os.path.isdir(OTHERS_PATH):
         os.mkdir(OTHERS_PATH)
-    if not os.path.isdir(FEATURE_PATH):
-        os.mkdir(FEATURE_PATH)
     if not os.path.isdir(LOG_PATH):
         os.mkdir(LOG_PATH)
 
@@ -124,13 +121,6 @@ def run(configs,file_cfg):
 
         fields.append(title_keywords)
         features.append(title_tfidf)
-
-   ##################################################  feature file output  ########################################
-
-    #outfile = os.path.join(FEATURE_PATH, section+".csv")
-
-    #先写个原始的feature文件
-    #write_dataset(sample_block, feature_fields(fields), features, class_block, fconfigs["split"], outfile)
 
     ############## record feature count ##############
     if fconfigs["block_label"] or fconfigs['title_tfidf'] or fconfigs['content_tfidf']:
