@@ -29,7 +29,7 @@ def custom_dis(X1, X2):
     #        result[i][j] = result[j][i] = v
     x1 = np.mat(X1)
     x2 = np.mat(X2)
-    result = x1 * x2.T
+    result = x1 * x2.T + 0.01
     return np.array(1.0/result)
 
 def plot_2D(data, target, target_names, p_list=None):
@@ -225,7 +225,7 @@ class CentroidDensity(object):
             ttt = sorted(ttt)
             tmp.append(ttt[index])
         tmp = sorted(tmp)
-        dc = tmp[int(self.N/1.5)]
+        dc = tmp[int(self.N/1.2)]
         print "dc:",dc
         return dc
 
@@ -239,10 +239,10 @@ class CentroidDensity(object):
         
     def calculate(self, X, k):
 
-        for i in xrange(len(X)):
-            for j in xrange(len(X[0])):
-                if X[i][j] == 0.0:
-                    X[i][j] = 0.01
+        #for i in xrange(len(X)):
+        #    for j in xrange(len(X[0])):
+        #        if X[i][j] == 0.0:
+        #            X[i][j] = 0.01
 
         self.X = X
         self.k = k
