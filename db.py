@@ -344,7 +344,7 @@ class DB():
         Return:
             s2l: dict k:section id, v:table header
         """
-        coll = self.collection.find({"level":"paragraph","type":"Tab"})
+        coll = self.collection.find({"level":"paragraph","tableSerial":{"$gt":-1}})
         s2h = {}
         for c in coll:
             sample = c["_id"]["path"].rsplit('/',2)[0]+'/'
@@ -355,7 +355,7 @@ class DB():
                     labels += ll.split("#")
 
             if labels:
-                s2h[sample] = labels
+                s2h[sample] = s2h.get(sample,[])+labels
 
         for sample in diff_items(self.all_samples,s2h.keys()):
             s2h[sample] = []

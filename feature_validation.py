@@ -1,9 +1,8 @@
 #/usr/bin/env/python2.7
 #encoding=utf-8
 
-import os
-
 from validation import *
+from synonym import *
 
 class FeatureValidation(Validation):
 
@@ -21,7 +20,10 @@ class FeatureValidation(Validation):
         print "origin len:",len(origin)
         fields = [d.strip("\c") for d in data[0]]
         index_list = []
-        syns = get_synonym_words(os.path.join(BASEDIR, self.props['synonym_dict']))
+        syns = []
+        synd = os.path.join(BASEDIR, self.props['synonym_dict'])
+        if os.path.isfile(synd):
+            syns = get_synonym_words()
     
         left_dict = {}
         if fn:

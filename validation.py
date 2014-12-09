@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #-*-coding:UTF-8-*-
 
+import os
+
 from classify_preprocess import *
 from utils import *
-from synonym import *
 from global_config import *
 
 class Validation(object):

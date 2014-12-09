@@ -33,7 +33,7 @@ class TableValidation(Validation):
         self.validation(feature_file,options)
 
 if __name__=="__main__":
-    props = read_properties(os.path.join(BASEDIR, PATH_FILE))
+    props = read_properties(os.path.join(BASEDIR,PATH_FILE))
     props.update(read_properties(os.path.join(BASEDIR,FILE_FILE)))
     import sys
     Y = 1
