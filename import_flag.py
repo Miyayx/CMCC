@@ -40,22 +40,33 @@ def gather_flag(fn, s_f):
     csv.column("Class",s_f)
     csv.write(fn)
 
-def write_to_mongo(s_f):
+def write_to_mongo(s_f, collection):
     """
     把所有标注信息写入数据库,写到document level的flag字段中
     """
     print "Flag Num:",len(s_f)
-    print "Writing to mongo..."
-    db = DB()
+    print "Writing to mongo collection:",collection
+    db = DB(c=collection)
     db.insert_flag(s_f)
 
 if __name__ == "__main__":
     import sys
     import os
+    from utils import *
 
-    fn = sys.argv[1] if len(sys.argv) > 2 else DEFAULT_RESULT_NAME
+    configs = read_properties(os.path.join(BASEDIR, DB_FILE))
 
-    s_f = extract_flag(os.path.join(RESULT_PATH, fn))
-    gather_flag(os.path.join(RESULT_PATH, "flag_record.csv"), s_f)
-    write_to_mongo(s_f)
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-C", "--collection", dest="collection", type="string", help="DB collection", default=configs["mongo.collection"])
+    parser.add_option("-o", "--output_path", dest="output_path", help="Set output path where result file exists", default=RESULT_PATH)
+    parser.add_option("-f", "--filename", dest="filename", help="Set filename", default=DEFAULT_RESULT_NAME)
+
+    (options, args) = parser.parse_args()
+   
+    fn = os.path.join(options.output_path, options.filename)
+
+    s_f = extract_flag(fn)
+    gather_flag(os.path.join(options.output_path, "flag_record.csv"), s_f)
+    write_to_mongo(s_f, options.collection)
 

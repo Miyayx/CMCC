@@ -16,14 +16,6 @@ def gather_one_file(fn, all_s_c):
     #csv.insert_column("Class", 1, all_s_c)
     csv.write(fn)
 
-def gather_multi_file(infiles, outfile):
-    all_s_c = {}
-    for i in infiles:
-        all_s_c.update(get_sample2class(i))
-    csv = CSVIO(outfile)
-    csv.column("Class",all_s_c)
-    csv.write(outfile)
-
 def get_sample2class(fn):
     csv = CSVIO(fn)
     all_s_c = {}
@@ -42,34 +34,34 @@ def get_sample2class(fn):
 
     return all_s_c
 
-def write_to_mongo(s_c):
+def write_to_mongo(s_c, collection=None):
     """
-    把所有标注信息写入数据库,写到document level的flag字段中
+    把所有标注信息写入数据库,写到document level的absConcept字段中
     """
-    print "Writing to mongo..."
-    db = DB()
+    print "Writing to mongo collection:",collection
+    db = DB(c=collection)
     db.insert_class(s_c)
 
 if __name__=="__main__":
     import time
     import os
+    from utils import *
     start = time.time()
 
-    if len(sys.argv) == 1:
-        fn = os.path.join(RESULT_PATH, DEFAULT_RESULT_NAME)
-        all_s_c = get_sample2class(fn)
-        gather_one_file(fn, all_s_c)
-        write_to_mongo(all_s_c)
-    if len(sys.argv) == 2:
-        fn = sys.argv[1]
-        all_s_c = get_sample2class(fn)
-        gather_one_file(fn, all_s_c)
-        write_to_mongo(all_s_c)
+    configs = read_properties(os.path.join(BASEDIR, DB_FILE))
 
-    if len(sys.argv) > 2:
-        gather_multi_file(sys.argv[1:-1], sys.argv[-1])
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-C", "--collection", dest="collection", type="string", help="DB collection", default=configs["mongo.collection"])
+    parser.add_option("-o", "--output_path", dest="output_path", help="Set output path where result file exists", default=RESULT_PATH)
+    parser.add_option("-f", "--filename", dest="filename", help="Set filename", default=DEFAULT_RESULT_NAME)
+    (options, args) = parser.parse_args()
+
+    fn = os.path.join(options.output_path, options.filename)
+    all_s_c = get_sample2class(fn)
+    gather_one_file(fn, all_s_c)
+    write_to_mongo(all_s_c, options.collection)
 
     print "Time Consuming:",(time.time()-start)
 
 
-    
