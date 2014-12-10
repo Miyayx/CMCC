@@ -116,7 +116,7 @@ class DB():
                     kw_set.add(kw)
         return list(kw_set)
 
-    def read_segmentation(self):
+    def doc_segmentation(self):
         """
         从mongodb中获取的section层次获取分词结果，返回每个样本的分词列表
         Returns:
@@ -141,9 +141,9 @@ class DB():
         """
         从mongodb中获取的section层次获取分词结果，返回每个样本的分词列表
         Returns:
-            dict k:文档id, v:词的列表
+            dict k:section id, v:词的列表
         """
-        sample_words = {}
+        s2s = {}
         coll = self.collection.find({"level":"section"})
         for c in coll:
             sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
@@ -209,32 +209,6 @@ class DB():
                 kws = c["keyword"]
             s2k[sample] = kws.split()
         return s2k
-
-    def keyword_feature(self):
-        """
-        关键词特征
-        Returns: 
-            common_kws:出现次数大于1的keyword列表（所有文档范围内）
-            kw_feature: dict(k:样本id v: keyword特征值，因keyword不止一个，因此v是个list，每个元素对应一个keyword)
-        """
-        kw_feature = {}
-        common_kws = self.get_common_keywords()
-        coll = self.collection.find({"level":"document"})
-        for c in coll:
-            sample = (c["_id"]["path"].replace("../data","etc")+c["_id"]["name"]).strip("/")+"/"
-            kws = ""
-            if c.has_key("keyword"):
-                kws = c["keyword"]
-            fs = []
-            kws = [w.strip(" ").strip("\\c") for w in kws.split()]
-            for kw in common_kws:
-                if kw in kws:
-                    ks.append(1)
-                else:
-                    ks.append(0)
-            kw_feature[sample] = fs
-
-        return common_kws, kw_feature
 
     def get_allid(self):
         """
@@ -637,6 +611,9 @@ class DB():
         return False
 
     def check_level(self, sample):
+        """
+        Check which level the sample belong to
+        """
         if "table:" in s_f.keys()[0]:
             return "paragraph"
         elif "s:" in s_f.keys()[0]:
@@ -712,9 +689,11 @@ class DB():
         """
         从数据库读取的label是否正确，通过验证循环读取的label集合的数量与用api 中的count函数的统计结果进行对比
         """
+        import random
         s2s = self.get_sample2section()
-        e_count = 0
-        for k, v in s2s.items():
+        s2s = s2s.items()
+        random.shuffle(s2s)
+        for k,v in s2s[0:max(10,int(0.01*len(s2s)))]:
             c1 = self.collection.find({"level":"section", "_id.path":k, "label":{"$ne":""}}).count() #通过api获得的section label数量
             c2 = len(v) #通过函数计算出的section label数量
             print k.encode("utf-8"),c1,c2
@@ -722,7 +701,6 @@ class DB():
                 assert c1 == c2
             except:
                 print "WARNING"
-                e_count += 1
                 for c in self.collection.find({"level":"section", "_id.path":k, "label":{"$ne":""}}):
                     print c["label"].encode("utf-8")
                 print "*********************"
@@ -733,9 +711,11 @@ class DB():
         """
         从数据库读取的label是否正确，通过验证循环读取的label集合的数量与用api 中的count函数的统计结果进行对比
         """
-        e_count = 0
+        import random
         s2b = self.get_sample2subsection()
-        for k, v in s2b.items():
+        s2b = s2b.items()
+        random.shuffle(s2b)
+        for k,v in s2b[0:max(10,int(0.01*len(s2b)))]:
             c1 = 0
             for c in self.collection.find({"level":"section", "_id.path":k},{"_id":1}):
                 s = c["_id"]["path"]+c["_id"]["name"]+"/"
