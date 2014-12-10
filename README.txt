@@ -306,3 +306,21 @@ conf/classify/classify.properties里
 与文档分类相同
 
 注：主要是改conf/classify/table_feature.cfg, conf/classify/classify.properties, conf/classify/path.properties里的路径
+
+
+########################################  其他：人工标注辅助工具  ######################################
+
+因后期样本个数少，类别多，导致一些有明显特征的样本因为训练数量少而不能进行进一步的分类，因此迭代会停止。
+但聚类结果有助于人工标注，因此可以进行迭代的聚类与人工标注来尽可能减少人力
+
+具体步骤：
+    人工标注辅助程序，用于最后的人工标注
+    1. 对剩下的sample进行大k值的聚类
+       python cluster.py -i X -k 100 X为迭代次数，在原迭代次数的基础上继续叠加
+    2. 在clusterX_f1_result.csv(X为迭代次数)中添加一列flagX进行标注(参考聚类结果，可标多类，把能标出来的尽可能标出来,不用标负例)
+    3. 运行python add_flag.py -i X
+       程序说明：
+       1) 在result_features1里找到上一个迭代的classify result, 找出里面的others, 生成标注字典，value为others
+       2) 程序自动找到clusterY_f1_result.csv
+       3) 读取最后一列标注结果,更新标注字典
+       4) 写入到result_features1的flagX列与classX列
