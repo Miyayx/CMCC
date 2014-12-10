@@ -122,8 +122,22 @@ def run(configs,file_cfg):
         fields.append(title_keywords)
         features.append(title_tfidf)
 
+    ###################  document tfidf  ###################
+    if fconfigs.get("document_tfidf",0):
+        if os.path.isfile(os.path.join(BASEDIR,file_configs["document_segmentation"])):
+            doc_seg = read_segmentation(os.path.join(BASEDIR,file_configs["document_segmentation"]))
+        else:
+            print "No document segmentation file, use db"
+            doc_seg = db.section_segmentation()
+
+        kws, kw_feature = tfidf_gensim(doc_seg)
+        print "number of section keywords:",len(kws)
+
+        fields.append(kws)
+        features.append(kw_feature)
+
     ############## record feature count ##############
-    if fconfigs["block_label"] or fconfigs['title_tfidf'] or fconfigs['content_tfidf']:
+    if fconfigs["block_label"] or fconfigs['table_header'] or fconfigs['title_tfidf'] or fconfigs['document_tfidf']:
         count = 1
         with codecs.open(file_col,"w") as f:
             if fconfigs["block_label"]:
@@ -134,6 +148,9 @@ def run(configs,file_cfg):
                 count += 1
             if fconfigs["title_tfidf"]:
                 f.write("title_tfidf_count="+str(len(fields[count]))+"\n")
+                count += 1
+            if fconfigs["document_tfidf"]:
+                f.write("document_tfidf_count="+str(len(fields[count]))+"\n")
                 count += 1
             f.write("feature_count="+str(len(feature_fields(fields))))
 
@@ -216,6 +233,7 @@ if __name__=="__main__":
     parser.add_option("-b", "--block_label", dest="block_label", type="int", help="If feature contains block label. 1(Yes), 0(No)", default=configs["block_label"])
     parser.add_option("-t", "--table_header", dest="table_header", type="int", help="If feature contains table header. 1(Yes), 0(No)", default=configs["table_header"])
     parser.add_option("-T", "--title_tfidf", dest="title_tfidf", type="int", help="If feature contains title tfidf, need title tfidf file. 1(Yes), 0(No)", default=configs["title_tfidf"])
+    parser.add_option("-d", "--document_tfidf", dest="document_tfidf", type="int", help="If feature contains document tfidf, need document tfidf file. 1(Yes), 0(No)", default=configs["document_tfidf"])
     parser.add_option("-n", "--no_feature", dest="no_feature", type="int", help="If extract no feature files and save. 1(Yes), 0(No)", default=configs["no_feature"])
     parser.add_option("-c", "--label_common", dest="label_common", type="int", help="If only retain labels which occur twice. 1(Yes), 0(No)", default=configs["label_common"])
     parser.add_option("-D", "--sample_filter_dir", dest="sample_filter_dir", help="Use samples in specific dir", default=configs["sample_filter_dir"])

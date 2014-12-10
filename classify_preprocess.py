@@ -435,37 +435,25 @@ def run(configs, file_cfg):
     ################## title keyword tfidf  #####################
     if fconfigs.get("title_tfidf",0):
         sent_segs = read_segmentation(file_configs["title_word_segmentation"])
-        #segmetation_result(sent_segs, "../etc/title_keywords.txt")
-        title_keywords = get_title_keywords(sent_segs)
-        #title_tfidf = tfidf(title_keywords, sent_segs)
-        #record_tfidf(title_keywords, title_tfidf, "../etc/title_tfidf.txt")
+        #title_keywords = get_title_keywords(sent_segs)
         title_keywords, title_tfidf = tfidf_gensim(sent_segs)
-        #title_tfidf = read_tfidf("../etc/title_tfidf.txt")
 
         fields.append(title_keywords)
         features.append(title_tfidf)
 
-    ###################  content keyword  ###################
+    ###################  document tfidf  ###################
     if fconfigs.get("document_tfidf",0):
-        #kws, kw_feature = db.keyword_feature()
-        #kws = db.get_keywords()
-        #doc_seg = db.read_segmentation()
-        doc_seg = read_segmentation(file_configs["document_segmentation"])
-        kws = get_title_keywords(doc_seg)
-        #doc_seg = db.get_sample2keywords()
-        kw_feature = tfidf(kws, doc_seg)
-        #record_tfidf(kws, kw_feature, "../etc/keyword_tfidf.txt")
-        #kw_feature = read_tfidf("../etc/keyword_tfidf.txt")
+        if os.path.isfile(os.path.join(BASEDIR,file_configs["document_segmentation"])):
+            doc_seg = read_segmentation(os.path.join(BASEDIR,file_configs["document_segmentation"]))
+        else:
+            print "No document segmentation file, use db"
+            doc_seg = db.doc_segmentation()
 
-        #kws, kw_feature = tfidf_gensim(doc_seg)
+        kws, kw_feature = tfidf_gensim(doc_seg)
         print "number of document keywords:",len(kws)
 
         fields.append(kws)
         features.append(kw_feature)
-
-    ###################### Weight #################
-
-    #set_weight([1,1000], label_features,title_tfidf)
 
     ############## record feature count ##############
     if fconfigs.get("section_label",0) or fconfigs.get("block_label",0):
