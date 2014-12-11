@@ -319,8 +319,8 @@ class CentroidNBC(object):
         kNB(p) is the set of p’s k-nearest neighbor points
         """
     
-        dis = euclidean_distances(X, X)
-        #dis = custom_dis(X, X)
+        #dis = euclidean_distances(X, X)
+        dis = custom_dis(X, X)
     
         for p in p_list:
             i = p.id_
@@ -438,7 +438,7 @@ class CentroidNBC(object):
             x = [X[p] for p in ps]
             z = np.mean(x, axis=0)
             dis = euclidean_distances(x, z)
-          #  dis = custom_dis(x, z)
+            #dis = custom_dis(x, z)
             r = np.max(dis) 
     
             return z, r
@@ -449,14 +449,11 @@ class CentroidNBC(object):
         r = [0 for i in range(c_num)]
         z = [0 for i in range(c_num)]
     
-        for c in range(c_num): 
-            print c,len(cluster_p[c])
-    
         for c in range(c_num):
             ps = cluster_p[c]
             z[c], r[c] = get_center_and_radius(ps)
     
-        d_c = [[sys.maxint for i in range(c_num)] for i in range(c_num)]
+        d_c = [[0 for i in range(c_num)] for i in range(c_num)]
         for i in range(c_num):
             for j in range(i):
                 if i == j:
@@ -468,16 +465,18 @@ class CentroidNBC(object):
                     d_c[j][i] = d
     
         while len(cluster_p) > k:
-        #while len(cluster_p) < k:
     
-            c_num = len(cluster_p)
-            print "c_num",c_num
+            #c_num = len(cluster_p)
+            #print "c_num",c_num
     
             min_d = np.min(np.min(d_c, 1))
-            c_i = list(np.min(d_c,1)).index(min_d)
-            c_j = list(d_c[c_i]).index(min_d)
+            i = list(np.min(d_c, 1)).index(min_d)
+            j = list(d_c[i]).index(min_d)
+            if i == j:
+                j = list(d_c[i]).index(sorted(list(d_c[i]))[1])
+
+            c_i, c_j = sorted([i,j])
             
-    
             # merge i and j to i
             cluster_p[c_i] = cluster_p[c_i] + cluster_p[c_j]
             #print "merge:",c_i,c_j
@@ -507,7 +506,7 @@ class CentroidNBC(object):
                 d_c[c_i][j] =  d
                 d_c[j][c_i] =  d
     
-        print cluster_p
+        #print cluster_p
         return cluster_p
         
     def calculate(self, X, k):
@@ -523,7 +522,10 @@ class CentroidNBC(object):
         #X_pca = pca.transform(X)
     
         #使用NBC算法先聚出多个类
-        p_list = self.NBC(X, 5, p_list)
+        import math
+        #k_nbc = int(math.sqrt(n))
+        k_nbc = 5
+        p_list = self.NBC(X, k_nbc, p_list)
         c_num = len(set(p.cluster for p in p_list))
     
         #for p in p_list:
@@ -612,9 +614,10 @@ if __name__=="__main__":
                   #'k_means_iris_8': KMeans(n_clusters=8),
                   #'k_means_iris_init_NBC': KMeans(n_clusters=k, n_init = 1,init=init_c)}
                   'k_means_iris_init_NBC': KMeans(n_clusters=k, n_init = 1,init=centroids_set[0]),
-                  'k_means_iris_init_even': KMeans(n_clusters=k, n_init = 1,init=centroids_set[1]),
-                  'k_means_iris_init_spss': KMeans(n_clusters=k, n_init = 1,init=centroids_set[2]),
-                  'k_means_iris_init_density': KMeans(n_clusters=k, n_init = 1,init=centroids_set[3])}
+                  #'k_means_iris_init_even': KMeans(n_clusters=k, n_init = 1,init=centroids_set[1]),
+                  #'k_means_iris_init_spss': KMeans(n_clusters=k, n_init = 1,init=centroids_set[2]),
+                  #'k_means_iris_init_density': KMeans(n_clusters=k, n_init = 1,init=centroids_set[3])
+                  }
 
     fignum = 1
     for name, est in estimators.items():
