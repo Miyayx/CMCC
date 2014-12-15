@@ -35,6 +35,7 @@ class KMEANS:
         self.data_file = data_file
         self.init = props['init']
         self.centroids = []
+        self.centroids_arr = None
         self.all_centroids = {}
 
         self.log = {}
@@ -181,9 +182,7 @@ class KMEANS:
             计算centroids的算法
         """
         coef_dict = {}
-        for k in range(self.min_cluster,self.max_cluster):
-            if init == 'nbc' and len(self.X) > 1000: #数据量很大的时候用k-means++
-                init = 'k-means++'
+        for k in range(self.min_cluster,self.max_cluster+1):
             r,coef = self.cluster(X, k, init)
             coef_dict[k] = coef
         for k,v in coef_dict.items():
@@ -213,9 +212,20 @@ class KMEANS:
                 num = max(self.max_cluster, k) if self.max_cluster else k
                 self.centroids = CentroidCalculater(strategy=CentroidDensity).calculate(X, num)
             elif init == 'nbc':
-                self.centroids = CentroidCalculater(strategy=CentroidNBC).calculate(X, k)
+                if self.k < 0: #如果没有指定k而是程序计算k
+                    if not self.centroids_arr:
+                        self.centroids_arr = CentroidCalculater(strategy=CentroidNBC).calculate_in_range(X, self.min_cluster, self.max_cluster)
+                    self.centroids = self.centroids_arr[k-self.min_cluster]
+                else:
+                    if self.centroids_arr:
+                        self.centroids = self.centroids_arr[k-self.min_cluster]
+                    else:
+                        self.centroids = CentroidCalculater(strategy=CentroidNBC).calculate(X, k)
+
             else:
                 raise ValueError("the init parameter for the k-means should be 'k-means++' or 'even' or 'spss' or 'density' or 'nbc' ,'%s' ('%s') was passed." % (init, type(init)))
+
+            print "centroids:",self.centroids
 
             init_c = [X[c] for c in self.centroids[:k]]
             init_c = np.array(init_c)

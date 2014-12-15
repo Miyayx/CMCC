@@ -14,22 +14,9 @@ even, spss, density, nbc
 """
 
 def custom_dis(X1, X2):
-    #l = len(X1)
-    #result = [[0 for i in range(l)] for i in range(l)]
-    #for i in range(l):
-    #    print "i",i
-    #    v1 = X1[i]
-    #    for j in range(i,l):
-    #        v2 = X2[j]
-    #        #v = [v1, v2]
-    #        #v3 = map(lambda x,y:int(x)&int(y),v1, v2)
-    #        #v3 = [int(v1[k]) & int(v2[k]) for k in range(len(v1))]
-    #        v3 = v1 * v2
-    #        v = 1.0/sum(v3) if sum(v3) else sys.maxint
-    #        result[i][j] = result[j][i] = v
     x1 = np.mat(X1)
     x2 = np.mat(X2)
-    result = x1 * x2.T + 0.01
+    result = x1 * x2.T + 0.1
     return np.array(1.0/result)
 
 def plot_2D(data, target, target_names, p_list=None):
@@ -80,6 +67,14 @@ class CentroidCalculater(object):
             return self.action.calculate(X, k) #使用策略算法
         else:
             raise UnboundLocalError('Exception raised, no strategyClass supplied to CentroidCalculater!')
+
+    def calculate_in_range(self, X, Min, Max):
+        if(self.action):
+            print type(self.action)
+            return self.action.calculate_in_range(X, Min, Max) #使用策略算法
+        else:
+            raise UnboundLocalError('Exception raised, no strategyClass supplied to CentroidCalculater!')
+
 
 
 class CentroidEven(object):
@@ -239,10 +234,10 @@ class CentroidDensity(object):
         
     def calculate(self, X, k):
 
-        #for i in xrange(len(X)):
-        #    for j in xrange(len(X[0])):
-        #        if X[i][j] == 0.0:
-        #            X[i][j] = 0.01
+        for i in xrange(len(X)):
+            for j in xrange(len(X[0])):
+                if X[i][j] == 0.0:
+                    X[i][j] = 0.01
 
         self.X = X
         self.k = k
@@ -296,7 +291,6 @@ class CentroidDensity(object):
 
         print "Centroids:",centroids
         return centroids
-
 
 class point:
     """
@@ -416,6 +410,99 @@ class CentroidNBC(object):
         return p_list
             
 
+    def merge_cluster_range(self, X, Min, Max, cluster_p):
+        """
+        Merge NBC result to Min~Max clusters according to distance between current clusters. Merge the nearest pair each time
+    
+        Args
+        X : ndarray
+            feature array
+        Min : int
+            the minimize number of cluster wanted finally
+        Max : int
+            the maximize number of cluster wanted finally
+        cluster_p : list of list
+            collection of cluster points, index means cluster id, item means list of points of this cluster
+    
+        Returns
+        cluster_p_list:
+            Merge result list, each item is a cluster_p 
+            From Max to Min
+            
+        """
+    
+        def get_center_and_radius(ps):
+            x = [X[p] for p in ps]
+            z = np.mean(x, axis=0)
+            dis = euclidean_distances(x, z)
+            r = np.max(dis) 
+    
+            return z, r
+
+        cluster_p_list = []
+        c_num = len(cluster_p)
+        print "c_num",c_num
+    
+        r = [0 for i in range(c_num)]
+        z = [0 for i in range(c_num)]
+    
+        for c in range(c_num):
+            ps = cluster_p[c]
+            z[c], r[c] = get_center_and_radius(ps)
+    
+        d_c = [[0 for i in range(c_num)] for i in range(c_num)]
+        for i in range(c_num):
+            for j in range(i):
+                if i == j:
+                    d_c[i].insert(j, np.inf)
+                else: #calculate triangle matrix
+                    d = euclidean_distances(z[i], z[j])/(r[i] + r[j] + 1)
+                    d_c[i][j] = d
+                    d_c[j][i] = d
+    
+        print "Min",Min
+        print "Max",Max
+        while len(cluster_p) >= Min:
+    
+            c_num = len(cluster_p)
+            print "c_num",c_num
+
+            if c_num >= Min and c_num <= Max:
+                cluster_p_list.append(tuple(cluster_p))
+    
+            min_d = np.min(np.min(d_c, 1))
+            i = list(np.min(d_c, 1)).index(min_d)
+            j = list(d_c[i]).index(min_d)
+            if i == j:
+                j = list(d_c[i]).index(sorted(list(d_c[i]))[1])
+
+            c_i, c_j = sorted([i,j])
+            
+            # merge i and j to i
+            cluster_p[c_i] = cluster_p[c_i] + cluster_p[c_j]
+            #print "merge:",c_i,c_j
+            cluster_p.pop(c_j)
+    
+            z.pop(c_j)
+            r.pop(c_j) 
+            z[c_i], r[c_i] = get_center_and_radius(cluster_p[c_i])
+            for j in range(len(d_c)):
+                d_c[j].pop(c_j)
+    
+            d_c.pop(c_j)
+    
+            #recalculate distance between cluster i and others
+            c_num = len(cluster_p)
+            for j in range(c_num):
+                d = euclidean_distances(z[c_i], z[j])/(r[c_i] + r[j] + 1)
+                if str(d[0][0]) == "nan":
+                    d = np.inf
+                d_c[c_i][j] =  d
+                d_c[j][c_i] =  d
+    
+        #print cluster_p
+        return cluster_p_list
+
     def merge_cluster(self, X, k, cluster_p):
         """
         Merge NBC result to k clusters according to distance between current clusters. Merge the nearest pair each time
@@ -438,7 +525,6 @@ class CentroidNBC(object):
             x = [X[p] for p in ps]
             z = np.mean(x, axis=0)
             dis = euclidean_distances(x, z)
-            #dis = custom_dis(x, z)
             r = np.max(dis) 
     
             return z, r
@@ -460,7 +546,6 @@ class CentroidNBC(object):
                     d_c[i].insert(j, np.inf)
                 else: #calculate triangle matrix
                     d = euclidean_distances(z[i], z[j])/(r[i] + r[j] + 1)
-                    #d = custom_dis(z[i], z[j])/(r[i] + r[j] + 1)
                     d_c[i][j] = d
                     d_c[j][i] = d
     
@@ -500,7 +585,6 @@ class CentroidNBC(object):
             c_num = len(cluster_p)
             for j in range(c_num):
                 d = euclidean_distances(z[c_i], z[j])/(r[c_i] + r[j] + 1)
-                #d = custom_dis(z[c_i], z[j])/(r[c_i] + r[j] + 1)
                 if str(d[0][0]) == "nan":
                     d = np.inf
                 d_c[c_i][j] =  d
@@ -508,13 +592,65 @@ class CentroidNBC(object):
     
         #print cluster_p
         return cluster_p
-        
-    def calculate(self, X, k):
-        print "k",k
+
+    def calculate_in_range(self, X, Min, Max):
+
         for i in xrange(len(X)):
             for j in xrange(len(X[0])):
                 if X[i][j] == 0.0:
                     X[i][j] = 0.01
+
+        n = len(X)
+        p_list = [point(i) for i in range(n)]
+    
+        #使用NBC算法先聚出多个类
+        import math
+        k_nbc = 5
+        p_list = self.NBC(X, k_nbc, p_list)
+        c_num = len(set(p.cluster for p in p_list))
+    
+        cluster_p = [[] for i in range(c_num)]
+        for p in p_list:
+            cluster_p[p.cluster] = cluster_p[p.cluster] + [p.id_]
+
+        print len(cluster_p)
+    
+        #如果簇数大于k，合并相近的簇直到簇数等于k
+        cluster_p_list = self.merge_cluster_range(X, Min, Max, cluster_p)
+    
+        centroids_arr = []
+        for cluster_p in cluster_p_list:
+
+            # 将簇的中心点作为聚类中心，计算距离聚类中心最近的点作为centroid
+            centroids = []
+            for c in range(len(cluster_p)):
+                ps = cluster_p[c]
+                x = [X[p] for p in ps]
+                z = np.mean(x, axis=0)
+                dis = euclidean_distances(x, z)
+                dis = np.transpose(dis)[0]
+                ctd = list(dis).index(min(dis))
+                centroids.append(ps[ctd])
+            print centroids
+  
+            for c in range(len(cluster_p)):
+                ps = cluster_p[c]
+                for p in ps:
+                    p_list[p].cluster = c
+
+            centroids_arr.append(centroids)
+        centroids_arr.reverse()
+
+        return centroids_arr
+        
+    def calculate(self, X, k):
+        print "k",k
+
+        for i in xrange(len(X)):
+            for j in xrange(len(X[0])):
+                if X[i][j] == 0.0:
+                    X[i][j] = 0.01
+
         n = len(X)
         p_list = [point(i) for i in range(n)]
     
@@ -536,7 +672,6 @@ class CentroidNBC(object):
         #    print "cluster", p.cluster
         #    print ""
     
-    
         #plot_2D(X_pca, [p.cluster for p in p_list], [i for i in range(c_num)], p_list)
         #plt.show()
     
@@ -555,7 +690,6 @@ class CentroidNBC(object):
             x = [X[p] for p in ps]
             z = np.mean(x, axis=0)
             dis = euclidean_distances(x, z)
-            #dis = custom_dis(x, z)
             dis = np.transpose(dis)[0]
             ctd = list(dis).index(min(dis))
             centroids.append(ps[ctd])
