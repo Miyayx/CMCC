@@ -24,8 +24,8 @@ if __name__=="__main__":
 
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Cluster", default=props["iter"])
-    parser.add_option("-f", "--featureid", dest="featureid", type="int", help="Feature id", default=configs["featureid"])
+    parser.add_option("-i", "--iter", dest="iter", type="int", help="Iteration of Cluster", default=-1)
+    parser.add_option("-f", "--featureid", dest="featureid", type="int", help="Feature id", default=props["featureid"])
 
     (options, args) = parser.parse_args()
 
