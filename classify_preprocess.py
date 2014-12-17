@@ -360,9 +360,9 @@ def run(configs, file_cfg):
     hub_output = os.path.join(OTHERS_PATH,file_configs["hub_output"] + "_" + section + ".dat")
     attribute_output = os.path.join(OTHERS_PATH, file_configs["attribute_output"] + "_" + section + ".dat")
     no_feature_output = os.path.join(OTHERS_PATH, file_configs["no_feature_output"] + "_" + section + ".dat")
-    file_statistics = os.path.join(LOG_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
     left_section_file = os.path.join(OTHERS_PATH, file_configs["left_section_file"] + "_" + section + ".dat")
     left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
+    file_statistics = os.path.join(LOG_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
     file_col = os.path.join(RESULT_PATH, file_configs["file_col"])
 
     log = {}
@@ -504,7 +504,7 @@ def run(configs, file_cfg):
         log["feature0_sample"] = len(feature0_samples)
         log["iteration_sample"] = len(sample_block)
         
-        sorted(sample_block) #按id名称顺序输出
+        sample_block.sort()#按id名称顺序输出
 
         print "Writing to",result_output
         write_dataset(sample_block, feature_fields(fields), features, class_block, result_output)

@@ -49,9 +49,9 @@ def run(configs,file_cfg):
     result_output = os.path.join(RESULT_PATH,file_configs["result_output"] + "_" + section + ".csv")
     delete_output = os.path.join(OTHERS_PATH,file_configs["delete_output"] + "_" + section + ".dat")
     no_feature_output = os.path.join(OTHERS_PATH, file_configs["no_feature_output"] + "_" + section + ".dat")
-    file_statistics = os.path.join(OTHERS_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
     left_block_file = os.path.join(OTHERS_PATH, file_configs["left_block_file"] + "_" + section + ".dat")
     left_tableheader_file = os.path.join(OTHERS_PATH, file_configs["left_tableheader_file"] + "_" + section + ".dat")
+    file_statistics = os.path.join(LOG_PATH, file_configs["file_statistics"] + "_" + section + ".dat")
     file_col = os.path.join(RESULT_PATH, file_configs["file_col"])
 
     log = {}
@@ -207,7 +207,7 @@ def run(configs,file_cfg):
                 feature0_samples.append(s)
         log["feature0_sample"] = len(feature0_samples)
         
-        sorted(sample_block)
+        sample_block.sort()#按id名称顺序输出
 
         print "Writing to",result_output
         write_dataset(sample_block, feature_fields(fields), features, class_block, result_output)
