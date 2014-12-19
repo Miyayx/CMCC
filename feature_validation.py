@@ -23,7 +23,7 @@ class FeatureValidation(Validation):
         syns = []
         synd = os.path.join(BASEDIR, self.props['synonym_dict'])
         if os.path.isfile(synd):
-            syns = get_synonym_words()
+            syns = get_synonym_words(synd)
     
         left_dict = {}
         if fn:

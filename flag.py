@@ -42,7 +42,7 @@ def choose_flag(c_sl, ratio):
         r = Random()
         chosen += r.sample(sl, a_num)
 
-        return chosen
+    return chosen
 
 def read_config(cfg_file):
     """
