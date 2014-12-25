@@ -306,9 +306,7 @@ class DB():
         s2l = {}
         for c in coll:
             sample = "/"+(c["_id"]["path"]+c["_id"]["name"]).strip("/")+"/"
-            label = c["label"].strip()
-            if label and len(label) > 1:
-                s2l[sample] = label
+            s2l[sample] = [c["label"]]
         return s2l 
 
     def get_section2header(self):
@@ -614,9 +612,9 @@ class DB():
         """
         Check which level the sample belong to
         """
-        if "table:" in s_f.keys()[0]:
+        if "table:" in sample:
             return "paragraph"
-        elif "s:" in s_f.keys()[0]:
+        elif "s:" in sample:
             return "section"
         else:
             return "document"
@@ -682,6 +680,30 @@ class DB():
         samples = self.collection.find({"flag": flag})
         return ['/'+os.path.join(s['_id']['path'], s['_id']['name']).strip('/')+'/' for s in samples]
         
+    def get_all_flag_samples(self, level=None):
+        """
+        Get sample id list according to given flag
+        """
+        if level:
+            samples = self.collection.find({"level":level, "flag": {"$exists":1}})
+        else:
+            samples = self.collection.find({"flag": {"$exists":1}})
+
+        s_f = {}
+        for s in samples:
+            if len(s['flag']) < 1:
+                continue
+            if s['level'] == 'document':
+                sample = '/'+os.path.join(s['_id']['path'], s['_id']['name']).strip('/')+'/'
+            elif s['level'] == 'section':
+                sample = c["_id"]["path"].rsplit('/',2)[0]+'/'
+            elif s['level'] == 'paragraph':
+                sample = "/"+os.path.join(c["_id"]["path"].rsplit("/",3)[0],"table:"+str(c["tableSerial"])).strip("/")+"/"
+            
+            print sample
+            s_f[sample] = s['flag']
+
+        return s_f
 
     #################  For validation  ##############################
 
