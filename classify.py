@@ -19,7 +19,7 @@ class LowAccuracy(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
-        return "Low Accuracy:",self.value
+        return "!!!Low Accuracy:%s!!!"%self.value
 
 class SVM:
 
@@ -285,7 +285,10 @@ if __name__=="__main__":
     log = os.path.join(LOG_PATH, configs["classify_log"].replace('Y', str(configs['featureid'])))
 
     svm = SVM(data_file, configs)
-    svm.run(classify_train, classify_test, classify_predict, classify_test_result, classify_test_statistics,log,iter_n)
+    try:
+        svm.run(classify_train, classify_test, classify_predict, classify_test_result, classify_test_statistics,log,iter_n)
+    except Exception,e:
+        print e
 
     print "Time Consuming:%3f"%(time.time()-start)
         
