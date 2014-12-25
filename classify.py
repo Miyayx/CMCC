@@ -26,11 +26,9 @@ class SVM:
     def __init__(self, data_file, configs):
 
         self.lowest_accuracy = float(configs["lowest_accuracy"])
-        self.train_test_ratio = 2.0/1
+        self.train_test_ratio = 2.0/1 #训练集与测试集比例
         self.classifer = svm.SVC(kernel='linear', C=1)
-
         self.data_file = data_file
-
         self.log = {}#记录本次迭代的各种类样本统计数量
 
     def run(self, train_file, test_file, predict_file, test_result_file, test_statistic,log_file, iter_n):
@@ -116,7 +114,6 @@ class SVM:
     def get_data(self, data_file):
         X_flag = [] #标注数据的feature数据
         Y_flag = [] #标注数据的标注结果
-        
         predict = [] #待预测数据的feature数据
         
         flag_i = 0
@@ -132,10 +129,10 @@ class SVM:
                 cluster_i = items.index("cluster"+str(self.iter_n))
                 isheader = not isheader
                 continue
-            if len(items[flag_i]) > 1:
+            if len(items[flag_i]) > 1: #如果有标注则为标注数据
                 X_flag.append([i for i in items[begin:end]])
                 Y_flag.append(items[flag_i])
-            elif len(items[cluster_i].strip()) > 0:
+            elif len(items[cluster_i].strip()) > 0: #否则如果有簇号证明参与本次迭代，为待预测数据
                 predict.append([i for i in items[begin:end]])
         print "Flag all:",len(Y_flag)
         print "Predict all:",len(predict)
@@ -207,27 +204,27 @@ class SVM:
             标注结果
         """
 
-        X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(np.array(X_flag), np.array(Y_flag), test_size=1.0/(self.train_test_ratio+1), random_state=0)
+        X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(np.array(X_flag), np.array(Y_flag), test_size=1.0/(self.train_test_ratio+1), random_state=0) #用第三方库函数自动分隔训练集与测试集
         print "Train all:",len(Y_train)
         print "Test all:",len(Y_test)
         # 记录结果统计数据
-        self.log["train_all"] = len(Y_train)
-        self.log["train_pos"] = len(Y_train) - list(Y_train).count("others")
-        self.log["train_neg"] = list(Y_train).count("others")
-        self.log["test_all"] = len(Y_test)
-        self.log["test_pos"] = len(Y_test) - list(Y_test).count("others")
-        self.log["test_neg"] = list(Y_test).count("others")
+        self.log["train_all"] = len(Y_train) #训练集所有样本数量
+        self.log["train_pos"] = len(Y_train) - list(Y_train).count("others")#训练集正例数量
+        self.log["train_neg"] = list(Y_train).count("others")#训练集负例数量
+        self.log["test_all"] = len(Y_test)#测试集所有样本数量
+        self.log["test_pos"] = len(Y_test) - list(Y_test).count("others")#测试集正例数量
+        self.log["test_neg"] = list(Y_test).count("others")#测试集负例数量
         self.log["all_pos"] = self.log.get("all_pos",0)+self.log["train_pos"]+self.log["test_pos"]
         self.log["all_neg"] = self.log.get("all_neg",0)+self.log["train_neg"]+self.log["test_neg"]
 
         name_train, X_train = self.name_feature_split(X_train)
         name_test, X_test = self.name_feature_split(X_test)
 
-        self.classifer.fit(X_train, Y_train)
-        Y_predict = self.classifer.predict(X_test)
-        s = self.classifer.score(X_test, Y_test)
+        self.classifer.fit(X_train, Y_train) #训练
+        Y_predict = self.classifer.predict(X_test) #预测测试集
+        s = self.classifer.score(X_test, Y_test)#对测试结果评分
         self.log["test_precision"] = s
-        if s < self.lowest_accuracy:
+        if s < self.lowest_accuracy:#准确率过低抛出异常
             raise LowAccuracy(s)
 
         train = dict((name_train[i], Y_train[i]) for i in range(len(name_train)))

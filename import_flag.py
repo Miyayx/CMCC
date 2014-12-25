@@ -13,13 +13,12 @@ def extract_flag(fn):
     Returns
     ----------------------
       all_s_f:所有标注的信息，dict key：sampleid， value：标注结果
-    
     """
     print "Extracting flags from %s"%fn
     csv = CSVIO(fn)
     all_s_f = {}
     for i in range(1, 1000000):
-        try:
+        try:#遍历所有classX直到没有这个class，证明已经遍历完了，抛出异常，遍历停止
             flag_i = csv.fields.index("flag"+str(i))
         except Exception,e:
             print e
@@ -27,7 +26,7 @@ def extract_flag(fn):
         s_f = csv.read_one_to_one(0,flag_i)
         for k,v in s_f.items():
             if len(v.strip()) == 0 or v.strip() == "others":
-                s_f.pop(k)
+                s_f.pop(k)#删除负例
         all_s_f.update(s_f)
 
     return all_s_f
@@ -38,7 +37,6 @@ def extract_flag2(fn):
     Returns
     ----------------------
       s_f:所有标注的信息，dict key：sampleid， value：标注结果
-    
     """
     print "Extracting flags from %s"%fn
     csv = CSVIO(fn, header=False)

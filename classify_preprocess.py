@@ -37,6 +37,7 @@ def get_common_section_labels(label_block, synonym_merge = False):
         for l in labels:
             labels_num[l] = labels_num.get(l,0) + 1
     return [k for k in labels_num.keys() if labels_num[k] > 1]    
+
 def section_label_feature(samples, label_block, common = False, synonym_merge = False):
     """
     section_label_feature(list of sample ids, label_block) -> (list of labels, dict of features) 
@@ -92,7 +93,8 @@ def section_label_feature(samples, label_block, common = False, synonym_merge = 
 ########################################################
 
 def set_weight(weights = [], *features):
-    """为特征添加权重
+    """
+    为特征添加权重
     Args：
         weights: 权重数组，一个元素对应一种特征
             注：一种特征，如section label，可能包含很多个特征, 如一个label是一特征，同一种特征使用一个权值
@@ -155,6 +157,7 @@ def generate_dataset(samples, features, classes={}, classify = False):
         s += ","
 
         # write feature string
+        # 把每一个特征的特征值用，连接起来
         for f in features:
             if not f.has_key(sample):
                 print "No this sample:",sample
@@ -197,7 +200,6 @@ def write_features(colname,classify, fn, dataset):
         i = 0
         s = "sample,"
         for l in colname:
-            #print colname.index(l),l
             s += (l+",")
         if classify:
             s += "class"
@@ -231,13 +233,20 @@ def filter_doc(sample_block, section_label, block_label, hubfile=True, hub_outpu
     """
     获取link信息，依规则判断Hub和属性文档，从文档集合中过滤出去
     Args: 
-        sample_block: list 所有样本id（路径+标题）
-        label_block: dict (k:样本id v:对应section labels)
+        sample_block : list 所有样本id（路径+标题）
+        section_label: dict 样本对应的section label
+        block_label  : dict 样本对应的block label
+        hubfile      : 是否提取hub文档
+        hub_output   : hub文档列表输出文件
+        attrfile     : 是否提取属性文档
+        attribute_output:属性文档列表输出文件
+
     Returns:
         sample_block:过滤掉Hub和属性文档后的文档集合
+        class_sample: dict, hub文件类别为hub，属性文档类别为attribute
     """
-    slabel_count = label_count(sample_block,section_label)
-    blabel_count = label_count(sample_block,block_label)
+    slabel_count = label_count(sample_block,section_label) #统计每个sample的section label数量
+    blabel_count = label_count(sample_block,block_label)   #统计每个sample的block label数量
     try:
         links,linknum = get_link(os.path.join(BASEDIR,file_configs["outlink"]))
         inlinks,inlinknum = get_link(os.path.join(BASEDIR,file_configs["inlink"]))
@@ -247,7 +256,7 @@ def filter_doc(sample_block, section_label, block_label, hubfile=True, hub_outpu
     class_sample = {}
 
     if hubfile:
-        hubs = detect_hub(slabel_count, linknum)
+        hubs = detect_hub(slabel_count, linknum) #attribute.py
         print "hub files:",len(hubs)
         class_sample["hub"] = hubs
         if hub_output:
@@ -256,7 +265,7 @@ def filter_doc(sample_block, section_label, block_label, hubfile=True, hub_outpu
         sample_block = [s for s in sample_block if s not in hubs] 
 
     if attrfile:
-        attrfiles = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links) #判断属性文档
+        attrfiles = detect_attributefile(slabel_count, blabel_count, inlinks, inlinknum, links) #判断属性文档 attribute.py
         attrfiles = list(set(attrfiles) & set(sample_block)) #只要属性list和文档list的重叠部分
         class_sample["attribute"] = attrfiles
         if attribute_output:
@@ -343,11 +352,11 @@ def run(configs, file_cfg):
     OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"]) #其他文件的存放目录
 
     if not os.path.isdir(RESULT_PATH):
-        os.mkdir(RESULT_PATH)
+        os.mkdir(RESULT_PATH) #创建结果文件夹
     if not os.path.isdir(OTHERS_PATH):
-        os.mkdir(OTHERS_PATH)
+        os.mkdir(OTHERS_PATH) #创建others文件夹，存储nofeature文件等
     if not os.path.isdir(LOG_PATH):
-        os.mkdir(LOG_PATH)
+        os.mkdir(LOG_PATH)    #创建log存储文件夹
 
     section = configs['section']
     configs.pop('section')
@@ -368,9 +377,9 @@ def run(configs, file_cfg):
     log = {}
 
     db = DB()
-    if fconfigs["sample_filter_dir"] and len(fconfigs["sample_filter_dir"]) > 0:
+    if fconfigs["sample_filter_dir"] and len(fconfigs["sample_filter_dir"]) > 0: #选择指定文件夹下的样本进行预处理
         db.filter(fconfigs["sample_filter_dir"].split(","))
-    if fconfigs["sample_filter_file"] and len(fconfigs["sample_filter_file"]) > 0:
+    if fconfigs["sample_filter_file"] and len(fconfigs["sample_filter_file"]) > 0: #选择指定文件中的样本列表进行预处理
         db.filter(fconfigs["sample_filter_file"],type="file")
 
     class_block = {}
@@ -404,32 +413,25 @@ def run(configs, file_cfg):
     if os.path.exists(result_output): #原来的result文件删除，重新创建一个
         os.remove(result_output)
 
-    fields.append(["Class"])
+    fields.append(["Class"])#保留第二列的Class汇总列
     features.append(dict((k,"") for k in sample_block))
 
     ##################  section label  ####################
     if fconfigs.get("section_label",0): #如果配置里有section_label
         o_label_block = db.get_sample2section()
-
         label_block = filter_label(o_label_block)
-
         labels, label_features = section_label_feature(sample_block, label_block, fconfigs["label_common"], fconfigs["synonym_merge"])
-
         fields.append(labels)
         features.append(label_features)
-
         record_left_label(o_label_block, labels, left_section_file)
 
     ###################  block label  ####################
     if fconfigs.get("block_label",0): #如果配置里有block_label
         o_sample_bl = db.get_sample2subsection()
-
         sample_bl = filter_label(o_sample_bl)#过滤掉格式不符合要求的label
-
         sublabels, sublabel_feature = label_feature(sample_block, sample_bl, fconfigs["label_common"])
         fields.append(sublabels)
         features.append(sublabel_feature)
-
         record_left_label(o_sample_bl, sublabels, left_block_file)
 
     ################## title keyword tfidf  #####################
@@ -437,7 +439,6 @@ def run(configs, file_cfg):
         sent_segs = read_segmentation(file_configs["title_word_segmentation"])
         #title_keywords = get_title_keywords(sent_segs)
         title_keywords, title_tfidf = tfidf_gensim(sent_segs)
-
         fields.append(title_keywords)
         features.append(title_tfidf)
 
@@ -448,10 +449,8 @@ def run(configs, file_cfg):
         else:
             print "No document segmentation file, use db"
             doc_seg = db.doc_segmentation()
-
         kws, kw_feature = tfidf_gensim(doc_seg)
         print "number of document keywords:",len(kws)
-
         fields.append(kws)
         features.append(kw_feature)
 
@@ -467,16 +466,16 @@ def run(configs, file_cfg):
                 count += 1
             f.write("feature_count="+str(len(feature_fields(fields))))
 
-    fields.append(["sample2"])
+    fields.append(["sample2"]) #再输出一列样本id到大表中
     features.append(dict((k,k) for k in sample_block))
 
     label_block = db.get_sample2section()
-    if fconfigs.get("section_label",0):
+    if fconfigs.get("section_label",0): #输出样本对应section label到大表中
         fields.append(["section label"])
         features.append(dict((k,"#".join(label_block[k])) for k in sample_block ))
     
     sample_sl = db.get_sample2subsection()
-    if fconfigs.get("block_label",0):
+    if fconfigs.get("block_label",0):  #输出样本对应block label到大表中
         fields.append(["block label"])
         features.append(dict((k,"#".join(sample_sl[k])) for k in sample_block ))
 

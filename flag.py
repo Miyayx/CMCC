@@ -14,6 +14,8 @@ from global_config import *
    通过配置文件选择的正例簇与负例簇，自动从每个簇中随机挑选指定比例的样本并进行标注
 2. 使用数据库存储的人工标注信息进行标注 db_flag
    通过配置文件指定的正例类别，从数据库中已标注为此类别的样本作为标注正例，从其他簇中随机挑选指定比例的样本并标注成负例
+3. 使用数据库存储的所有类别的人工标注信息进行标注 all_flag
+   多类别标注，尽可能多地标注参与本次迭代的样本
 """
 
 def choose_flag(c_sl, ratio):
@@ -139,9 +141,8 @@ def db_flag(configs, a_file, iter_n):
 
 def all_flag(configs, a_file, iter_n):
     """
-    根据指定的正簇号和它的类别，认为指定簇都是正例，选取其中的30%标注成指定类别
-    选取其他簇的样本总数的30%为负例。应保证每个簇都有样本标注，标注数量与次簇数量成正比
-    如果指定标注样本有标注记录，则从标注记录中读取原标注记录
+    读取db中的所有标注结果，尽可能多的标注本次迭代的样本
+    可以标注多个类型
     Args:
     ---------------------------------
       configs :配置
@@ -150,12 +151,10 @@ def all_flag(configs, a_file, iter_n):
     """
 
     db = DB(c=configs["mongo.collection"])
-
     csv = CSVIO(a_file)
-
     try:
         cluster_i = csv.fields.index("cluster"+str(iter_n))
-    except:
+    except: #如果是没有进行迭代，一开始就用数据库的标注结果，则在所有样本范围内进行标注，即读取所有样本
         cluster_i = 0
 
     s_c = csv.read_one_to_one(0, cluster_i)#读取聚类结果

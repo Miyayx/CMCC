@@ -31,14 +31,14 @@ def run(configs,file_cfg):
     file_configs = read_file_config(file_cfg)
     configs.pop('output_path')
 
-    OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])
+    OTHERS_PATH = os.path.join(RESULT_PATH, file_configs["others_output_path"])#其他文件的存放目录
 
     if not os.path.isdir(RESULT_PATH):
-        os.mkdir(RESULT_PATH)
+        os.mkdir(RESULT_PATH)#创建结果文件夹
     if not os.path.isdir(OTHERS_PATH):
-        os.mkdir(OTHERS_PATH)
+        os.mkdir(OTHERS_PATH)#创建others文件夹，存储nofeature文件等
     if not os.path.isdir(LOG_PATH):
-        os.mkdir(LOG_PATH)
+        os.mkdir(LOG_PATH)#创建log存储文件夹
 
     section = configs['section']
     configs.pop('section')
@@ -59,9 +59,9 @@ def run(configs,file_cfg):
 
     db = DB()
     if len(fconfigs["sample_filter_dir"]) > 0:
-        db.filter(fconfigs["sample_filter_dir"].split(","))
+        db.filter(fconfigs["sample_filter_dir"].split(","))#选择指定文件夹下的样本进行预处理
     if len(fconfigs["sample_filter_file"]) > 0:
-        db.filter(fconfigs["sample_filter_file"],type="file")
+        db.filter(fconfigs["sample_filter_file"],type="file")#选择指定文件中的样本列表进行预处理
 
     class_block = {}
     sample_block = db.get_section2sectionlabel().keys()
@@ -75,23 +75,21 @@ def run(configs,file_cfg):
     log["delete_sample"] = len(diff_items(all_sample, sample_block))
 
     #After delete all specific samples, reset allsample in db
-    db.set_allsample(sample_block)
+    db.set_allsample(sample_block)#sample_block里是本次预处理涉及到的文档id列表
 
-    features = []
-    fields = []
+    features = []#存储feature值，一个元素是一类feautre的值的列表
+    fields = []#存储feature值，一个元素是一类feautre的值的列表
 
-    if os.path.exists(result_output):
+    if os.path.exists(result_output):#原来的result文件删除，重新创建一个
         os.remove(result_output)
 
-    fields.append(["Class"])
+    fields.append(["Class"]) #保留第二列的Class汇总列
     features.append(dict((k,"") for k in sample_block))
 
     ###################  section label  ####################
-    if fconfigs.get("section_label", 0):
+    if fconfigs.get("section_label", 0):#如果配置里有section_label
         o_sample_sl = db.get_section2sectionlabel()
-
-        sample_sl = filter_label(o_sample_sl)
-
+        sample_sl = filter_label(o_sample_sl)#过滤掉格式不符合要求的label
         slabels, slabel_feature = label_feature(sample_block, sample_sl, fconfigs["label_common"])
         fields.append(slabels)
         features.append(slabel_feature)
@@ -100,34 +98,27 @@ def run(configs,file_cfg):
     ###################  block label  ####################
 
     if fconfigs.get("block_label", 0):
-        o_sample_bl = db.get_section2block()
-
-        sample_bl = filter_label(o_sample_bl)
-
+        o_sample_bl = db.get_section2block()#如果配置里有block_label
+        sample_bl = filter_label(o_sample_bl)#过滤掉格式不符合要求的label
         blabels, blabel_feature = label_feature(sample_block, sample_bl, fconfigs["label_common"])
         fields.append(blabels)
         features.append(blabel_feature)
-
         record_left_label(o_sample_bl, blabels, left_block_file)
 
     ###################  table header  ###################
-    if fconfigs.get("table_header", 0):
-        o_table_header = db.get_section2header()
+    if fconfigs.get("table_header", 0):#如果配置里有table_header
+        o_table_header = db.get_section2header()#过滤掉格式不符合要求的label
         table_header = filter_label(o_table_header)
-
         headers, h_feature = table_header_feature(sample_block, table_header)
         fields.append(headers)
         features.append(h_feature)
-
         record_left_label(o_table_header, headers, left_tableheader_file)
 
     ################## title keyword tfidf  #####################
     if fconfigs.get("title_tfidf",0):
         sent_segs = read_segmentation(file_configs["title_word_segmentation"])
         sec_keywords = dict((k, sent_segs[k.rsplit("/",2)[0]]) for k in sample_block)
-
         title_keywords, title_tfidf = tfidf_gensim(sec_keywords)
-
         fields.append(title_keywords)
         features.append(title_tfidf)
 
@@ -138,10 +129,8 @@ def run(configs,file_cfg):
         else:
             print "No document segmentation file, use db"
             doc_seg = db.section_segmentation()
-
         kws, kw_feature = tfidf_gensim(doc_seg)
         print "number of section keywords:",len(kws)
-
         fields.append(kws)
         features.append(kw_feature)
 
@@ -163,7 +152,7 @@ def run(configs,file_cfg):
                 count += 1
             f.write("feature_count="+str(len(feature_fields(fields))))
 
-    fields.append(["sample2"])
+    fields.append(["sample2"])#再输出一列样本id到大表中
     features.append(dict((k,k) for k in sample_block))
 
     # 添加对应的section label

@@ -15,11 +15,12 @@ def is_bad_label(label):
     return False
 
 def filter_label(s2l):
+    """
+    删除指定格式的label
+    """
 
     s2l = dict(s2l)
-
     del_pattens = [u'相关文档',ur'.*年.+月.+日',ur'.*-.+-.+-']
-    
     for k,v in s2l.items():
         new_v = list(v)
         for i in v:
@@ -35,13 +36,14 @@ def filter_label(s2l):
                     new_v.remove(i)
                     break
         s2l[k] = new_v
-
     return s2l
 
 def filter_keyword(doc_segs):
+    """
+    删除指定格式的keyword
+    """
 
     del_pattens = [ur'\d{4}\.\d{1,2}\.\d{1,2}',ur'\d{4}\.\d{1,2}\.\d{1,2}-\d{4}\.\d{1,2}\.\d{1,2}']
-    
     for k,v in doc_segs.items():
         new_v = list(v)
         for i in v:
@@ -54,6 +56,4 @@ def filter_keyword(doc_segs):
                     new_v.remove(i)
                     break
         doc_segs[k] = new_v
-
     return doc_segs
-

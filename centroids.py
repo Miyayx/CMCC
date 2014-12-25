@@ -14,6 +14,9 @@ even, spss, density, nbc
 """
 
 def custom_dis(X1, X2):
+    """
+    自己定义的适用于本分类聚类特征的距离计算方法
+    """
     x1 = np.mat(X1)
     x2 = np.mat(X2)
     result = x1 * x2.T + 0.1
@@ -44,6 +47,9 @@ def plot_2D(data, target, target_names, p_list=None):
 
 
 def normalize(X):
+    """
+    归一化
+    """
     X = np.array(X)
     meanVals = np.mean(X, axis=0)  
     meanRemoved = X - meanVals #减去均值  
@@ -62,6 +68,9 @@ class CentroidCalculater(object):
            self.action = strategy() #创建新的策略实例
            
     def calculate(self, X, k):
+        """
+        计算k个中心点
+        """
         if(self.action):
             print type(self.action)
             return self.action.calculate(X, k) #使用策略算法
@@ -69,6 +78,10 @@ class CentroidCalculater(object):
             raise UnboundLocalError('Exception raised, no strategyClass supplied to CentroidCalculater!')
 
     def calculate_in_range(self, X, Min, Max):
+        """
+        计算min～max个中心点
+        返回中心点集合列表
+        """
         if(self.action):
             print type(self.action)
             return self.action.calculate_in_range(X, Min, Max) #使用策略算法
@@ -107,8 +120,7 @@ class CentroidSPSS(object):
         first = list(s_dis).index(max(s_dis))
         centroids.append(first)
 
-        #maxv = sorted(dis[first], reverse=True)
-
+        #maxv = sorted(dis[first], reverse=True) 
         #y = sum([m for m in maxv if m > 0][:int(n/k)])
 
         #print "y =",y
@@ -234,6 +246,7 @@ class CentroidDensity(object):
         
     def calculate(self, X, k):
 
+        #保证特征中没有0,防止发生异常
         for i in xrange(len(X)):
             for j in xrange(len(X[0])):
                 if X[i][j] == 0.0:
@@ -253,7 +266,6 @@ class CentroidDensity(object):
         dc = self.estimate_dc(dis)
 
         rho_arr = self.calculate_rho(dis, dc)
-        #rho_arr = normalize(rho_arr)
         #print "rho_arr",rho_arr
 
         delta_arr = self.calculate_delta(dis, rho_arr)
@@ -295,6 +307,7 @@ class CentroidDensity(object):
 class point:
     """
     记录每个点的中间值
+    用于NBC算法
     """
     
     def __init__(self, id_):
@@ -374,9 +387,6 @@ class CentroidNBC(object):
     
         for p in p_list:
     
-            #pca = PCA(n_components=2, whiten=True).fit(X)
-            #X_pca = pca.transform(X)
-    
             #if p.cluster >= 0 or p.NDF < 1: 
             if p.cluster >= 0: #不要离群点
                 continue
@@ -401,9 +411,6 @@ class CentroidNBC(object):
                     q.cluster = count
                     if q.NDF >= 1:
                         dp_set.append(q)
-    
-            #plot_2D(X_pca, [p.cluster for p in p_list], [i for i in range(count)], p_list)
-            #plt.show()
     
             count += 1
     
@@ -570,9 +577,6 @@ class CentroidNBC(object):
             z.pop(c_j)
             r.pop(c_j) 
             # recalculate the new center and radius
-            #print "r len",len(r)
-            #print "z len",len(z)
-            #print "c len",len(cluster_p)
             #print "c_i",c_i
             #print "c_j",c_j
             z[c_i], r[c_i] = get_center_and_radius(cluster_p[c_i])
@@ -595,6 +599,7 @@ class CentroidNBC(object):
 
     def calculate_in_range(self, X, Min, Max):
 
+        #保证特征中没有0,防止发生异常
         for i in xrange(len(X)):
             for j in xrange(len(X[0])):
                 if X[i][j] == 0.0:
@@ -646,6 +651,7 @@ class CentroidNBC(object):
     def calculate(self, X, k):
         print "k",k
 
+        #保证特征中没有0,防止发生异常
         for i in xrange(len(X)):
             for j in xrange(len(X[0])):
                 if X[i][j] == 0.0:
@@ -653,9 +659,6 @@ class CentroidNBC(object):
 
         n = len(X)
         p_list = [point(i) for i in range(n)]
-    
-        #pca = PCA(n_components=2, whiten=True).fit(X)
-        #X_pca = pca.transform(X)
     
         #使用NBC算法先聚出多个类
         import math
@@ -671,9 +674,6 @@ class CentroidNBC(object):
         #    print "NDF",p.NDF
         #    print "cluster", p.cluster
         #    print ""
-    
-        #plot_2D(X_pca, [p.cluster for p in p_list], [i for i in range(c_num)], p_list)
-        #plt.show()
     
         cluster_p = [[] for i in range(c_num)]
         for p in p_list:

@@ -13,6 +13,10 @@ from csvio import CSVIO
 from global_config import *
 from classify import *
 
+"""
+多分类
+"""
+
 class SVM:
 
     def __init__(self, data_file, configs):

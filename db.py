@@ -26,7 +26,6 @@ class DB():
         client = MongoClient(host=ip,port=port)
         db = client[dbname]
         self.collection = db[cname]
-
         self.all_samples = self.get_allid()
 
     def filter(self, regex, type="string"):
@@ -49,7 +48,7 @@ class DB():
                         if r.decode('utf-8') in s:
                             new_samples.append(s)
                             break
-        if type == "file":
+        if type == "file":#读取文件中的样本列表做为要操作的文件
             new_samples = [line.strip("\n").decode("utf-8") for line in open(regex)]
 
         self.all_samples = new_samples
@@ -455,13 +454,6 @@ class DB():
         """
         If the attribute file has image
         """
-        #f = f.strip("/").rstrip("/")
-        #path,name = f.rsplit("/",1)
-        #doc = self.collection.find({"level":"document","_id.path":path,"_id.name":name})[0]
-        #section = d["children"][1].rsplit("/")[-1]
-        #if section:
-        #    html = self.collection.find({"level":"section","_id.name":section})[0]["html"]
-        #    return True if "img" in html else False
         sections = self.collection.find({"level":"section","_id.path":f })
         for s in sections:
             html = s["html"]
@@ -682,7 +674,10 @@ class DB():
         
     def get_all_flag_samples(self, level=None):
         """
-        Get sample id list according to given flag
+        Get all flaged sample id list 
+        Returns:
+            s_f: dict. key:sampleid, value:flag
+
         """
         if level:
             samples = self.collection.find({"level":level, "flag": {"$exists":1}})
@@ -699,8 +694,6 @@ class DB():
                 sample = c["_id"]["path"].rsplit('/',2)[0]+'/'
             elif s['level'] == 'paragraph':
                 sample = "/"+os.path.join(c["_id"]["path"].rsplit("/",3)[0],"table:"+str(c["tableSerial"])).strip("/")+"/"
-            
-            print sample
             s_f[sample] = s['flag']
 
         return s_f

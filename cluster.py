@@ -59,7 +59,7 @@ class KMEANS:
 
         self.names, self.X, total = self.get_data(self.data_file)
 
-        if len(self.names)*1.0/total < props["stop_ratio"]:
+        if len(self.names)*1.0/total < props["stop_ratio"]: #当本次迭代样本数量很少时停止迭代
             print "Sample number ratio is less than %s, Iteration Stop!"%self.props["stop_ratio"]
             return
 
@@ -96,7 +96,7 @@ class KMEANS:
 
     def record_log(self, log_file):
         """
-        
+        log写入文件
         """
         csv = CSVIO(log_file)
         if not os.path.isfile(log_file):
@@ -134,8 +134,6 @@ class KMEANS:
             else:
                 total += 1
                 data[line[0]] = [float(i) for i in line[begin:end]]
-                #X.append([int(i) for i in line[begin:end]])
-                #names.append(line[0])
 
         data = sorted(data.items(), key=lambda x: x[0])
         names = [d[0] for d in data]
@@ -151,7 +149,6 @@ class KMEANS:
         print "Add to "+fn
         colname = "cluster"+self.iter_n
         csv = CSVIO(fn)
-        #csv.load(fn)
         csv.column(colname, s2l)
         csv.write(fn, ",", True, True, csv.fields.index(colname))
         #csv.write(fn, ",", True, True, 0)
@@ -164,12 +161,9 @@ class KMEANS:
 
         csv = CSVIO(fn,append = False)
         csv.column("sample", dict((s,s) for s in s2l.keys()))
-        if s2sl:
-            csv.column("section label", s2sl)
-        if s2bl:
-            csv.column("block label", s2bl)
-        if s2th:
-            csv.column("table header", s2th)
+        if s2sl: csv.column("section label", s2sl)
+        if s2bl: csv.column("block label", s2bl)
+        if s2th: csv.column("table header", s2th)
         csv.column("cluster", s2l)
         csv.write(fn, ",", True, True, csv.fields.index("cluster"))
 
@@ -205,23 +199,22 @@ class KMEANS:
         else:
             self.centroids = []
             if init == 'even':
-                self.centroids = CentroidCalculater(strategy=CentroidEven).calculate(X, k)
+                self.centroids = CentroidCalculater(strategy=CentroidEven).calculate(X, k) #even算法
             elif init == 'spss':
-                self.centroids = CentroidCalculater(strategy=CentroidSPSS).calculate(X, k)
-            elif init == 'density':
-                num = max(self.max_cluster, k) if self.max_cluster else k
+                self.centroids = CentroidCalculater(strategy=CentroidSPSS).calculate(X, k) #spss算法
+            elif init == 'density': #density算法
+                num = max(self.max_cluster, k) if self.max_cluster else k #只算一次，算最大k个中心点集合
                 self.centroids = CentroidCalculater(strategy=CentroidDensity).calculate(X, num)
             elif init == 'nbc':
                 if self.k < 0: #如果没有指定k而是程序计算k
                     if not self.centroids_arr:
-                        self.centroids_arr = CentroidCalculater(strategy=CentroidNBC).calculate_in_range(X, self.min_cluster, self.max_cluster)
+                        self.centroids_arr = CentroidCalculater(strategy=CentroidNBC).calculate_in_range(X, self.min_cluster, self.max_cluster) #在min~max范围内算中心点集合，获得一个中心点集合的集合
                     self.centroids = self.centroids_arr[k-self.min_cluster]
                 else:
                     if self.centroids_arr:
                         self.centroids = self.centroids_arr[k-self.min_cluster]
-                    else:
+                    else: #指定k的话直接算k个中心点
                         self.centroids = CentroidCalculater(strategy=CentroidNBC).calculate(X, k)
-
             else:
                 raise ValueError("the init parameter for the k-means should be 'k-means++' or 'even' or 'spss' or 'density' or 'nbc' ,'%s' ('%s') was passed." % (init, type(init)))
 
@@ -229,17 +222,15 @@ class KMEANS:
 
             init_c = [X[c] for c in self.centroids[:k]]
             init_c = np.array(init_c)
-
             return np.array(init_c) 
 
     def cluster(self, X, k, init = 'k-means++', coef_dict = {}):
         """
+        聚类
         """
 
-        print "k",k
-
         n = len(X)
-        print "n",n,"\n"
+        print "k",k,",n",n,"\n"
 
         km = KMeans(init=self.init_centroids(X, k, init), n_clusters=k, n_init=1 )
 
@@ -250,9 +241,6 @@ class KMEANS:
             
         for i in range(k):
             print i,list(labels).count(i)
-        #for i in range(len(labels)):
-        #    if list(labels).count(labels[i]) > 1:
-        #        print names[i],labels[i]
 
         coef = metrics.silhouette_score(X, labels, metric='sqeuclidean')
         print("Silhouette Coefficient: %0.3f\n"% coef)

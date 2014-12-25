@@ -71,10 +71,3 @@ def record_log(fn, log):
    with codecs.open(fn,'w','utf-8') as f:
        for k,v in log.items():
            f.write(str(k)+" "+str(v)+"\n")
-
-def parse_argv(args):
-    args = args[1:]
-    values = [(int(b) if b.isdigit() else b )for b in args[1::2]]
-    #values = args[1::2]
-    return dict(zip([a.strip('-') for a in args[0::2]], values))
-    
