@@ -17,6 +17,14 @@ def gather_one_file(fn, all_s_c):
     csv.write(fn)
 
 def get_sample2class(fn):
+    """
+    从大表抽取所有分类数据到dict中，根据classX列名标志
+    Returns
+    ----------------------
+      all_s_c:所有分类的信息，dict key：sampleid， value：分类结果
+    
+    """
+    print "Extracting classes from %s"%fn
     csv = CSVIO(fn)
     all_s_c = {}
     for i in xrange(1,sys.maxint):
@@ -33,6 +41,19 @@ def get_sample2class(fn):
     print "Class Num:",len(all_s_c)
 
     return all_s_c
+
+def get_sample2class2(fn):
+    """
+    从大表抽取所有分类数据到dict中，根据classX列名标志
+    Returns
+    ----------------------
+      s_c:所有分类的信息，dict key：sampleid， value：分类结果
+    
+    """
+    print "Extracting classes from %s"%fn
+    csv = CSVIO(fn, header=False)
+    s_c = csv.read_one_to_one(0,1)
+    return s_c
 
 def write_to_mongo(s_c, collection=None):
     """
@@ -55,11 +76,19 @@ if __name__=="__main__":
     parser.add_option("-C", "--collection", dest="collection", type="string", help="DB collection", default=configs["mongo.collection"])
     parser.add_option("-o", "--output_path", dest="output_path", help="Set output path where result file exists", default=RESULT_PATH)
     parser.add_option("-f", "--filename", dest="filename", help="Set filename", default=DEFAULT_RESULT_NAME)
+    parser.add_option("-n", "--no_feature", dest="no_feature", help="No feature filenames, split by ,", default="")
+
     (options, args) = parser.parse_args()
 
     fn = os.path.join(options.output_path, options.filename)
     all_s_c = get_sample2class(fn)
-    gather_one_file(fn, all_s_c)
+    gather_one_file(fn, all_s_c) #结果都汇总到Class列中
+
+    if len(options.no_feature) > 0:
+        print "Add no_feature file samples"
+        for n in options.no_feature.split(','):
+            fn2 = os.path.join(options.output_path, n)
+            all_s_c.update(get_sample2class2(fn2))
     write_to_mongo(all_s_c, options.collection)
 
     print "Time Consuming:",(time.time()-start)
