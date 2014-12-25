@@ -137,6 +137,42 @@ def db_flag(configs, a_file, iter_n):
     csv.write(a_file, sort_index = cluster_i)
 
 
+def all_flag(configs, a_file, iter_n):
+    """
+    根据指定的正簇号和它的类别，认为指定簇都是正例，选取其中的30%标注成指定类别
+    选取其他簇的样本总数的30%为负例。应保证每个簇都有样本标注，标注数量与次簇数量成正比
+    如果指定标注样本有标注记录，则从标注记录中读取原标注记录
+    Args:
+    ---------------------------------
+      configs :配置
+      a_file  :标注结果要写入的文件
+      iter_n  :第几次迭代
+    """
+
+    db = DB(c=configs["mongo.collection"])
+
+    csv = CSVIO(a_file)
+
+    try:
+        cluster_i = csv.fields.index("cluster"+str(iter_n))
+    except:
+        cluster_i = 0
+
+    s_c = csv.read_one_to_one(0, cluster_i)#读取聚类结果
+    s_c = dict((s,c) for s,c in s_c.items() if len(c.strip()) > 0)
+
+    pos_flag = db.get_all_flag_samples(level=db.check_level(s_c.keys()[0])) #获得数据库中flag的样本
+    if len(pos_flag) == 0:
+        print "No flaged samples in db"
+        return
+    else:
+        print len(pos_flag),"flaged samples in db"
+
+    a_result = dict((s, pos_flag.get(s,"")) for s in s_c.keys())
+
+    csv.column("flag"+str(iter_n), a_result)
+    csv.write(a_file, sort_index = cluster_i)
+
 if __name__=="__main__":
     import sys
 
@@ -159,7 +195,7 @@ if __name__=="__main__":
 
     (options, args) = parser.parse_args()
 
-    if not options.iter or options.iter < 0:
+    if options.iter < 0:
         print "Need Iteration Num for Argument"
         exit()
 
@@ -178,9 +214,11 @@ if __name__=="__main__":
         auto_flag(configs, data_file, iter_n)
     elif a_type == "db":
         db_flag(configs, data_file, iter_n)
+    elif a_type == "all":
+        all_flag(configs, data_file, iter_n)
     else:
         print "Wrong flag method selected."
-        print "Input: auto, db"
+        print "Input: auto, db, all"
 
     print "Time Consuming:%3f"%(time.time()-start)
 
