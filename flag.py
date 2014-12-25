@@ -195,7 +195,7 @@ if __name__=="__main__":
 
     (options, args) = parser.parse_args()
 
-    if options.iter < 0:
+    if not options.iter or options.iter < 0:
         print "Need Iteration Num for Argument"
         exit()
 
