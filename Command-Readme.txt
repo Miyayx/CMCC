@@ -3,7 +3,7 @@ python部分一定在classify_python里运行
 ##############  文档 ###############
 **************  特征提取 *************
 
-python classify_preprocess.py(需要在classify_python路径下运行)
+python classify_preprocess.py(需要在classify路径下运行)
 
 **************  数据库读取验证 *************
 代码在classify_python里
@@ -24,11 +24,8 @@ sh start.sh
 第一步:聚类
 	需要运行的是cluster.py，
     在linux中运行命令：
-    python cluster.py Y 
-    python cluster.py Y k 
-    python cluster.py Y init 
-    python cluster.py Y k init
-    Y:    第Y次迭代
+    python cluster.py -i X -k K -s init
+    X:    第X次迭代(need)
     k:    指定聚类簇数
     init: 指定计算初始聚类中心的方法，默认k-means++,另外还有:
         even: 每隔N/k选取一个点
@@ -37,9 +34,20 @@ sh start.sh
         nbc :    算法来自Neighborhood Density Method for Selecting Initial Cluster Centers in K-Means Clustering, 根据点的邻居个数确定，运行较慢
 
 第二步：人工标注
-    配置文件在conf/annotation.cfg中，
-    运行python annotation.py X X是迭代次数
+    配置文件在classify_conf/flag.cfg中，
+    运行python flag.py -i X X是迭代次数
 
 第三步：根据人工标注结果训练分类器分类
-	需要运行的是classify.py，在linux中可以直接运行python classify.py X（第X次迭代）运行程序。
+	需要运行的是python classify.py -i X
 
+
+##############  Section ###############
+**************  特征提取 *************
+
+python section_preprocess.py(需要在classify路径下运行)
+
+
+##############  Table ###############
+**************  特征提取 *************
+
+python table_preprocess.py(需要在classify路径下运行)
