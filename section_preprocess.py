@@ -74,9 +74,6 @@ def run(configs,file_cfg):
     write_lines(delete_output, diff_items(all_sample, sample_block))
     log["delete_sample"] = len(diff_items(all_sample, sample_block))
 
-    #Leave samples with str
-    #sample_block = filter_sample(sample_block, u'04-资费')
-
     #After delete all specific samples, reset allsample in db
     db.set_allsample(sample_block)
 

@@ -11,6 +11,9 @@ echo $val
 others="${path}others/"
 echo $others
 
+rm $path
+rm $val
+rm $others
 mkdir $path
 mkdir $val
 mkdir $others
