@@ -1,12 +1,20 @@
 #!/bin/sh
 
-BASE=..
+# Absolute path to this script, e.g. /home/user/bin/foo.sh
+SCRIPT=$(readlink -f "$0")
+# Absolute path this script is in, thus /home/user/bin
+SCRIPTPATH=$(dirname "$SCRIPT")
+# echo $SCRIPTPATH
+
+BASE=$SCRIPTPATH/..
 PWD=`pwd`
 
 # classify iteration
 echo 'Run classifying ...'
 cd $BASE/modules/classify
-python classify.py $1
+python classify.py $*
 #  ant classify -Diter=$1
 cd $PWD
-echo $1' classifying done.'
+echo 'Classifying done.'
+
+exit 1

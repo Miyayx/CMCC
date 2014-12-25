@@ -9,9 +9,11 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 BASE=$SCRIPTPATH/..
 PWD=`pwd`
 
-# Keyword extraction
-echo 'Keywords extracting ...'
-cd $BASE/modules/keyword
-ant run -Dcmd="$*"
+# import result to mongo
+echo 'Importing result to mongo ...'
+cd $BASE/modules/classify
+chmod +x import.sh
+sh import.sh $*
 cd $PWD
-echo 'Keywords has been updated into MongoDB.'
+echo 'Importing done.'
+exit 1

@@ -1,6 +1,12 @@
 #!/bin/sh
 
-BASE=..
+# Absolute path to this script, e.g. /home/user/bin/foo.sh
+SCRIPT=$(readlink -f "$0")
+# Absolute path this script is in, thus /home/user/bin
+SCRIPTPATH=$(dirname "$SCRIPT")
+# echo $SCRIPTPATH
+
+BASE=$SCRIPTPATH/..
 PWD=`pwd`
 
 usage()
@@ -49,7 +55,10 @@ echo log_path=./logs/$OUTPUT/ >> $BASE/conf/classify/path.properties
 echo "The data output path will be 'data/$OUTPUT'"
 echo "The log output path will be 'log/$OUTPUT'"
 
-
 cd $BASE/modules/classify
 chmod +x $EXEC
 ./$EXEC
+
+exit 1
+return 1
+

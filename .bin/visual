@@ -1,6 +1,12 @@
 #!/bin/sh
 
-BASE=..
+# Absolute path to this script, e.g. /home/user/bin/foo.sh
+SCRIPT=$(readlink -f "$0")
+# Absolute path this script is in, thus /home/user/bin
+SCRIPTPATH=$(dirname "$SCRIPT")
+# echo $SCRIPTPATH
+
+BASE=$SCRIPTPATH/..
 PWD=`pwd`
 
 if [ -z "$TOMCAT_HOME" ] ; then
@@ -17,7 +23,7 @@ fi
 
 echo 'Compiling and deploying JsonVisual to tomcat ...'
 cd $BASE/modules/jsonvisual
-ant deploy
+ant build-war
 cd $PWD
 echo 'Done. Please add symbol link visual which links to data/visual,'
 echo 'and restart tomcat server.'

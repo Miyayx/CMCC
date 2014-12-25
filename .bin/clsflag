@@ -9,9 +9,10 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 BASE=$SCRIPTPATH/..
 PWD=`pwd`
 
-# Keyword extraction
-echo 'Keywords extracting ...'
-cd $BASE/modules/keyword
-ant run -Dcmd="$*"
+# classify iteration
+echo 'Run flagging ...'
+cd $BASE/modules/classify
+python flag.py $*
+#  ant classify -Diter=$1
 cd $PWD
-echo 'Keywords has been updated into MongoDB.'
+echo 'Flagging done.'
