@@ -31,8 +31,6 @@ python classify_preprocess.py -H 0 -a 1 -n 1 ...
     block_label           #特征是否包含block label
     label_common          #是否删除只出现一次的section label，1 删除
     synonym_merge         #有同义词出现时，合并同义词，用一个词代替其他所有词
-    title_tfidf           #特征是否包含 title tfidf特征
-    document_tfidf        #特征是否包含文本tfidf值
     sample_filter_dir     #名称具有此子字符串的文档保留,多个字符串以逗号分隔
     sample_filter_file    #只对此文件中列出的文档列表进行操作
 
@@ -41,8 +39,6 @@ conf/classify/file.cfg 输入输出文件说明：
     synonym_dict=data/spm/classifyingResult.csv        相似属性合并结果
     inlink=data/docparse/inlink.txt        内链关系信息
     outlink=data/docparse/outlink.txt      链接关系信息
-    title_word_segmentation=data/title_word_segmentation.txt    title分词结果（暂没用到）
-    document_segmentation=data/document_segmentation.txt      全文本分词结果（暂没用到）
     
 输出文件路径：
     others_output_path         其他输出文档存放路径
@@ -219,16 +215,9 @@ feature的选择在conf/classify/sec_feature.cfg里设定,此文件中的所有�
     block_label           #特征是否包含block label
     table_header
     label_common          #是否删除只出现一次的section label，1 删除
-    title_tfidf           #特征是否包含 title tfidf特征
-    document_tfidf        #特征是否包含文本tfidf值
     sample_filter_dir     #名称具有此子字符串的文档保留,多个字符串以逗号分隔
     sample_filter_file    #只对此文件中列出的文档列表进行操作
 
-conf/classify/file.cfg 输入输出文件说明：
-输入文件：
-    title_word_segmentation=data/title_word_segmentation.txt    title分词结果（暂没用到）
-    document_segmentation=data/document_segmentation.txt      全文本分词结果（暂没用到）
-    
 输出文件：
     同文档级别
 

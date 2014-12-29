@@ -434,26 +434,6 @@ def run(configs, file_cfg):
         features.append(sublabel_feature)
         record_left_label(o_sample_bl, sublabels, left_block_file)
 
-    ################## title keyword tfidf  #####################
-    if fconfigs.get("title_tfidf",0):
-        sent_segs = read_segmentation(file_configs["title_word_segmentation"])
-        #title_keywords = get_title_keywords(sent_segs)
-        title_keywords, title_tfidf = tfidf_gensim(sent_segs)
-        fields.append(title_keywords)
-        features.append(title_tfidf)
-
-    ###################  document tfidf  ###################
-    if fconfigs.get("document_tfidf",0):
-        if os.path.isfile(os.path.join(BASEDIR,file_configs["document_segmentation"])):
-            doc_seg = read_segmentation(os.path.join(BASEDIR,file_configs["document_segmentation"]))
-        else:
-            print "No document segmentation file, use db"
-            doc_seg = db.doc_segmentation()
-        kws, kw_feature = tfidf_gensim(doc_seg)
-        print "number of document keywords:",len(kws)
-        fields.append(kws)
-        features.append(kw_feature)
-
     ############## record feature count ##############
     if fconfigs.get("section_label",0) or fconfigs.get("block_label",0):
         count = 1
@@ -528,9 +508,6 @@ if __name__=="__main__":
     parser.add_option("-l", "--log_path", dest="log_path", help="Set log path", default=configs["log_path"])
     parser.add_option("-s", "--section_label", dest="section_label", type="int", help="If feature contains section label. 1(Yes), 0(No)", default=configs["section_label"])
     parser.add_option("-b", "--block_label", dest="block_label", type="int", help="If feature contains block label. 1(Yes), 0(No)", default=configs["block_label"])
-    parser.add_option("-t", "--title_tfidf", dest="title_tfidf", type="int", help="If feature contains title tfidf, need title tfidf file. 1(Yes), 0(No)", default=configs["title_tfidf"])
-    parser.add_option("-d", "--document_tfidf", dest="document_tfidf", type="int", help="If feature contains document tfidf, need document tfidf file. 1(Yes), 0(No)", default=configs["document_tfidf"])
-    parser.add_option("-k", "--document_keyword", dest="document_keyword", type="int", help="If feature contains document keyword, need document keyword file. 1(Yes), 0(No)", default=configs["document_keyword"])
     parser.add_option("-H", "--hub", dest="hub", type="int", help="If extract hub files and save. 1(Yes), 0(No)", default=configs["hub"])
     parser.add_option("-a", "--attribute", dest="attribute", type="int", help="If extract attribute files and save. 1(Yes), 0(No)", default=configs["attribute"])
     parser.add_option("-n", "--no_feature", dest="no_feature", type="int", help="If extract no feature files and save. 1(Yes), 0(No)", default=configs["no_feature"])
