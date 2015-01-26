@@ -83,14 +83,15 @@ if __name__=="__main__":
 
     (options, args) = parser.parse_args()
 
-    fn = os.path.join(options.output_path, options.filename)
+    output_path = os.path.join(BASEDIR, options.output_path)
+    fn = os.path.join(output_path, options.filename)
     all_s_c = get_sample2class(fn)
     gather_one_file(fn, all_s_c) #结果都汇总到Class列中
 
     if len(options.no_feature) > 0: #如果有其他的标注结果需要写入
         print "Add no_feature file samples"
         for n in options.no_feature.split(','):
-            fn2 = os.path.join(options.output_path, n)
+            fn2 = os.path.join(output_path, n)
             all_s_c.update(get_sample2class2(fn2))
     write_to_mongo(all_s_c, options.collection)
 
