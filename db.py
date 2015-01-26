@@ -609,6 +609,49 @@ class DB():
                 for l in v:
                     print l.encode("utf-8")
 
+    def class_statistics(self):
+        print "class_statistics"
+        doc_flag = set()
+        section_flag = set()
+        table_flag = set()
+        doc_class = set()
+        section_class = set()
+        table_class = set()
+        for c in self.collection.find({"flag":{"$exists":1, "$ne":""}},{"level":1,"flag":1}):
+            if c["level"] == "document":
+                doc_flag.add(c["flag"])
+            elif c["level"] == "section":
+                section_flag.add(c["flag"])
+            elif c["level"] == "paragraph":
+                table_flag.add(c["flag"])
+
+        for c in self.collection.find({"abstype":{"$exists":1, "$ne":""}},{"level":1,"abstype":1}):
+            if c["level"] == "document":
+                doc_class.add(c["abstype"])
+            elif c["level"] == "section":
+                section_class.add(c["abstype"])
+            elif c["level"] == "paragraph":
+                table_class.add(c["abstype"])
+
+        print "doc_flag:",len(doc_flag)
+        for i in doc_flag:
+            print i
+        print "doc_class:",len(doc_class)
+        for i in doc_class:
+            print i
+        print "section_flag:",len(section_flag)
+        for i in section_flag:
+            print i
+        print "section_class:",len(section_class)
+        for i in section_class:
+            print i
+        print "table_flag:",len(table_flag)
+        for i in table_flag:
+            print i
+        print "table_class:",len(table_class)
+        for i in table_class:
+            print i
 
 if __name__ == "__main__":
     db = DB()
+    db.class_statistics()
