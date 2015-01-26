@@ -21,7 +21,7 @@ mkdir $others
 python classify_preprocess.py
 echo "DB output verify..."
 echo "Output in ${val}db.val"
-python db_validation.py > "${val}db.val" &
+python db_validation.py > "${val}db.val" 
 echo "Feature verify..."
 echo "Output in ${val}feature.val"
 python feature_validation.py > "${val}feature.val"

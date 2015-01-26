@@ -124,6 +124,7 @@ class SVM:
                 Y_flag.append(items[flag_i])
             elif len(items[cluster_i].strip()) > 0:
                 predict.append([i for i in items[begin:end]])
+        print "Total:",len()
         print "Flag all:",len(Y_flag)
         print "Predict all:",len(predict)
 
